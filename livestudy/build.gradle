@@ -35,6 +35,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
+    // Websocket
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
 
     // MySQL, H2 DB
     runtimeOnly 'com.h2database:h2'
