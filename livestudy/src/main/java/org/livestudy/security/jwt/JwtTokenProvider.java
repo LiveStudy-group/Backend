@@ -5,6 +5,8 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import org.livestudy.domain.user.User;
 import org.livestudy.security.SecurityUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,6 +19,8 @@ import java.util.Date;
 
 @Component
 public class JwtTokenProvider {
+
+    private static final Logger log = LoggerFactory.getLogger(JwtTokenProvider.class);
 
     @Value("${jwt.secret}")
     private String secretKey;
@@ -70,13 +74,13 @@ public class JwtTokenProvider {
                     .parseClaimsJws(token);
             return true;
         } catch (ExpiredJwtException e) {
-            System.out.println("Token expired : " + e.getMessage());
+            log.error("Token expired : {}", e.getMessage());
         } catch (MalformedJwtException e) {
-            System.out.println("Token malformed : " + e.getMessage());
+            log.error("Token malformed : {}", e.getMessage());
         } catch (UnsupportedJwtException e) {
-            System.out.println("Unsupported Token Used : " + e.getMessage());
+            log.error("Token unsupported : {}", e.getMessage());
         } catch (IllegalArgumentException e) {
-            System.out.println("Token is empty : " + e.getMessage());
+            log.error("Token invalid : {}", e.getMessage());
         }
 
         return false;
