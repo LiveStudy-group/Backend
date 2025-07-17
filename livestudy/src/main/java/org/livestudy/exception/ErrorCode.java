@@ -17,7 +17,12 @@ public enum ErrorCode {
 
     // 인증 관련 에러
     UNAUTHORIZED("A001", "인증이 필요합니다.", HttpStatus.UNAUTHORIZED),
-    FORBIDDEN("A002", "접근 권한이 없습니다.", HttpStatus.FORBIDDEN);
+    FORBIDDEN("A002", "접근 권한이 없습니다.", HttpStatus.FORBIDDEN),
+
+    // WebSocket 관련 에러
+    USER_ID_MISMATCH("W001", "userId가 일치하지 않습니다.", HttpStatus.FORBIDDEN),
+    USER_BANNED      ("W002", "강퇴된 사용자는 입장할 수 없습니다.", HttpStatus.FORBIDDEN),
+    BAD_SCHEMA       ("W003", "잘못된 메시지 형식입니다.",      HttpStatus.BAD_REQUEST);
 
     private final String code;
     private final String message;
