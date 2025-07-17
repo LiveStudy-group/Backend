@@ -38,6 +38,9 @@ dependencies {
     // Websocket
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
+    // LiveKit
+    implementation "io.livekit:livekit-server:0.10.0"
+
 
     // MySQL, H2 DB
     runtimeOnly 'com.h2database:h2'
