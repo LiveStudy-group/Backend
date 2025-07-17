@@ -1,9 +1,6 @@
 package org.livestudy.security.jwt;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import org.livestudy.domain.user.User;
@@ -67,11 +64,22 @@ public class JwtTokenProvider {
     // token 검증
     public boolean validateToken(String token){
         try{
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token);
             return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            return false;
+        } catch (ExpiredJwtException e) {
+            System.out.println("Token expired : " + e.getMessage());
+        } catch (MalformedJwtException e) {
+            System.out.println("Token malformed : " + e.getMessage());
+        } catch (UnsupportedJwtException e) {
+            System.out.println("Unsupported Token Used : " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            System.out.println("Token is empty : " + e.getMessage());
         }
+
+        return false;
     }
 
 
@@ -88,4 +96,9 @@ public class JwtTokenProvider {
                 .getSubject();
     }
 
+    // 사용자 고유 식별자(ID)를 추출하기 위한 Method
+    public String getUserId(String token) {
+        return Jwts.parserBuilder().setSigningKey(key).build()
+                .parseClaimsJws(token).getBody().getSubject();
+    }
 }

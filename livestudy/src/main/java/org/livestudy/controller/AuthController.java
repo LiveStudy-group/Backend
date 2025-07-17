@@ -23,7 +23,8 @@ public class AuthController {
 
     // 이메일 회원가입
     @PostMapping("/signup")
-    public ResponseEntity<Void> signin(@RequestBody UserSignupRequest request){
+    public ResponseEntity<Void> signup(@RequestBody UserSignupRequest request){
+        System.out.println("🔥 회원가입 요청 도착: " + request.getEmail());
         userService.signup(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
