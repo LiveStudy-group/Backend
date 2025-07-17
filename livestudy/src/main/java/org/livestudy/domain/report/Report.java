@@ -32,7 +32,6 @@ public class Report {
     @Column(nullable = false, length = 30)
     private ReportReason reason;
 
-    @Lob
     @Column
     private String description;
 
