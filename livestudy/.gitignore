@@ -5,6 +5,17 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
+# 🔐 민감 정보 파일 무시 (환경 변수 또는 로컬 설정)
+gradle.properties
+.env
+application-local.yml
+application-local.properties
+
+# LiveKit 인증 정보 (예외적 설정 방지)
+**/livekit-credentials.yml
+**/livekit-*.yml
+
+
 ### STS ###
 .apt_generated
 .classpath
