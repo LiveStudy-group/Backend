@@ -19,7 +19,7 @@ public class FocusEndPayload {
     private String roomId;
 
     @NotBlank
-    private String userName;
+    private String nickname;
 
     @NotNull
     @jsonformat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
