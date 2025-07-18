@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.Instant;
+
 @Getter
 @Setter
 public class FocusEndPayload {
@@ -20,6 +22,6 @@ public class FocusEndPayload {
     private String userName;
 
     @NotNull
-    @JsonFormat(shape = JsonFormat.Shape.STRING)
-    private java.time.Instant endTime;
+    @jsonformat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
+    private Instant startTime;
 }
