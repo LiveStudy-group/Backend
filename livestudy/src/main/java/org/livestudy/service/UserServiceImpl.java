@@ -1,6 +1,7 @@
 package org.livestudy.service;
 
 import lombok.RequiredArgsConstructor;
+import org.livestudy.domain.user.SocialProvider;
 import org.livestudy.domain.user.User;
 import org.livestudy.domain.user.UserStatus;
 import org.livestudy.dto.UserLoginRequest;
@@ -23,7 +24,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
 
-    // 회원가입
+    // 통상 이메일 회원가입
     @Override
     public Long signup(UserSignupRequest request) {
 
@@ -37,11 +38,12 @@ public class UserServiceImpl implements UserService {
                 .nickname(request.getNickname())
                 .introduction(request.getIntroduction())
                 .profileImage(request.getProfileImage())
-                .socialProvider(request.getSocialProvider())
+                .socialProvider(SocialProvider.LOCAL)
                 .userStatus(UserStatus.NORMAL)
                 .build();
 
         User savedUser = userRepository.save(user);
+
         return savedUser.getId();
     }
 

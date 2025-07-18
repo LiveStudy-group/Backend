@@ -34,7 +34,12 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**", "/ws/**")
+                        .requestMatchers("/api/v1/auth/**",
+                                "/ws/**",
+                                "/chat-test.html",     // 이 HTML 파일 직접 허용
+                                "/js/**",              // JS 파일 폴더 허용 (필요하다면)
+                                "/css/**",             // CSS 폴더도 같이 허용
+                                "/" )
                         .permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

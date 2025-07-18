@@ -22,6 +22,14 @@ configurations {
 
 repositories {
     mavenCentral()
+    // 🔥 GitHub Packages for LiveKit
+    maven {
+        url = uri("https://maven.pkg.github.com/livekit/server-sdk-java")
+        credentials {
+            username = project.findProperty("gpr.user") ?: System.getenv("GPR_USER")
+            password = project.findProperty("gpr.key") ?: System.getenv("GPR_KEY")
+        }
+    }
 }
 
 ext {
@@ -38,6 +46,8 @@ dependencies {
     // Websocket
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
+    // Livekit Server
+    implementation 'io.livekit:livekit-server:0.10.0'
 
     // MySQL, H2 DB
     runtimeOnly 'com.h2database:h2'
