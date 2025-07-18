@@ -17,5 +17,5 @@ public class ExitPayload {
     private boolean isBanned;
 
     @NotBlank
-    private String userName;
+    private String nickname;
 }
