@@ -12,7 +12,7 @@ public class TitleAwardPayload {
     private String userId;
 
     @NotBlank
-    private String username;
+    private String nickname;
 
     @NotBlank
     private String titleId;
