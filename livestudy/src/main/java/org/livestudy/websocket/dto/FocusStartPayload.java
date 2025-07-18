@@ -1,6 +1,5 @@
 package org.livestudy.websocket.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -22,6 +21,5 @@ public class FocusStartPayload {
     private String nickname;
 
     @NotNull
-    @jsonformat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     private Instant startTime;
 }
