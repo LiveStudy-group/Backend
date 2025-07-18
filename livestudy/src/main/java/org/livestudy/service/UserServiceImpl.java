@@ -1,6 +1,7 @@
 package org.livestudy.service;
 
 import lombok.RequiredArgsConstructor;
+import org.livestudy.domain.user.SocialProvider;
 import org.livestudy.domain.user.User;
 import org.livestudy.domain.user.UserStatus;
 import org.livestudy.dto.UserLoginRequest;
@@ -37,7 +38,7 @@ public class UserServiceImpl implements UserService {
                 .nickname(request.getNickname())
                 .introduction(request.getIntroduction())
                 .profileImage(request.getProfileImage())
-                .socialProvider(request.getSocialProvider())
+                .socialProvider(SocialProvider.LOCAL)
                 .userStatus(UserStatus.NORMAL)
                 .build();
 

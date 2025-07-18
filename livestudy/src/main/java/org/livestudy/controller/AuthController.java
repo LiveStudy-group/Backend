@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/api/auth")
 public class AuthController {
 
     private final UserService userService;
@@ -23,7 +23,7 @@ public class AuthController {
 
     // 이메일 회원가입
     @PostMapping("/signup")
-    public ResponseEntity<Void> signin(@RequestBody UserSignupRequest request){
+    public ResponseEntity<Void> signup(@RequestBody UserSignupRequest request){
         userService.signup(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
