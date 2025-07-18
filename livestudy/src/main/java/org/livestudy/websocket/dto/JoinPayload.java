@@ -15,5 +15,5 @@ public class JoinPayload {
     private String roomId;
 
     @NotBlank
-    private String userName;
+    private String nickname;
 }
