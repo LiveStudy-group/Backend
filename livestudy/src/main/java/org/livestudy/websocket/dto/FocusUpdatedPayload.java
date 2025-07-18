@@ -16,7 +16,7 @@ public class FocusUpdatedPayload {
     private String roomId;
 
     @NotBlank
-    private String userName;
+    private String nickname;
 
     @Min(0)
     private int focusedCount;
