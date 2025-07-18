@@ -15,7 +15,7 @@ public class ChatPayload {
     private String roomId;
 
     @NotBlank
-    private String userName;
+    private String nickname;
 
     @NotBlank
     private String message;
