@@ -23,10 +23,7 @@ public class LiveKitTokenController {
     public ResponseEntity<TokenResponse> generateToken(@RequestBody TokenRequest request,
                                                        @AuthenticationPrincipal SecurityUser user) {
         Long userId = user.getUser().getId();
-
-//        String roomId = request.getRoomId(); 방 입장 / 퇴장 / 생성 API 적용 시 주석 해제 예정입니다. by Delcastin
-
-        String token = liveKitTokenService.generateToken(userId.toString());
+        String token = liveKitTokenService.generateToken(userId.toString(), request.getRoomId());
 
         return ResponseEntity.ok(new TokenResponse(token));
     }

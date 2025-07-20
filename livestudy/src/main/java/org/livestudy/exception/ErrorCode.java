@@ -14,10 +14,12 @@ public enum ErrorCode {
     USER_NOT_FOUND("U001", "존재하지 않는 사용자입니다.", HttpStatus.NOT_FOUND),
     DUPLICATE_EMAIL("U002", "이미 존재하는 이메일입니다.", HttpStatus.CONFLICT),
     INVALID_PASSWORD("U003", "비밀번호가 일치하지 않습니다.", HttpStatus.UNAUTHORIZED),
+    ROOM_NOT_FOUND("U004", "존재하지 않는 방입니다.", HttpStatus.NOT_FOUND),
 
     // 인증 관련 에러
     UNAUTHORIZED("A001", "인증이 필요합니다.", HttpStatus.UNAUTHORIZED),
-    FORBIDDEN("A002", "접근 권한이 없습니다.", HttpStatus.FORBIDDEN);
+    FORBIDDEN("A002", "접근 권한이 없습니다.", HttpStatus.FORBIDDEN),
+    EXPIRED_TOKEN("A003", "토큰이 만료되었습니다.", HttpStatus.UNAVAILABLE_FOR_LEGAL_REASONS);
 
     private final String code;
     private final String message;
