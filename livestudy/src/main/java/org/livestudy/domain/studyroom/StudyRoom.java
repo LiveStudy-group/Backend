@@ -17,7 +17,11 @@ public class StudyRoom extends BaseEntity {
 
     @Builder.Default
     @Column(name = "participants_number", nullable = false)
-    private Integer participantsNumber = 0;
+    private Integer participantsNumber = 0; // 이 친구는 Redis Database로 관리할 예정이라... 아마 없어져야 할 것 같아요.
+
+    @Column(name = "capacity", nullable = false)
+    @Builder.Default
+    private Integer capacity = 500; // 최대 정원은 따로 정하지 않은 것 같아서, 500명으로 일단 설정해 놓았습니다.
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
