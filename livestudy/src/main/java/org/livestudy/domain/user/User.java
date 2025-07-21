@@ -26,7 +26,7 @@ public class User extends BaseEntity {
     @Column(nullable = false, length = 100)
     private String email;
 
-    @Column(nullable = false, length = 70)
+    @Column(length = 70) // nullable로 변경 (소셜 로그인 시 비밀번호 없음)
     private String password;
 
     @Enumerated(EnumType.STRING)
@@ -54,6 +54,7 @@ public class User extends BaseEntity {
     @Column(name = "user_status", nullable = false)
     private UserStatus userStatus = UserStatus.NORMAL;
 
+    // 이메일 회원가입용
     public static User of(UserTitle userTitle,
                              String email,
                              String password,
@@ -72,6 +73,20 @@ public class User extends BaseEntity {
                 .profileImage(image)
                 .build();
 
+    }
+    // 소셜 로그인용
+    public static User ofSocial(String email,
+                                String nickname,
+                                String profileImage,
+                                SocialProvider socialProvider) {
+        return User.builder()
+                .email(email)
+                .nickname(nickname)
+                .profileImage(profileImage)
+                .socialProvider(socialProvider)
+                .userStatus(UserStatus.NORMAL)
+                .password(null) // 소셜 로그인은 비밀번호 없음
+                .build();
     }
 
 
