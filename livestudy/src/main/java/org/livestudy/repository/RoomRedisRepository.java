@@ -4,14 +4,19 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.logging.Logger;
+
 @Repository
 @AllArgsConstructor
 public class RoomRedisRepository {
 
     private final StringRedisTemplate redisTemplate;
 
+    private final Logger log = Logger.getLogger(RoomRedisRepository.class.getName());
+
     // 현재 방 인원 +1
     public Long incrementRoomCount(String roomId) {
+        log.info("👉 Redis count increment 시도중: {}");
         return redisTemplate.opsForValue().increment("room:" + roomId + ":count");
     }
 

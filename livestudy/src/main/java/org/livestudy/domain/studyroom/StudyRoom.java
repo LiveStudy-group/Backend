@@ -27,10 +27,11 @@ public class StudyRoom extends BaseEntity {
     @Column(nullable = false, length = 20)
     private StudyRoomStatus status;
 
-    public static StudyRoom of(Integer participantsNumber,
+    public static StudyRoom of(Integer participantsNumber, int capacity,
                                StudyRoomStatus status) {
 
         return StudyRoom.builder()
+                .capacity(capacity)
                 .participantsNumber(participantsNumber)
                 .status(status)
                 .build();

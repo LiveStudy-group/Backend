@@ -28,66 +28,6 @@
     <ul id="messages"></ul>
 
     <script>
-        let stompClient = null;
-        let jwtToken = null;
-
-        async function signup() {
-            const email = document.getElementById("signup-email").value;
-            const password = document.getElementById("signup-password").value;
-            const nickname = document.getElementById("signup-nickname").value;
-            const introduction = document.getElementById("signup-intro").value;
-
-            try {
-                const res = await fetch("/api/auth/signup", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        email,
-                        password,
-                        nickname,
-                        introduction,
-                        profileImage: null,
-                        socialProvider: null
-                    }),
-                });
-
-                if (res.status === 201) {
-                    alert("✅ 회원가입 성공! 로그인하세요.");
-                } else {
-                    const error = await res.text();
-                    alert("❌ 회원가입 실패: " + error);
-                }
-            } catch (err) {
-                alert("❌ 회원가입 에러: " + err.message);
-            }
-        }
-
-        async function login() {
-            const email = document.getElementById("login-email").value;
-            const password = document.getElementById("login-password").value;
-
-            try {
-                const res = await fetch("/api/v1/auth/login", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ email, password }),
-                });
-
-                if (!res.ok) {
-                    const errText = await res.text();
-                    throw new Error(errText);
-                }
-
-                const data = await res.json();
-                jwtToken = data.token;
-                alert("✅ 로그인 성공! WebSocket 연결 시도합니다.");
-
-                connectWebSocket(jwtToken);
-            } catch (err) {
-                alert("❌ 로그인 실패: " + err.message);
-            }
-        }
-
         function connectWebSocket(token) {
             const socket = new SockJS("/ws");
             stompClient = Stomp.over(socket);
@@ -95,15 +35,18 @@
             stompClient.connect(
                 { Authorization: "Bearer " + token },
                 function (frame) {
-                    console.log("STOMP 연결 성공:", frame);
-                    stompClient.subscribe("/topic/messages", function (msg) {
+                    console.log("✅ STOMP 연결 성공:", frame);
+
+                    // ✔ 구독할 topic 변경
+                    stompClient.subscribe("/topic/chat.room.test-room", function (msg) {
+                        const chat = JSON.parse(msg.body);
                         const li = document.createElement("li");
-                        li.innerText = "📨 " + msg.body;
+                        li.innerText = `📨 ${chat.sender}: ${chat.content}`;
                         document.getElementById("messages").appendChild(li);
                     });
                 },
                 function (error) {
-                    console.error("STOMP 연결 실패:", error);
+                    console.error("❌ STOMP 연결 실패:", error);
                 }
             );
         }
@@ -113,10 +56,18 @@
                 alert("WebSocket에 연결되어 있지 않습니다.");
                 return;
             }
+
             const msg = document.getElementById("msg").value;
-            stompClient.send("/pub/chat", {}, msg);
+
+            const chatMessage = {
+                roomId: "test-room",   // 방 ID (고정값이든 동적이든 가능)
+                content: msg
+            };
+
+            stompClient.send("/pub/chat.send", {}, JSON.stringify(chatMessage));
             document.getElementById("msg").value = "";
         }
+
     </script>
 </body>
 </html>

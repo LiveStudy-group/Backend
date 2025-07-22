@@ -39,7 +39,12 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**", "/ws/**").permitAll()
+                        .requestMatchers("/api/auth/**", "/ws/**","/v3/api-docs/**",           // Swagger JSON
+                                "/swagger-ui/**",            // Swagger HTML/CSS/JS
+                                "/swagger-ui.html",          // 구버전 접근 경로
+                                "/webjars/**",
+                                "/chat-test.html" // Websocket 서버 Test용
+                        ).permitAll()
                         .requestMatchers("/api/livekit/**").authenticated()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

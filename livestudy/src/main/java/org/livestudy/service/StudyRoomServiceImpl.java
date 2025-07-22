@@ -10,6 +10,7 @@ import org.livestudy.repository.StudyRoomRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @AllArgsConstructor
 @Service
@@ -54,5 +55,24 @@ public class StudyRoomServiceImpl implements StudyRoomService {
             roomRedisRepository.decrementRoomCount(roomId);
             roomRedisRepository.deleteUserRoom(userId);
         }
+    }
+
+    @Override
+    public String createRoom(int capacity) {
+        if (capacity <= 0 || capacity > 1000) {
+            throw new CustomException(ErrorCode.INVALID_ROOM_CAPACITY);
+        }
+
+        String roomId = UUID.randomUUID().toString();
+
+        StudyRoom room = StudyRoom.of(0, capacity, StudyRoomStatus.OPEN);
+
+        studyRoomRepository.save(room);
+
+        roomRedisRepository.setUserRoom(roomId, roomId);
+        roomRedisRepository.incrementRoomCount(roomId);
+
+
+        return roomId;
     }
 }

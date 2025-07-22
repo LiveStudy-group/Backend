@@ -4,6 +4,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.livestudy.domain.studyroom.StudyRoom;
 import org.livestudy.domain.studyroom.StudyRoomStatus;
 import org.livestudy.exception.CustomException;
@@ -12,9 +13,12 @@ import org.livestudy.repository.RoomRedisRepository;
 import org.livestudy.repository.StudyRoomRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataAccessResourceFailureException;
 
-import static org.assertj.core.api.BDDAssumptions.given;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.ArgumentMatchers.any;
 
 
 @SpringBootTest
@@ -34,7 +38,7 @@ public class StudyRoomServiceTest {
     @BeforeEach
     void setUp() {
         // 테스트용 방 생성 (정원 500)
-        StudyRoom room = StudyRoom.of(500, StudyRoomStatus.OPEN);
+        StudyRoom room = StudyRoom.of(0, 500, StudyRoomStatus.OPEN);
         studyRoomRepository.save(room);
     }
 
@@ -54,7 +58,7 @@ public class StudyRoomServiceTest {
         Long enteredRoomId = studyRoomService.enterRoom(testUserId);
 
         // then
-        Assertions.assertNotNull(enteredRoomId);
+        assertNotNull(enteredRoomId);
 
         String userRoom = roomRedisRepository.getUserRoom(testUserId);
         Assertions.assertEquals(enteredRoomId.toString(), userRoom);
@@ -86,6 +90,28 @@ public class StudyRoomServiceTest {
         String roomAfterLeave = roomRedisRepository.getUserRoom(testUserId);
         Assertions.assertNull(roomAfterLeave);
     }
+
+    @Test
+    void createRoom_success() {
+        int capacity = 500;
+        String result = studyRoomService.createRoom(capacity);
+
+        assertNotNull(result);
+    }
+
+    // ✅ 1. 유효하지 않은 capacity일 때
+    @Test
+    void createRoom_fail_whenCapacityIsZero() {
+        int invalidCapacity = 0;
+
+        CustomException exception = assertThrows(
+                CustomException.class,
+                () -> studyRoomService.createRoom(invalidCapacity)
+        );
+
+        assertEquals(ErrorCode.INVALID_ROOM_CAPACITY, exception.getErrorCode());
+    }
+
 
 
 }
