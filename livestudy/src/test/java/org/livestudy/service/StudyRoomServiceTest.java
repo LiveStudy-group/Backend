@@ -4,7 +4,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.livestudy.domain.studyroom.StudyRoom;
 import org.livestudy.domain.studyroom.StudyRoomStatus;
 import org.livestudy.exception.CustomException;
@@ -13,12 +12,9 @@ import org.livestudy.repository.RoomRedisRepository;
 import org.livestudy.repository.StudyRoomRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DataAccessResourceFailureException;
 
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.ArgumentMatchers.any;
 
 
 @SpringBootTest
