@@ -1,5 +1,6 @@
 package org.livestudy.websocket;
 
+
 import lombok.RequiredArgsConstructor;
 import org.livestudy.exception.CustomException;
 import org.livestudy.exception.ErrorCode;
@@ -13,6 +14,9 @@ import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+
+
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -35,6 +39,7 @@ public class StompAuthChannelInterceptor implements ChannelInterceptor {
             Authentication auth = jwtTokenProvider.getAuthentication(token);
             accessor.setUser(auth); // 이후 Principal로 접근 가능
         }
+
         return message;
     }
 }
