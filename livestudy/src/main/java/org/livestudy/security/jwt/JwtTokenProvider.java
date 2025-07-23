@@ -7,6 +7,8 @@ import org.livestudy.domain.user.User;
 import org.livestudy.exception.CustomException;
 import org.livestudy.exception.ErrorCode;
 import org.livestudy.security.SecurityUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,6 +21,8 @@ import java.util.Date;
 
 @Component
 public class JwtTokenProvider {
+
+    private static final Logger log = LoggerFactory.getLogger(JwtTokenProvider.class);
 
     @Value("${jwt.secret}")
     private String secretKey;
@@ -82,7 +86,6 @@ public class JwtTokenProvider {
             throw new CustomException(ErrorCode.EXPIRED_TOKEN);
         } catch (JwtException | IllegalArgumentException e) {
             throw new CustomException(ErrorCode.INVALID_INPUT);
-        }
     }
 
 
@@ -110,5 +113,11 @@ public class JwtTokenProvider {
     // 토큰 만료 여부 체크
     private boolean isTokenExpired(Claims claims) {
         return claims.getExpiration().before(new Date());
+      
+    // 사용자 고유 식별자(ID)를 추출하기 위한 Method
+    public String getUserId(String token) {
+        return Jwts.parserBuilder().setSigningKey(key).build()
+                .parseClaimsJws(token).getBody().getSubject();
+
     }
 }

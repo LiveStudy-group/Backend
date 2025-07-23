@@ -24,7 +24,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
 
-    // 회원가입
+    // 통상 이메일 회원가입
     @Override
     public Long signup(UserSignupRequest request) {
 
@@ -43,6 +43,7 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         User savedUser = userRepository.save(user);
+
         return savedUser.getId();
     }
 
