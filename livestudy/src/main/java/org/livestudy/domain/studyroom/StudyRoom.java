@@ -3,6 +3,8 @@ package org.livestudy.domain.studyroom;
 import jakarta.persistence.*;
 import lombok.*;
 import org.livestudy.domain.BaseEntity;
+import org.livestudy.exception.CustomException;
+import org.livestudy.exception.ErrorCode;
 
 @Entity
 @Getter
@@ -21,7 +23,7 @@ public class StudyRoom extends BaseEntity {
 
     @Column(name = "capacity", nullable = false)
     @Builder.Default
-    private Integer capacity = 500; // 최대 정원은 따로 정하지 않은 것 같아서, 500명으로 일단 설정해 놓았습니다.
+    private Integer capacity = 20; // 논의 결과를 토대로 20명으로 정합니다.
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
@@ -35,5 +37,17 @@ public class StudyRoom extends BaseEntity {
                 .participantsNumber(participantsNumber)
                 .status(status)
                 .build();
+    }
+
+    public void incrementParticipantsNumber() {
+        if(participantsNumber < capacity){
+            this.participantsNumber++;
+        } else {
+            throw new CustomException(ErrorCode.ROOM_IS_FULL);
+        }
+    }
+
+    public void updateStatus(StudyRoomStatus studyRoomStatus) {
+        this.status = studyRoomStatus;
     }
 }
