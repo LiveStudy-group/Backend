@@ -35,6 +35,7 @@ public class LiveKitTokenService {
             throw new CustomException(ErrorCode.ROOM_NOT_FOUND);
         }
 
+
         // 토큰 생성
         AccessToken token = new AccessToken(apiKey, apiSecret);
 
