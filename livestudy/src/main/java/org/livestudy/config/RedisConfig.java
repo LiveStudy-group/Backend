@@ -3,6 +3,7 @@
 package org.livestudy.config;
 
 import org.livestudy.service.report.RedisSubscriber;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -28,8 +29,8 @@ public class RedisConfig {
     @Bean
     public RedisMessageListenerContainer redisMessageListenerContainer(
             RedisConnectionFactory connectionFactory,
-            MessageListenerAdapter systemMsgListenerAdapter,
-            MessageListenerAdapter userRestrictionListenerAdapter
+            @Qualifier("systemMsgListenerAdapter") MessageListenerAdapter systemMsgListenerAdapter,
+            @Qualifier("userRestrictionListenerAdapter") MessageListenerAdapter userRestrictionListenerAdapter
     ) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);

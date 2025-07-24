@@ -7,6 +7,8 @@ import org.livestudy.domain.studyroom.StudyRoom;
 import org.livestudy.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
 
 public interface ReportRepository extends JpaRepository<Report, Long> {
 
@@ -20,5 +22,7 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
             AND r.reported   = :reported
             AND r.reason     = :reason
            """)
-    long countDistinctReporter(StudyRoom room, User reported, ReportReason reason);
+    long countDistinctReporter(@Param("room")StudyRoom room,
+                               @Param("reported")User reported,
+                               @Param("reason")ReportReason reason);
 }
