@@ -1,8 +1,11 @@
 package org.livestudy.websocket;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
@@ -16,6 +19,11 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
 
     public WebSocketConfiguration(StompAuthChannelInterceptor stompAuthChannelInterceptor) {
         this.stompAuthChannelInterceptor = stompAuthChannelInterceptor;
+    }
+
+    @Bean
+    public SessionRegistry sessionRegistry() {
+        return new SessionRegistryImpl();
     }
 
     @Override // Client가 처음으로 WebSocket을 연결하는 Endpoint를 설정
