@@ -3,7 +3,10 @@ package org.livestudy.websocket.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.livestudy.exception.CustomException;
+import org.livestudy.exception.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.ServerHttpRequest;
@@ -19,10 +22,13 @@ import java.util.Map;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class JwtHandshakeInterceptor implements HandshakeInterceptor {
 
     @Value("${jwt.secret}")
     private String secret;
+
+    private final StudyRoomService studyRoomService;
 
     @Override
     public boolean beforeHandshake(ServerHttpRequest httpRequest,
@@ -44,11 +50,32 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
                     .parseSignedClaims(token)
                     .getPayload();
 
-            attributes.put("userId", c.getSubject());
-            attributes.put("roomId", c.get("room", String.class));
+            String userId = c.getSubject();
+
+            attributes.put("userId", userId);
+            // 입장할 방
+            Long roomId = studyRoomService.enterRoom(userId);
+
+            attributes.put("roomId", roomId.toString());
+
             return true;
         } catch (JwtException | IllegalArgumentException e) {
             httpResponse.setStatusCode(HttpStatus.UNAUTHORIZED);
+            return false;
+        } catch (CustomException e) {
+            if (e.getErrorCode() == ErrorCode.USER_ALREADY_IN_ROOM) {
+                httpResponse.setStatusCode(HttpStatus.CONFLICT);
+            } else if (e.getErrorCode() == ErrorCode.USER_NOT_IN_ROOM ||
+                    e.getErrorCode() == ErrorCode.INVALID_ROOM_CAPACITY) {
+                httpResponse.setStatusCode(HttpStatus.BAD_REQUEST);
+            } else if (e.getErrorCode() == ErrorCode.REDIS_CONNECTION_FAILED){
+                httpResponse.setStatusCode(HttpStatus.PRECONDITION_FAILED);
+            } else {
+                httpResponse.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+            return false;
+        } catch (Exception e) {
+            httpResponse.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
             return false;
         }
     }
