@@ -11,7 +11,6 @@ public class JoinPayload {
     @NotBlank
     private String userId;
 
-    @NotBlank
     private String roomId;
 
     @NotBlank
