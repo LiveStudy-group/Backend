@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.livestudy.domain.BaseEntity;
 import org.livestudy.domain.title.UserTitle;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Entity
@@ -12,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Table(name = "users", uniqueConstraints = @UniqueConstraint(name = "uk_user_email", columnNames = "email"))
+@EntityListeners(AuditingEntityListener.class)
 public class User extends BaseEntity {
 
     @Id
@@ -26,7 +28,7 @@ public class User extends BaseEntity {
     @Column(nullable = false, length = 100)
     private String email;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 70)
     private String password;
 
     @Enumerated(EnumType.STRING)
