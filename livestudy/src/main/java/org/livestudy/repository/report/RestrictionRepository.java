@@ -1,0 +1,21 @@
+package org.livestudy.repository.report;
+
+import org.livestudy.domain.report.Restriction;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+public interface RestrictionRepository extends JpaRepository<Restriction, Long> {
+
+    @Query("""
+            SELECT r
+            FROM Restriction r
+            WHERE r.reported.id = :userId
+            AND (r.endedAt IS NULL OR r.endedAt > :now)
+            """)
+    List<Restriction> findActiveByUserId(@Param("userId")Long userId,
+                                         @Param("now")LocalDateTime now);
+}

@@ -21,12 +21,15 @@ public enum ErrorCode {
     ROOM_IS_FULL("U008", "방이 이미 가득 찼습니다.", HttpStatus.BAD_REQUEST),
     USER_NOT_IN_ROOM("U009", "사용자가 방에 없습니다.", HttpStatus.BAD_REQUEST),
 
-
     // 인증 관련 에러
     UNAUTHORIZED("A001", "인증이 필요합니다.", HttpStatus.UNAUTHORIZED),
     FORBIDDEN("A002", "접근 권한이 없습니다.", HttpStatus.FORBIDDEN),
     EXPIRED_TOKEN("A003", "토큰이 만료되었습니다.", HttpStatus.UNAVAILABLE_FOR_LEGAL_REASONS),
-    REDIS_CONNECTION_FAILED("A004", "Redis 서버가 끊겼습니다.", HttpStatus.PRECONDITION_FAILED);
+    REDIS_CONNECTION_FAILED("A004", "Redis 서버가 끊겼습니다.", HttpStatus.PRECONDITION_FAILED),
+  
+    // 신고 관련 에러
+    DUPLICATE_REPORT("R001", "이미 동일한 사유로 신고했습니다.", HttpStatus.CONFLICT),
+    CANNOT_REPORT_SELF("R002", "자신을 신고할 수 없습니다.", HttpStatus.BAD_REQUEST);
 
     private final String code;
     private final String message;
