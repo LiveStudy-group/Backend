@@ -14,7 +14,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
@@ -22,30 +21,30 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
 
-    private static final Logger log = LoggerFactory.getLogger(JwtTokenProvider.class);
-
     @Value("${jwt.secret}")
     private String secretKey;
 
     private SecretKey key;
 
-    private final long tokenvalidtime = 60 * 60 * 1000;
+    private final long tokenValidTime = 60 * 60 * 1000;
 
     @PostConstruct
-    public void init(){this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+    public void init() {
+        this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
+    // 토큰 생성
     public String generateToken(Authentication authentication) {
         SecurityUser user = (SecurityUser) authentication.getPrincipal();
         Date now = new Date();
-        Date expireDate = new Date(now.getTime() + tokenvalidtime);
+        Date expireDate = new Date(now.getTime() + tokenValidTime);
 
         return Jwts.builder()
-                .setSubject(user.getUsername())
+                .subject(user.getUsername())
                 .claim("userId", user.getUser().getId())
-                .setIssuedAt(now)
-                .setExpiration(expireDate)
-                .signWith(key, SignatureAlgorithm.HS256)
+                .issuedAt(now)
+                .expiration(expireDate)
+                .signWith(key)
                 .compact();
     }
 
@@ -57,7 +56,7 @@ public class JwtTokenProvider {
         Long userId = claims.get("userId", Long.class);
 
         SecurityUser principal = new SecurityUser(
-                    User.builder()
+                User.builder()
                         .id(userId)
                         .email(email)
                         .build()
@@ -66,58 +65,51 @@ public class JwtTokenProvider {
         return new UsernamePasswordAuthenticationToken(principal, token, principal.getAuthorities());
     }
 
-    // token 검증
-    public boolean validateToken(String token){
+    // 토큰 유효성 검증
+    public boolean validateToken(String token) {
         try {
-            SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
-
-            Jwt<?, ?> jwt = Jwts
-                    .parser()
+            Jwt<?, ?> jwt = Jwts.parser()
                     .verifyWith(key)
                     .build()
-                    .parse(token); // parseSignedClaims 도 사용 가능
+                    .parse(token);
 
             Claims claims = (Claims) jwt.getPayload();
 
-            String userId = claims.getSubject(); // 필요 시 사용
-
-            return !isTokenExpired(claims); // 수정된 부분
+            return !isTokenExpired(claims);
         } catch (ExpiredJwtException e) {
             throw new CustomException(ErrorCode.EXPIRED_TOKEN);
         } catch (JwtException | IllegalArgumentException e) {
             throw new CustomException(ErrorCode.INVALID_INPUT);
+        }
     }
 
-
-    // Claims 내용 반환
+    // Claims 파싱
     private Claims parseClaims(String token) {
-        Jwt<?, ?> jwt = Jwts
-                .parser()               // parserBuilder() → parser()
-                .verifyWith(key)       // setSigningKey(...) → verifyWith(key)
-                .build()
-                .parse(token);         // parseClaimsJws(...) → parse(...)
-
-        return (Claims) jwt.getPayload();  // getBody() → getPayload()
-    }
-
-    // Token으로 이메일 가져오기
-    public String getEmailFromToken(String token) {
-        Jwt<?, ?> jwt = Jwts
-                .parser()
+        Jwt<?, ?> jwt = Jwts.parser()
                 .verifyWith(key)
                 .build()
                 .parse(token);
 
-        return ((Claims) jwt.getPayload()).getSubject();  // getBody() → getPayload()
+        return (Claims) jwt.getPayload();
     }
-    // 토큰 만료 여부 체크
+
+    // 이메일 추출
+    public String getEmailFromToken(String token) {
+        return parseClaims(token).getSubject();
+    }
+
+    // 사용자 ID 추출
+    public Long getUserId(String token) {
+        return parseClaims(token).get("userId", Long.class);
+    }
+
+    // 만료 여부
     private boolean isTokenExpired(Claims claims) {
         return claims.getExpiration().before(new Date());
-      
-    // 사용자 고유 식별자(ID)를 추출하기 위한 Method
-    public String getUserId(String token) {
-        return Jwts.parserBuilder().setSigningKey(key).build()
-                .parseClaimsJws(token).getBody().getSubject();
+    }
 
+    // 토큰 만료 처리
+    public Date getExpiration(String token) {
+        return parseClaims(token).getExpiration();
     }
 }

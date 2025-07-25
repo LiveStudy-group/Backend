@@ -7,7 +7,7 @@ import org.livestudy.domain.studyroom.StudyRoom;
 import org.livestudy.domain.studyroom.StudyRoomStatus;
 import org.livestudy.exception.CustomException;
 import org.livestudy.exception.ErrorCode;
-import org.livestudy.repository.RoomRedisRepository;
+import org.livestudy.repository.redis.RoomRedisRepository;
 import org.livestudy.repository.StudyRoomRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

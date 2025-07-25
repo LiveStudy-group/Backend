@@ -20,6 +20,8 @@ public enum ErrorCode {
     INVALID_ROOM_CAPACITY("U007", "방의 정원이 알맞지 않습니다.", HttpStatus.BAD_REQUEST),
     ROOM_IS_FULL("U008", "방이 이미 가득 찼습니다.", HttpStatus.BAD_REQUEST),
     USER_NOT_IN_ROOM("U009", "사용자가 방에 없습니다.", HttpStatus.BAD_REQUEST),
+    USER_BLOCKED("U010", "정지된 사용자입니다.", HttpStatus.FORBIDDEN),
+    USER_WITHDRAW("U011", "탈퇴한 사용자입니다.", HttpStatus.FORBIDDEN),
 
 
     // 인증 관련 에러

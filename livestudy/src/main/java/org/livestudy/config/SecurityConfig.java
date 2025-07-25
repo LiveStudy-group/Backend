@@ -44,6 +44,7 @@ public class SecurityConfig {
                                 "/swagger-ui/**",            // Swagger HTML/CSS/JS
                                 "/swagger-ui.html",          // 구버전 접근 경로
                                 "/webjars/**",
+                                "/webhook/**",
                                 "/chat-test.html" // Websocket 서버 Test용
                         ).permitAll()
                         .requestMatchers("/api/livekit/**").authenticated()
