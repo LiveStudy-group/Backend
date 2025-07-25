@@ -21,7 +21,6 @@ public enum ErrorCode {
     ROOM_IS_FULL("U008", "방이 이미 가득 찼습니다.", HttpStatus.BAD_REQUEST),
     USER_NOT_IN_ROOM("U009", "사용자가 방에 없습니다.", HttpStatus.BAD_REQUEST),
 
-
     // 인증 관련 에러
     UNAUTHORIZED("A001", "인증이 필요합니다.", HttpStatus.UNAUTHORIZED),
     FORBIDDEN("A002", "접근 권한이 없습니다.", HttpStatus.FORBIDDEN),
@@ -31,7 +30,11 @@ public enum ErrorCode {
     // WebSocket 관련 에러
     USER_ID_MISMATCH("W001", "userId가 일치하지 않습니다.", HttpStatus.FORBIDDEN),
     USER_SUSPENDED("W002", "정지된 이용자입니다.", HttpStatus.FORBIDDEN),
-    BAD_SCHEMA       ("W003", "잘못된 메시지 형식입니다.",      HttpStatus.BAD_REQUEST);
+    BAD_SCHEMA("W003", "잘못된 메시지 형식입니다.",      HttpStatus.BAD_REQUEST),
+  
+    // 신고 관련 에러
+    DUPLICATE_REPORT("R001", "이미 동일한 사유로 신고했습니다.", HttpStatus.CONFLICT),
+    CANNOT_REPORT_SELF("R002", "자신을 신고할 수 없습니다.", HttpStatus.BAD_REQUEST);
 
     private final String code;
     private final String message;
