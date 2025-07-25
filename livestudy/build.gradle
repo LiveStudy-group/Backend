@@ -64,7 +64,7 @@ dependencies {
     testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    testImplementation 'org.mockito:mockito-inline:5.2.0'
+    testImplementation 'org.mockito:mockito-core:5.2.0'
 
 
     // JWT
@@ -84,10 +84,10 @@ tasks.named('test') {
 test {
     useJUnitPlatform()
 
-    def mockitoInlineJar = classpath.find { it.name.contains("mockito-inline") }
-    if (mockitoInlineJar != null) {
-        jvmArgs += ["-javaagent:${mockitoInlineJar.absolutePath}"]
-    }
+    //def mockitoInlineJar = classpath.find { it.name.contains("mockito-inline") }
+    // if (mockitoInlineJar != null) {
+    //     jvmArgs += ["-javaagent:${mockitoInlineJar.absolutePath}"]
+    // }
 }
 
 

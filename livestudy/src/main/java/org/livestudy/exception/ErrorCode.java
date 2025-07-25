@@ -27,6 +27,11 @@ public enum ErrorCode {
     EXPIRED_TOKEN("A003", "토큰이 만료되었습니다.", HttpStatus.UNAVAILABLE_FOR_LEGAL_REASONS),
     REDIS_CONNECTION_FAILED("A004", "Redis 서버가 끊겼습니다.", HttpStatus.PRECONDITION_FAILED),
   
+    // WebSocket 관련 에러
+    USER_ID_MISMATCH("W001", "userId가 일치하지 않습니다.", HttpStatus.FORBIDDEN),
+    USER_SUSPENDED("W002", "정지된 이용자입니다.", HttpStatus.FORBIDDEN),
+    BAD_SCHEMA("W003", "잘못된 메시지 형식입니다.",      HttpStatus.BAD_REQUEST),
+  
     // 신고 관련 에러
     DUPLICATE_REPORT("R001", "이미 동일한 사유로 신고했습니다.", HttpStatus.CONFLICT),
     CANNOT_REPORT_SELF("R002", "자신을 신고할 수 없습니다.", HttpStatus.BAD_REQUEST);
