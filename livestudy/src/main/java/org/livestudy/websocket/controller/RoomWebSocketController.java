@@ -3,10 +3,7 @@ package org.livestudy.websocket.controller;
 import lombok.RequiredArgsConstructor;
 import org.livestudy.exception.CustomException;
 import org.livestudy.exception.ErrorCode;
-import org.livestudy.websocket.dto.BaseMsg;
-import org.livestudy.websocket.dto.ExitPayload;
-import org.livestudy.websocket.dto.JoinPayload;
-import org.livestudy.websocket.dto.MsgType;
+import org.livestudy.websocket.dto.*;
 import org.livestudy.websocket.service.PresenceService;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -29,7 +26,7 @@ public class RoomWebSocketController {
                      SimpMessageHeaderAccessor accessor) {
 
         String sessionUser = (String) accessor.getSessionAttributes().get("userId");
-        String assignedRoomId = (String) accessor.getSessionAttributes().get("roomId");
+        String roomId = (String) accessor.getSessionAttributes().get("roomId");
         JoinPayload join = msg.getPayload();
 
         // 유효성 검사
@@ -37,9 +34,13 @@ public class RoomWebSocketController {
             throw new CustomException(ErrorCode.USER_ID_MISMATCH);
         }
 
-        presence.join(assignedRoomId, sessionUser);
+        if (roomId == null) {
+            throw new CustomException(ErrorCode.USER_NOT_IN_ROOM);
+        }
 
-        return assignedRoomId;
+        presence.join(roomId, sessionUser);
+
+        return roomId;
     }
 
     // 퇴장
@@ -49,15 +50,15 @@ public class RoomWebSocketController {
 
         String sessionUser = (String) accessor.getSessionAttributes().get("userId");
         String roomId = (String) accessor.getSessionAttributes().get("roomId");
+        ExitPayload exit = msg.getPayload();
+
+        // 유효성 검사
+        if (!sessionUser.equals(exit.getUserId())) {
+            throw new CustomException(ErrorCode.USER_ID_MISMATCH);
+        }
 
         if (roomId == null) {
             throw new CustomException(ErrorCode.USER_NOT_IN_ROOM);
-        }
-
-        ExitPayload exit = msg.getPayload();
-
-        if (!sessionUser.equals(exit.getUserId())) {
-            throw new CustomException(ErrorCode.USER_ID_MISMATCH);
         }
 
         presence.exit(roomId, sessionUser);
