@@ -2,12 +2,13 @@ package org.livestudy.dto;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 
-@Data
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
 @AllArgsConstructor
-public class UserLoginResponse {
-    @Schema(description = "JWT Access Token", example = "eyJhbGciOiJIUzI1...")
+public class TokenResponse {
+    @Schema(description = "발급된 LiveKit accessToken", example = "eyJhbGciOiJIUzI1...")
     private String token;
 }
