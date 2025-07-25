@@ -67,7 +67,7 @@ public class JwtTokenProvider {
     }
 
     // token 검증
-    public boolean validateToken(String token){
+    public boolean validateToken(String token) {
         try {
             SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
 
@@ -86,8 +86,8 @@ public class JwtTokenProvider {
             throw new CustomException(ErrorCode.EXPIRED_TOKEN);
         } catch (JwtException | IllegalArgumentException e) {
             throw new CustomException(ErrorCode.INVALID_INPUT);
+        }
     }
-
 
     // Claims 내용 반환
     private Claims parseClaims(String token) {
@@ -102,22 +102,17 @@ public class JwtTokenProvider {
 
     // Token으로 이메일 가져오기
     public String getEmailFromToken(String token) {
-        Jwt<?, ?> jwt = Jwts
-                .parser()
-                .verifyWith(key)
-                .build()
-                .parse(token);
 
-        return ((Claims) jwt.getPayload()).getSubject();  // getBody() → getPayload()
+        return parseClaims(token).getSubject();
     }
     // 토큰 만료 여부 체크
-    private boolean isTokenExpired(Claims claims) {
-        return claims.getExpiration().before(new Date());
-      
+    private boolean isTokenExpired(Claims claims){
+            return claims.getExpiration().before(new Date());
+        }
+
     // 사용자 고유 식별자(ID)를 추출하기 위한 Method
-    public String getUserId(String token) {
-        return Jwts.parserBuilder().setSigningKey(key).build()
-                .parseClaimsJws(token).getBody().getSubject();
+    public Long getUserIdFromToken(String token) {
+        return parseClaims(token).get("userId", Long.class);
 
     }
 }

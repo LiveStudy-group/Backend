@@ -3,10 +3,8 @@ package org.livestudy.websocket.controller;
 import lombok.RequiredArgsConstructor;
 import org.livestudy.exception.CustomException;
 import org.livestudy.exception.ErrorCode;
-import org.livestudy.websocket.dto.BaseMsg;
-import org.livestudy.websocket.dto.ExitPayload;
-import org.livestudy.websocket.dto.JoinPayload;
-import org.livestudy.websocket.dto.MsgType;
+import org.livestudy.service.ChatService;
+import org.livestudy.websocket.dto.*;
 import org.livestudy.websocket.service.PresenceService;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -22,6 +20,7 @@ public class RoomWebSocketController {
 
     private final PresenceService presence;
     private final SimpMessagingTemplate broker;
+    private final ChatService chatService;
 
     // 입장
     @MessageMapping("/api/study-room/enter")
@@ -61,6 +60,29 @@ public class RoomWebSocketController {
         }
 
         presence.exit(roomId, sessionUser);
+    }
+
+    // 채팅
+    @MessageMapping("/api/study-room/chat")
+    public void chat(@Payload BaseMsg<ChatPayload> msg,
+                     SimpMessageHeaderAccessor accessor) {
+
+        String sessionUser = (String) accessor.getSessionAttributes().get("userId");
+        String roomId = (String) accessor.getSessionAttributes().get("roomId");
+        ChatPayload chat = msg.getPayload();
+
+        // 유효성 검사
+        if (!sessionUser.equals(chat.getUserId())) {
+            throw new CustomException(ErrorCode.USER_ID_MISMATCH);
+        }
+
+        if (roomId == null || !roomId.equals(chat.getRoomId())) {
+            throw new CustomException(ErrorCode.USER_NOT_IN_ROOM);
+        }
+
+        broker.convertAndSend("/topic/" + roomId, wrap(MsgType.chat, chat));
+
+        chatService.saveChat(roomId, sessionUser, chat.getMessage());
     }
 
     private <T> BaseMsg<T> wrap(MsgType type, T payload) {
