@@ -1,6 +1,7 @@
 package org.livestudy.websocket.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.livestudy.exception.CustomException;
 import org.livestudy.exception.ErrorCode;
 import org.livestudy.service.ChatService;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Controller;
 
 import java.time.Instant;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 public class RoomWebSocketController {
@@ -72,11 +74,13 @@ public class RoomWebSocketController {
         ChatPayload chat = msg.getPayload();
 
         // 유효성 검사
-        if (!sessionUser.equals(chat.getUserId())) {
+        if (sessionUser == null || !sessionUser.equals(chat.getUserId())) {
+            log.error("유저 ID 불일치. 세션 userId: {}, 페이로드 userId: {}", sessionUser, chat.getUserId());
             throw new CustomException(ErrorCode.USER_ID_MISMATCH);
         }
-
         if (roomId == null || !roomId.equals(chat.getRoomId())) {
+            log.error("유저가 방에 존재하지 않습니다. 세션 roomId: {}, 페이로드 roomId: {}, userId: {}",
+                    roomId, chat.getRoomId(), sessionUser);
             throw new CustomException(ErrorCode.USER_NOT_IN_ROOM);
         }
 

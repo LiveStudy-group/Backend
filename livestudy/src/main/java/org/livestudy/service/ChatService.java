@@ -1,6 +1,7 @@
 package org.livestudy.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.livestudy.domain.studyroom.Chat;
 import org.livestudy.domain.studyroom.StudyRoom;
 import org.livestudy.domain.studyroom.StudyRoomParticipant;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class ChatService {
 
@@ -26,12 +28,17 @@ public class ChatService {
     public void saveChat(String roomId, String senderId, String message) {
         Long longRoomId = Long.parseLong(roomId);
         StudyRoom studyRoom = studyRoomRepo.findById(longRoomId)
-                .orElseThrow(() -> new CustomException(ErrorCode.ROOM_NOT_FOUND));
-
+                .orElseGet(() -> {
+                    log.error(" {} 번의 스터디룸을 찾을 수 없습니다.", longRoomId);
+                    throw new CustomException(ErrorCode.ROOM_NOT_FOUND);
+                });
         Long longSenderId = Long.parseLong(senderId);
         StudyRoomParticipant participant = studyRoomParticipantRepo
                 .findByStudyRoomAndUserId(studyRoom, longSenderId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_IN_ROOM));
+                .orElseGet(() -> {
+                    log.error(" {} 유저가 해당 {} 스터디룸에 존재하지 않습니다.", longSenderId, longRoomId);
+                    throw new CustomException(ErrorCode.USER_NOT_IN_ROOM);
+                });
 
         Chat chat = Chat.builder()
                 .studyRoom(studyRoom)
