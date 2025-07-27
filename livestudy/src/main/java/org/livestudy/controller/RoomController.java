@@ -19,7 +19,7 @@ import java.util.Map;
 @Slf4j
 @Controller
 @RequiredArgsConstructor
-public class RoomWebSocketController {
+public class RoomController {
 
     private final SimpMessagingTemplate broker;
     private final TimerService timerService;

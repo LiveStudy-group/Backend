@@ -23,7 +23,7 @@ public class PresenceService {
     public void join(String roomId, String userId) {
 
         // 이용 정지된 유저 검사
-        User user = userRepo.findByUserId(userId)
+        User user = userRepo.findById(Long.parseLong(userId))
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         if (user.getUserStatus() == UserStatus.TEMPORARY_BAN ||
