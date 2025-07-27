@@ -1,5 +1,6 @@
 package org.livestudy.dto;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,6 +16,9 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Builder
 @Schema(description = "사용자의 Track 정보")
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "@class")
 public class TrackInfo implements Serializable {
 
     @Schema(description = "사용자 ID", example = "user-1")

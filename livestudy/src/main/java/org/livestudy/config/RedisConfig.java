@@ -1,5 +1,8 @@
 package org.livestudy.config;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import org.livestudy.dto.TrackInfo;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -7,7 +10,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
@@ -24,17 +27,24 @@ public class RedisConfig {
         RedisTemplate<String, TrackInfo> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
 
-        // Key는 String으로 설정
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.activateDefaultTyping(
+                LaissezFaireSubTypeValidator.instance,
+                ObjectMapper.DefaultTyping.NON_FINAL,
+                JsonTypeInfo.As.PROPERTY
+        );
+
+
+
+        // ✅ GenericJackson2JsonRedisSerializer로 변경
+        GenericJackson2JsonRedisSerializer genericSerializer = new GenericJackson2JsonRedisSerializer(objectMapper);
+
+        // Key는 String으로 설정 (3) 직렬화 설정
         StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
         redisTemplate.setKeySerializer(stringRedisSerializer);
         redisTemplate.setHashKeySerializer(stringRedisSerializer);
-
-        // Value는 Jackson2JsonRedisSerializer<TrackInfo>로 설정한다.
-        Jackson2JsonRedisSerializer<TrackInfo> jackson2Serializer =
-                new Jackson2JsonRedisSerializer<>(TrackInfo.class);
-
-        redisTemplate.setValueSerializer(jackson2Serializer);
-        redisTemplate.setHashValueSerializer(jackson2Serializer);
+        redisTemplate.setValueSerializer(genericSerializer);
+        redisTemplate.setHashValueSerializer(genericSerializer);
 
         redisTemplate.afterPropertiesSet();
 

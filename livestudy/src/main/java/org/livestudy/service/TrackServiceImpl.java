@@ -95,9 +95,9 @@ public class TrackServiceImpl implements  TrackService {
 
     @Override
     public void switchTrack(String userId, String newTrackSid, TrackType type) {
-        String oldTracksid = getTrack(userId, type);
-        if(oldTracksid != null){
-            removeTrack(oldTracksid, type);
+        String oldTrackSid = getTrack(userId, type);
+        if(oldTrackSid != null){
+            removeTrack(oldTrackSid, type);
         }
 
         // 새 트랙 저장

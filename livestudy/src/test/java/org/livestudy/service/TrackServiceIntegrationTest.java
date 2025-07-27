@@ -41,7 +41,7 @@ public class TrackServiceIntegrationTest {
         trackService.saveTrack(userId, videoTrackSid, TrackType.VIDEO);
         String saveSid = trackService.getTrack(userId, TrackType.VIDEO);
 
-        assertThat(saveSid).isEqualTo(userId);
+        assertThat(saveSid).isEqualTo(videoTrackSid);
     }
 
     @Test
