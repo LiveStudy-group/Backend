@@ -11,7 +11,7 @@ public enum ErrorCode {
     INVALID_INPUT("C002", "잘못된 입력 값입니다.", HttpStatus.BAD_REQUEST),
 
     // 유저 관련 에러
-    USER_NOT_FOUND("U001", "존재하지 않는 사용자입니다.", HttpStatus.NOT_FOUND),
+    USER_NOT_FOUND("U001", "존재하지 않는 사용자입니다.", HttpStatus.BAD_REQUEST),
     DUPLICATE_EMAIL("U002", "이미 존재하는 이메일입니다.", HttpStatus.CONFLICT),
     INVALID_PASSWORD("U003", "비밀번호가 일치하지 않습니다.", HttpStatus.UNAUTHORIZED),
     ROOM_NOT_FOUND("U004", "존재하지 않는 방입니다.", HttpStatus.NOT_FOUND),
@@ -23,6 +23,9 @@ public enum ErrorCode {
     USER_BLOCKED("U010", "정지된 사용자입니다.", HttpStatus.FORBIDDEN),
     USER_WITHDRAW("U011", "탈퇴한 사용자입니다.", HttpStatus.FORBIDDEN),
 
+    // Track 관련 에러
+    TRACK_TYPE_SHOULD_NOT_BE_NULL("T001", "Track의 Type은 Null일 수 없습니다.", HttpStatus.BAD_REQUEST),
+    TRACK_SID_SHOULD_NOT_BE_NULL("T002", "TrackSid는 Null일 수 없습니다.", HttpStatus.BAD_REQUEST),
 
     // 인증 관련 에러
     UNAUTHORIZED("A001", "인증이 필요합니다.", HttpStatus.UNAUTHORIZED),

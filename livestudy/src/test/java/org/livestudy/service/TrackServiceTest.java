@@ -79,7 +79,7 @@ public class TrackServiceTest {
     void removeTrack() {
         trackService.saveTrack(userId, trackSid, type);
 
-        trackService.removeTrack(trackSid);
+        trackService.removeAllTracks(trackSid);
 
         TrackInfo result = redisTemplate.opsForValue().get(trackKey);
         assertThat(result).isNull();

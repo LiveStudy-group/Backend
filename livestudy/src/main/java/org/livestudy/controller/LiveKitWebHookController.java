@@ -44,7 +44,7 @@ public class LiveKitWebHookController {
 
         if("track_unpublished".equals(eventType)) {
             String trackSid = event.getTrack().getSid();
-            trackService.removeTrack(trackSid);
+            trackService.removeAllTracks(trackSid);
         }
 
         return ResponseEntity.ok().build();
