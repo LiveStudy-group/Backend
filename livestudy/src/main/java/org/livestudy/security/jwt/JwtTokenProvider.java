@@ -4,11 +4,7 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import org.livestudy.domain.user.User;
-import org.livestudy.exception.CustomException;
-import org.livestudy.exception.ErrorCode;
 import org.livestudy.security.SecurityUser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,26 +13,31 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.util.Date;
 
 @Component
 public class JwtTokenProvider {
 
-    private static final Logger log = LoggerFactory.getLogger(JwtTokenProvider.class);
-
     @Value("${jwt.secret}")
     private String secretKey;
 
-    private SecretKey key;
+    private Key key;
+
+    private JwtParser jwtParser;
 
     private final long tokenvalidtime = 60 * 60 * 1000;
 
+
     @PostConstruct
-    public void init(){this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+    protected void init(){
+        this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+        this.jwtParser = Jwts.parser().verifyWith((SecretKey) key).build();
     }
 
+    // token 생성
     public String generateToken(Authentication authentication) {
-        SecurityUser user = (SecurityUser) authentication.getPrincipal();
+        SecurityUser user =  (SecurityUser) authentication.getPrincipal();
         Date now = new Date();
         Date expireDate = new Date(now.getTime() + tokenvalidtime);
 
@@ -57,7 +58,7 @@ public class JwtTokenProvider {
         Long userId = claims.get("userId", Long.class);
 
         SecurityUser principal = new SecurityUser(
-                    User.builder()
+                User.builder()
                         .id(userId)
                         .email(email)
                         .build()
@@ -68,56 +69,23 @@ public class JwtTokenProvider {
 
     // token 검증
     public boolean validateToken(String token){
-        try {
-            SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
-
-            Jwt<?, ?> jwt = Jwts
-                    .parser()
-                    .verifyWith(key)
-                    .build()
-                    .parse(token); // parseSignedClaims 도 사용 가능
-
-            Claims claims = (Claims) jwt.getPayload();
-
-            String userId = claims.getSubject(); // 필요 시 사용
-
-            return !isTokenExpired(claims); // 수정된 부분
-        } catch (ExpiredJwtException e) {
-            throw new CustomException(ErrorCode.EXPIRED_TOKEN);
+        try{
+            jwtParser.parseSignedClaims(token);
+            return true;
         } catch (JwtException | IllegalArgumentException e) {
-            throw new CustomException(ErrorCode.INVALID_INPUT);
+            return false;
+        }
     }
 
 
     // Claims 내용 반환
     private Claims parseClaims(String token) {
-        Jwt<?, ?> jwt = Jwts
-                .parser()               // parserBuilder() → parser()
-                .verifyWith(key)       // setSigningKey(...) → verifyWith(key)
-                .build()
-                .parse(token);         // parseClaimsJws(...) → parse(...)
-
-        return (Claims) jwt.getPayload();  // getBody() → getPayload()
+        return jwtParser.parseSignedClaims(token).getPayload();
     }
 
     // Token으로 이메일 가져오기
     public String getEmailFromToken(String token) {
-        Jwt<?, ?> jwt = Jwts
-                .parser()
-                .verifyWith(key)
-                .build()
-                .parse(token);
-
-        return ((Claims) jwt.getPayload()).getSubject();  // getBody() → getPayload()
+        return parseClaims(token).getSubject();
     }
-    // 토큰 만료 여부 체크
-    private boolean isTokenExpired(Claims claims) {
-        return claims.getExpiration().before(new Date());
-      
-    // 사용자 고유 식별자(ID)를 추출하기 위한 Method
-    public String getUserId(String token) {
-        return Jwts.parserBuilder().setSigningKey(key).build()
-                .parseClaimsJws(token).getBody().getSubject();
 
-    }
 }
