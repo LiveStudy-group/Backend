@@ -6,7 +6,7 @@ import org.livestudy.domain.studyroom.StudyRoom;
 import org.livestudy.domain.studyroom.StudyRoomStatus;
 import org.livestudy.exception.CustomException;
 import org.livestudy.exception.ErrorCode;
-import org.livestudy.repository.RoomRedisRepository;
+import org.livestudy.repository.redis.RoomRedisRepository;
 import org.livestudy.repository.StudyRoomRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +21,9 @@ import java.util.Optional;
 public class StudyRoomServiceImpl implements StudyRoomService {
 
     private final StudyRoomRepository studyRoomRepository;
+
     private final RoomRedisRepository roomRedisRepository;
+
     private static final int ROOM_CAPACITY = 20;
 
     private static final Logger log = LoggerFactory.getLogger(StudyRoomServiceImpl.class);
@@ -29,8 +31,6 @@ public class StudyRoomServiceImpl implements StudyRoomService {
     @Override
     @Transactional
     public Long enterRoom(String userId) {
-
-
 
         // 1. 이미 입장한 방이 있는지 Redis에서 확인
         String existingRoomId = roomRedisRepository.getUserRoom(userId);

@@ -1,5 +1,6 @@
 package org.livestudy.repository;
 
+
 import org.livestudy.domain.studyroom.StudyRoom;
 import org.livestudy.domain.studyroom.StudyRoomStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
