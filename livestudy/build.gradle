@@ -46,6 +46,9 @@ dependencies {
     // Websocket
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
+    // OAuth2 Client - 소셜 로그인
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
     // LiveKit
     implementation 'io.livekit:livekit-server:0.10.0'
 

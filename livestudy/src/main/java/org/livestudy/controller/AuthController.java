@@ -14,11 +14,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 
 
 @RestController
@@ -74,5 +72,12 @@ public class  AuthController {
             @RequestBody UserLoginRequest request){
         UserLoginResponse response = userService.login(request);
         return ResponseEntity.ok(response);
+    }
+
+    // OAuth2 로그인 URL 제공
+    @GetMapping("/oauth2/url/{provider}")
+    public ResponseEntity<Map<String, String>> getOAuth2LoginUrl(@PathVariable String provider) {
+        String authUrl = String.format("/api/auth/oauth2/authorize/%s", provider.toLowerCase());
+        return ResponseEntity.ok(Map.of("authUrl", authUrl));
     }
 }
