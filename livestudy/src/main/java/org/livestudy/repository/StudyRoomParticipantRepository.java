@@ -1,6 +1,6 @@
 package org.livestudy.repository;
 
-import org.livestudy.domain.studyroom.Chat;
+import org.livestudy.domain.studyroom.StudyRoom;
 import org.livestudy.domain.studyroom.StudyRoomParticipant;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.livestudy.domain.studyroom.FocusStatus;
@@ -10,7 +10,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import java.util.Optional;
+
 public interface StudyRoomParticipantRepository extends JpaRepository<StudyRoomParticipant, Long> {
+  
     // 특정 사용자의 활성 참여 정보 조회
     Optional<StudyRoomParticipant> findByUserIdAndStudyRoomIdAndLeaveTimeIsNull(Long userId, Long roomId);
 
@@ -23,4 +26,6 @@ public interface StudyRoomParticipantRepository extends JpaRepository<StudyRoomP
             @Param("status") FocusStatus status,
             @Param("threshold") LocalDateTime threshold
     );
+
+    Optional<StudyRoomParticipant> findByStudyRoomAndUserId(StudyRoom studyRoom, Long userId);
 }

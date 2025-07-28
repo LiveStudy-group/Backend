@@ -10,7 +10,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
@@ -26,7 +25,7 @@ public class JwtTokenProvider {
 
     private JwtParser jwtParser;
 
-    private final long tokenvalidtime = 60 * 60 * 1000;
+    private final long tokenValidTime = 60 * 60 * 1000;
 
 
     @PostConstruct
@@ -35,18 +34,19 @@ public class JwtTokenProvider {
         this.jwtParser = Jwts.parser().verifyWith((SecretKey) key).build();
     }
 
-    // token 생성
+
+    // 토큰 생성
     public String generateToken(Authentication authentication) {
         SecurityUser user =  (SecurityUser) authentication.getPrincipal();
         Date now = new Date();
-        Date expireDate = new Date(now.getTime() + tokenvalidtime);
+        Date expireDate = new Date(now.getTime() + tokenValidTime);
 
         return Jwts.builder()
-                .setSubject(user.getUsername())
+                .subject(user.getUsername())
                 .claim("userId", user.getUser().getId())
-                .setIssuedAt(now)
-                .setExpiration(expireDate)
-                .signWith(key, SignatureAlgorithm.HS256)
+                .issuedAt(now)
+                .expiration(expireDate)
+                .signWith(key)
                 .compact();
     }
 
@@ -78,14 +78,27 @@ public class JwtTokenProvider {
     }
 
 
-    // Claims 내용 반환
     private Claims parseClaims(String token) {
         return jwtParser.parseSignedClaims(token).getPayload();
     }
 
-    // Token으로 이메일 가져오기
+    // 이메일 추출
     public String getEmailFromToken(String token) {
         return parseClaims(token).getSubject();
     }
 
+    // 사용자 ID 추출
+    public Long getUserId(String token) {
+        return parseClaims(token).get("userId", Long.class);
+    }
+
+    // 만료 여부
+    private boolean isTokenExpired(Claims claims) {
+        return claims.getExpiration().before(new Date());
+    }
+
+    // 토큰 만료 처리
+    public Date getExpiration(String token) {
+        return parseClaims(token).getExpiration();
+    }
 }

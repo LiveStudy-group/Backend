@@ -21,7 +21,7 @@ public class RedisSubscriber implements MessageListener {
 
         log.info("{} 채널로부터 {} 메시지를 받았습니다", channel, message);
 
-        if(channel.startsWith("restriction:")) {
+        if (channel.startsWith("restriction:")) {
             handleRestrictionMessage(channel, msg);
         } else if (channel.startsWith("systemMessage:")) {
             handleSystemMessage(channel, msg);
