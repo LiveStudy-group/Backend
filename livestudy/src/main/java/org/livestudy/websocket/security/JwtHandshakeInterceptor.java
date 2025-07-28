@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.livestudy.exception.CustomException;
 import org.livestudy.exception.ErrorCode;
+import org.livestudy.security.jwt.JwtTokenProvider;
+import org.livestudy.service.StudyRoomService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.ServerHttpRequest;
@@ -29,6 +31,7 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
     private String secret;
 
     private final StudyRoomService studyRoomService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Override
     public boolean beforeHandshake(ServerHttpRequest httpRequest,
@@ -44,19 +47,12 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
             httpResponse.setStatusCode(HttpStatus.UNAUTHORIZED);
             return false;
         } try {
-            Claims c = Jwts.parser()
-                    .setSigningKey(secret.getBytes(StandardCharsets.UTF_8))
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
-
-            String userId = c.getSubject();
-
+            String userId = jwtTokenProvider.getUserIdFromToken(token).toString();
             attributes.put("userId", userId);
-            // 입장할 방
-            Long roomId = studyRoomService.enterRoom(userId);
 
-            attributes.put("roomId", roomId.toString());
+            // 입장할 방
+            String roomId = studyRoomService.enterRoom(userId).toString();
+            attributes.put("roomId", roomId);
 
             return true;
         } catch (JwtException | IllegalArgumentException e) {
