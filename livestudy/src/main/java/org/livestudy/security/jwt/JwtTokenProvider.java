@@ -65,6 +65,7 @@ public class JwtTokenProvider {
         return new UsernamePasswordAuthenticationToken(principal, token, principal.getAuthorities());
     }
 
+
     // 토큰 유효성 검증
     public boolean validateToken(String token) {
         try {
@@ -83,7 +84,7 @@ public class JwtTokenProvider {
         }
     }
 
-    // Claims 파싱
+
     private Claims parseClaims(String token) {
         Jwt<?, ?> jwt = Jwts.parser()
                 .verifyWith(key)
