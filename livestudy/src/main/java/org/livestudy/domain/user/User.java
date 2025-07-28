@@ -4,14 +4,17 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.livestudy.domain.BaseEntity;
 import org.livestudy.domain.title.UserTitle;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Entity
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Table(name = "users", uniqueConstraints = @UniqueConstraint(name = "uk_user_email", columnNames = "email"))
+@EntityListeners(AuditingEntityListener.class)
 public class User extends BaseEntity {
 
     @Id
@@ -37,7 +40,6 @@ public class User extends BaseEntity {
     @Column(nullable = false, length = 20)
     private String nickname;
 
-    @Lob
     @Column
     private String introduction;
 
@@ -56,13 +58,16 @@ public class User extends BaseEntity {
 
     // 이메일 회원가입용
     public static User of(UserTitle userTitle,
-                             String email,
-                             String password,
-                             SocialProvider provider,
-                             String nickname,
-                             String introduction,
-                             String image, PasswordEncoder encoder) {
+                          String email,
+                          String password,
+                          SocialProvider provider,
+                          String nickname,
+                          String introduction,
+                          String image, PasswordEncoder encoder) {
 
+        System.out.println("[User.of] email: " + email);
+        System.out.println("[User.of] raw password: " + password);
+        System.out.println("[User.of] encoded password: " + (password == null ? "null" : encoder.encode(password)));
         return User.builder()
                 .userTitle(userTitle)
                 .email(email)

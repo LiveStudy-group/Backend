@@ -49,7 +49,7 @@ dependencies {
     // OAuth2 Client - 소셜 로그인
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
-    // Livekit Server
+    // LiveKit
     implementation 'io.livekit:livekit-server:0.10.0'
 
     // MySQL, H2 DB
@@ -68,13 +68,14 @@ dependencies {
     testImplementation 'org.mockito:mockito-inline:5.2.0'
 
 
+
     // JWT
-    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
-    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
-    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.5'
 
     // Swagger/OpenAPI
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
 }
 
 tasks.named('test') {
@@ -85,10 +86,10 @@ tasks.named('test') {
 test {
     useJUnitPlatform()
 
-    def mockitoInlineJar = classpath.find { it.name.contains("mockito-inline") }
-    if (mockitoInlineJar != null) {
-        jvmArgs += ["-javaagent:${mockitoInlineJar.absolutePath}"]
-    }
+    //def mockitoInlineJar = classpath.find { it.name.contains("mockito-inline") }
+    // if (mockitoInlineJar != null) {
+    //     jvmArgs += ["-javaagent:${mockitoInlineJar.absolutePath}"]
+    // }
 }
 
 

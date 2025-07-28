@@ -15,4 +15,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     // 이메일과 소셜 프로바이더로 사용자 검색
     Optional<User> findByEmailAndSocialProvider(String email, SocialProvider socialProvider);
+
+  Optional<User> findByUserId(String userId);
 }
