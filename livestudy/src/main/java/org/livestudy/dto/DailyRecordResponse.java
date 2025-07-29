@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @Builder
 public class DailyRecordResponse {
     private LocalDate recordDate;
-    private int dailyStudyTime;
-    private int dailyAwayTime;
-    private double focusRatio;
+    private Long dailyStudyTime;
+    private Long dailyAwayTime;
+    private Double focusRatio;
 }

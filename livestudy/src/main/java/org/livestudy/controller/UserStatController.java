@@ -2,6 +2,7 @@ package org.livestudy.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.livestudy.dto.AverageFocusRatioResponse;
 import org.livestudy.dto.DailyRecordResponse;
 import org.livestudy.dto.UserStudyStatsResponse;
 import org.livestudy.security.SecurityUser;
@@ -58,7 +59,7 @@ public class UserStatController {
     }
 
     @GetMapping("/average-focus-ratio")
-    public ResponseEntity<Double> getAverageFocusRatio(
+    public ResponseEntity<AverageFocusRatioResponse> getAverageFocusRatio(
             @AuthenticationPrincipal SecurityUser user,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
@@ -71,7 +72,8 @@ public class UserStatController {
         log.info("통계 페이지 - userId: {} 유저의 기간별 집중률 조회", userId);
         Double averageFocusRatio = userStudyStatService.getAverageStudyRatio(userId, start, end);
 
-        return ResponseEntity.ok(averageFocusRatio);
+        AverageFocusRatioResponse response = new AverageFocusRatioResponse(start, end, averageFocusRatio);
+        return ResponseEntity.ok(response);
     }
 
 }
