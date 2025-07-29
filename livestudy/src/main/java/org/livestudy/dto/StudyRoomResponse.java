@@ -1,8 +1,7 @@
 package org.livestudy.dto;
 
-import org.livestudy.domain.studyroom.StudyRoom;
 
 public class StudyRoomResponse {
-    private StudyRoom roomId;
+    private String roomId;
     private int currentCount;
 }

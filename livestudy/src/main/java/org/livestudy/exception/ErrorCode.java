@@ -22,6 +22,8 @@ public enum ErrorCode {
     USER_NOT_IN_ROOM("U009", "사용자가 방에 없습니다.", HttpStatus.BAD_REQUEST),
     USER_BLOCKED("U010", "정지된 사용자입니다.", HttpStatus.FORBIDDEN),
     USER_WITHDRAW("U011", "탈퇴한 사용자입니다.", HttpStatus.FORBIDDEN),
+    TITLE_NOT_FOUND("U012", "존재하지 않는 칭호입니다.", HttpStatus.BAD_REQUEST),
+    NOT_EARNED_TITLE_YET("U013", "아직 취득하지 못한 칭호입니다.", HttpStatus.FORBIDDEN),
 
     // Track 관련 에러
     TRACK_TYPE_SHOULD_NOT_BE_NULL("T001", "Track의 Type은 Null일 수 없습니다.", HttpStatus.BAD_REQUEST),

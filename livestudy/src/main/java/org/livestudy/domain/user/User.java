@@ -3,6 +3,7 @@ package org.livestudy.domain.user;
 import jakarta.persistence.*;
 import lombok.*;
 import org.livestudy.domain.BaseEntity;
+import org.livestudy.domain.badge.Badge;
 import org.livestudy.domain.title.UserTitle;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -39,7 +40,6 @@ public class User extends BaseEntity {
     @Column(nullable = false, length = 20)
     private String nickname;
 
-    @Lob
     @Column
     private String introduction;
 
@@ -77,5 +77,12 @@ public class User extends BaseEntity {
     }
 
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "equipped_badge")
+    private Badge equippedBadge;
+
+    public void equipBadge(Badge badge) {
+        this.equippedBadge = badge;
+    }
 
 }

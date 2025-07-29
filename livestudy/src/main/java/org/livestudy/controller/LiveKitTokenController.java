@@ -9,14 +9,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.livestudy.dto.TokenRequest;
 import org.livestudy.dto.TokenResponse;
+import org.livestudy.exception.CustomException;
+import org.livestudy.exception.ErrorCode;
+import org.livestudy.repository.redis.RoomRedisRepository;
 import org.livestudy.security.SecurityUser;
 import org.livestudy.service.LiveKitTokenService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,6 +25,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class LiveKitTokenController {
 
     private final LiveKitTokenService liveKitTokenService;
+
+    private final RoomRedisRepository roomRedisRepository;
 
     @PostMapping("/token")
     @Operation(
@@ -49,6 +51,32 @@ public class LiveKitTokenController {
         Long userId = user.getUser().getId();
         String token = liveKitTokenService.generateToken(userId.toString(), request.getRoomId());
 
+        return ResponseEntity.ok(new TokenResponse(token));
+    }
+
+    @PostMapping("/refresh")
+    @Operation(
+            summary = "Livekit 입장 토큰 재발급 API",
+            description = "토큰이 만료되거나 Livekit 사용 중인 사용자의 토큰에 이상이 생겼을 때 다시 발급 받습니다."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "LiveKit 입장용 토큰 재발급 성공",
+            content = @Content(schema = @Schema(implementation = TokenResponse.class))),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류",
+            content = @Content(schema = @Schema(implementation = String.class)))
+
+    })
+    public ResponseEntity<TokenResponse> refreshLiveKitToken(
+            @AuthenticationPrincipal SecurityUser userDetails) {
+
+        String userId = String.valueOf(userDetails.getUser().getId());
+        String roomId = roomRedisRepository.getUserRoom(userId);
+
+        if (roomId == null) {
+            throw new CustomException(ErrorCode.USER_NOT_IN_ROOM);
+        }
+
+        String token = liveKitTokenService.generateToken(userId, roomId);
         return ResponseEntity.ok(new TokenResponse(token));
     }
 }

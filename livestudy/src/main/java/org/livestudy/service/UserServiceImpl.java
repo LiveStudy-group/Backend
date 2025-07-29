@@ -16,6 +16,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -69,5 +71,11 @@ public class UserServiceImpl implements UserService {
 
         // 5. 응답 객체 구성
         return new UserLoginResponse(token);
+    }
+
+    @Override
+    public User getUserById(String userId) {
+        return userRepository.findById(Long.valueOf(userId))
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 }
