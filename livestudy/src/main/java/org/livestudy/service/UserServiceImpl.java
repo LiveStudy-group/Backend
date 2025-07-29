@@ -1,7 +1,6 @@
 package org.livestudy.service;
 
 import lombok.RequiredArgsConstructor;
-import org.livestudy.domain.user.SocialProvider;
 import org.livestudy.domain.user.User;
 import org.livestudy.domain.user.UserStatus;
 import org.livestudy.dto.UserLoginRequest;
@@ -38,7 +37,7 @@ public class UserServiceImpl implements UserService {
                 .nickname(request.getNickname())
                 .introduction(request.getIntroduction())
                 .profileImage(request.getProfileImage())
-                .socialProvider(SocialProvider.LOCAL) // 소셜 로그인 API 구현 전까지는 LOCAL로 한정 짓겠습니다!
+                .socialProvider(request.getSocialProvider())
                 .userStatus(UserStatus.NORMAL)
                 .build();
 

@@ -1,6 +1,9 @@
 package org.livestudy.security.jwt;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import org.livestudy.domain.user.User;
@@ -11,7 +14,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 
-import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
@@ -24,15 +26,10 @@ public class JwtTokenProvider {
 
     private Key key;
 
-    private JwtParser jwtParser;
-
     private final long tokenvalidtime = 60 * 60 * 1000;
 
-
     @PostConstruct
-    protected void init(){
-        this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
-        this.jwtParser = Jwts.parser().verifyWith((SecretKey) key).build();
+    protected void init(){this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
     // token 생성
@@ -70,7 +67,7 @@ public class JwtTokenProvider {
     // token 검증
     public boolean validateToken(String token){
         try{
-            jwtParser.parseSignedClaims(token);
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
             return false;
@@ -80,12 +77,15 @@ public class JwtTokenProvider {
 
     // Claims 내용 반환
     private Claims parseClaims(String token) {
-        return jwtParser.parseSignedClaims(token).getPayload();
+        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
     }
 
     // Token으로 이메일 가져오기
     public String getEmailFromToken(String token) {
-        return parseClaims(token).getSubject();
+        return Jwts.parserBuilder().setSigningKey(key).build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
     }
 
 }
