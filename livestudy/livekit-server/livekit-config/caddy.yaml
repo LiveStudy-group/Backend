@@ -16,9 +16,9 @@ apps:
         listen: [":443"]
         routes:
           - match:
-            - tls:
-                sni:
-                  - "live-study.com"
+              - tls:
+                  sni:
+                    - "live-study.com"
             handle:
               - handler: tls
               - handler: proxy
