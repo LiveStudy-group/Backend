@@ -46,7 +46,10 @@ dependencies {
     // Websocket
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
-    // Livekit Server
+    // OAuth2 Client - 소셜 로그인
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+    // LiveKit
     implementation 'io.livekit:livekit-server:0.10.0'
 
     // MySQL, H2 DB
@@ -63,7 +66,6 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'org.mockito:mockito-inline:5.2.0'
-    testImplementation 'it.ozimov:embedded-redis:0.7.2'
 
 
 
@@ -84,10 +86,10 @@ tasks.named('test') {
 test {
     useJUnitPlatform()
 
-    def mockitoInlineJar = classpath.find { it.name.contains("mockito-inline") }
-    if (mockitoInlineJar != null) {
-        jvmArgs += ["-javaagent:${mockitoInlineJar.absolutePath}"]
-    }
+    //def mockitoInlineJar = classpath.find { it.name.contains("mockito-inline") }
+    // if (mockitoInlineJar != null) {
+    //     jvmArgs += ["-javaagent:${mockitoInlineJar.absolutePath}"]
+    // }
 }
 
 
