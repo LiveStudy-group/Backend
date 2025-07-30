@@ -27,9 +27,8 @@ public class JwtTokenProvider {
 
     private final long tokenValidTime = 60 * 60 * 1000;
 
-
     @PostConstruct
-    protected void init(){
+    public void init(){
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
         this.jwtParser = Jwts.parser().verifyWith((SecretKey) key).build();
     }
@@ -88,7 +87,7 @@ public class JwtTokenProvider {
     }
 
     // 사용자 ID 추출
-    public Long getUserId(String token) {
+    public Long getUserIdFromToken(String token) {
         return parseClaims(token).get("userId", Long.class);
     }
 
