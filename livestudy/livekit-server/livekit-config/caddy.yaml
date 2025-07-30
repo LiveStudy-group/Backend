@@ -1,7 +1,7 @@
 logging:
   logs:
     default:
-      level: DEBUG
+      level: INFO
 
 storage:
   module: file_system
