@@ -9,17 +9,16 @@ apps:
   tls:
     certificates:
       automate:
-        - localhost.
-        - 172.30.176.1.
+        - live-study.com
   layer4:
     servers:
       main:
         listen: [":443"]
         routes:
           - match:
-            - tls:
-                sni:
-                  - "172.30.176.1."
+              - tls:
+                  sni:
+                    - "live-study.com"
             handle:
               - handler: tls
               - handler: proxy
@@ -28,7 +27,7 @@ apps:
           - match:
               - tls:
                   sni:
-                    - "localhost."
+                    - "live-study.com"
             handle:
               - handler: tls
                 connection_policies:
