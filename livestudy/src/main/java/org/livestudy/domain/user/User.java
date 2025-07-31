@@ -104,4 +104,5 @@ public class User extends BaseEntity {
         this.equippedBadge = badge;
     }
 
+
 }

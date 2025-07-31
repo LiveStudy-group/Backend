@@ -2,8 +2,8 @@ package org.livestudy.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.livestudy.domain.user.DailyStudyRecord;
-import org.livestudy.domain.user.UserStudyStat;
+import org.livestudy.domain.user.statusdata.DailyStudyRecord;
+import org.livestudy.domain.user.statusdata.UserStudyStat;
 import org.livestudy.dto.DailyRecordResponse;
 import org.livestudy.dto.UserStudyStatsResponse;
 import org.livestudy.exception.CustomException;
@@ -46,8 +46,8 @@ public class UserStudyStatServiceImpl implements UserStudyStatService{
         List<DailyRecordResponse> responses = records.stream()
                 .map(record -> DailyRecordResponse.builder()
                         .recordDate(record.getRecordDate())
-                        .dailyStudyTime(record.getDailyStudyTime())
-                        .dailyAwayTime(record.getDailyAwayTime())
+                        .dailyStudyTime(Long.valueOf(record.getDailyStudyTime()))
+                        .dailyAwayTime(Long.valueOf(record.getDailyAwayTime()))
                         .focusRatio(record.getFocusRatio())
                         .build())
                 .toList();

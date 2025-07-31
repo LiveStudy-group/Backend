@@ -2,7 +2,7 @@ package org.livestudy.dto;
 
 import lombok.Builder;
 import lombok.Getter;
-import org.livestudy.domain.user.UserStudyStat;
+import org.livestudy.domain.user.statusdata.UserStudyStat;
 
 import java.time.LocalDate;
 

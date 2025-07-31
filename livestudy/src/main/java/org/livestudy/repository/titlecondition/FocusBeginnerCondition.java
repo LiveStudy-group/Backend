@@ -2,7 +2,7 @@ package org.livestudy.repository.titlecondition;
 
 import org.livestudy.domain.title.TitleCode;
 import org.livestudy.domain.title.TitleCondition;
-import org.livestudy.domain.user.UserActivity;
+import org.livestudy.domain.user.statusdata.UserActivity;
 
 public class FocusBeginnerCondition implements TitleCondition {
 
