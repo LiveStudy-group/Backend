@@ -47,7 +47,7 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
             httpResponse.setStatusCode(HttpStatus.UNAUTHORIZED);
             return false;
         } try {
-            String userId = jwtTokenProvider.getUserIdFromToken(token).toString();
+            String userId = jwtTokenProvider.getUserId(token).toString();
             attributes.put("userId", userId);
 
             // 입장할 방
