@@ -56,6 +56,9 @@ public class User extends BaseEntity {
     @Column(name = "user_status", nullable = false)
     private UserStatus userStatus = UserStatus.NORMAL;
 
+    @Transient
+    private boolean isNewUser;
+
     // 이메일 회원가입용
     public static User of(UserTitle userTitle,
                           String email,
@@ -65,9 +68,6 @@ public class User extends BaseEntity {
                           String introduction,
                           String image, PasswordEncoder encoder) {
 
-        System.out.println("[User.of] email: " + email);
-        System.out.println("[User.of] raw password: " + password);
-        System.out.println("[User.of] encoded password: " + (password == null ? "null" : encoder.encode(password)));
         return User.builder()
                 .userTitle(userTitle)
                 .email(email)
@@ -93,7 +93,4 @@ public class User extends BaseEntity {
                 .password(null) // 소셜 로그인은 비밀번호 없음
                 .build();
     }
-
-
-
 }
