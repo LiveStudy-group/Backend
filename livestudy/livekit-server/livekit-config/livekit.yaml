@@ -1,6 +1,6 @@
 port: 7880
 bind_addresses:
-    - ""
+    - "0.0.0.0"
 rtc:
     tcp_port: 7881
     port_range_start: 50000
@@ -21,7 +21,7 @@ redis:
     max_redirects: null
 turn:
     enabled: true
-    domain: 172.30.176.1.
+    domain: live-study.com
     tls_port: 5349
     udp_port: 3478
     external_tls: true

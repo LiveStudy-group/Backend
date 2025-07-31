@@ -3,6 +3,7 @@ package org.livestudy.domain.user;
 import jakarta.persistence.*;
 import lombok.*;
 import org.livestudy.domain.BaseEntity;
+import org.livestudy.domain.badge.Badge;
 import org.livestudy.domain.title.UserTitle;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -92,5 +93,33 @@ public class User extends BaseEntity {
                 .userStatus(UserStatus.NORMAL)
                 .password(null) // 소셜 로그인은 비밀번호 없음
                 .build();
+    }
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "equipped_badge")
+    private Badge equippedBadge;
+
+    public void equipBadge(Badge badge) {
+        this.equippedBadge = badge;
+    }
+
+    // 닉네임 변경
+    public void updateNickname(String newNickname) {
+        this.nickname = newNickname;
+    }
+
+    // 프로필 이미지 변경
+    public void updateProfileImage(String newProfileImage) {
+        this.nickname = newProfileImage;
+    }
+
+    // 이메일 변경
+    public void updateEmail(String newEmail) {
+        this.email = newEmail;
+    }
+
+    // 패스워드 변경
+    public void updatePassword(String newPassword) {
+        this.password = newPassword;
     }
 }

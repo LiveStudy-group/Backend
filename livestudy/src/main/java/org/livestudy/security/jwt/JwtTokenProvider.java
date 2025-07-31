@@ -4,11 +4,7 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import org.livestudy.domain.user.User;
-import org.livestudy.exception.CustomException;
-import org.livestudy.exception.ErrorCode;
 import org.livestudy.security.SecurityUser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -16,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.util.Date;
 
 @Component
@@ -24,18 +21,22 @@ public class JwtTokenProvider {
     @Value("${jwt.secret}")
     private String secretKey;
 
-    private SecretKey key;
+    private Key key;
+
+    private JwtParser jwtParser;
 
     private final long tokenValidTime = 60 * 60 * 1000;
 
     @PostConstruct
-    public void init() {
+    public void init(){
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+        this.jwtParser = Jwts.parser().verifyWith((SecretKey) key).build();
     }
+
 
     // 토큰 생성
     public String generateToken(Authentication authentication) {
-        SecurityUser user = (SecurityUser) authentication.getPrincipal();
+        SecurityUser user =  (SecurityUser) authentication.getPrincipal();
         Date now = new Date();
         Date expireDate = new Date(now.getTime() + tokenValidTime);
 
@@ -65,33 +66,19 @@ public class JwtTokenProvider {
         return new UsernamePasswordAuthenticationToken(principal, token, principal.getAuthorities());
     }
 
-
-    // 토큰 유효성 검증
-    public boolean validateToken(String token) {
-        try {
-            Jwt<?, ?> jwt = Jwts.parser()
-                    .verifyWith(key)
-                    .build()
-                    .parse(token);
-
-            Claims claims = (Claims) jwt.getPayload();
-
-            return !isTokenExpired(claims);
-        } catch (ExpiredJwtException e) {
-            throw new CustomException(ErrorCode.EXPIRED_TOKEN);
+    // token 검증
+    public boolean validateToken(String token){
+        try{
+            jwtParser.parseSignedClaims(token);
+            return true;
         } catch (JwtException | IllegalArgumentException e) {
-            throw new CustomException(ErrorCode.INVALID_INPUT);
+            return false;
         }
     }
 
 
     private Claims parseClaims(String token) {
-        Jwt<?, ?> jwt = Jwts.parser()
-                .verifyWith(key)
-                .build()
-                .parse(token);
-
-        return (Claims) jwt.getPayload();
+        return jwtParser.parseSignedClaims(token).getPayload();
     }
 
     // 이메일 추출
@@ -100,7 +87,7 @@ public class JwtTokenProvider {
     }
 
     // 사용자 ID 추출
-    public Long getUserId(String token) {
+    public Long getUserIdFromToken(String token) {
         return parseClaims(token).get("userId", Long.class);
     }
 

@@ -15,4 +15,5 @@ public interface UserService {
     User getUserById(String userId);
 
     User findOrCreateSocialUser(String email, String nickname, SocialProvider socialProvider);
+
 }
