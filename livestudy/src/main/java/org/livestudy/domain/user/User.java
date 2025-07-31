@@ -66,10 +66,7 @@ public class User extends BaseEntity {
                           String introduction,
                           String image, PasswordEncoder encoder) {
 
-        System.out.println("[User.of] email: " + email);
-        System.out.println("[User.of] raw password: " + password);
-        System.out.println("[User.of] encoded password: " + (password == null ? "null" : encoder.encode(password)));
-        return User.builder()
+         return User.builder()
                 .userTitle(userTitle)
                 .email(email)
                 .password(password == null ? null : encoder.encode(password))
@@ -104,4 +101,23 @@ public class User extends BaseEntity {
         this.equippedBadge = badge;
     }
 
+    // 닉네임 변경
+    public void updateNickname(String newNickname) {
+        this.nickname = newNickname;
+    }
+
+    // 프로필 이미지 변경
+    public void updateProfileImage(String newProfileImage) {
+        this.nickname = newProfileImage;
+    }
+
+    // 이메일 변경
+    public void updateEmail(String newEmail) {
+        this.email = newEmail;
+    }
+
+    // 패스워드 변경
+    public void updatePassword(String newPassword) {
+        this.password = newPassword;
+    }
 }
