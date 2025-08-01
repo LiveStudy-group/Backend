@@ -64,7 +64,7 @@ class ProfileServiceTest {
     @DisplayName("프로필 조회 성공")
     void getUserProfile_Success() {
         // Given (상황 설정)
-        given(userRepo.findByUserId(testUser.getId())).willReturn(Optional.of(testUser));
+        given(userRepo.findById(testUser.getId())).willReturn(Optional.of(testUser));
         given(userStudyStatRepo.findByUserId(testUser.getId())).willReturn(Optional.of(testUserStudyStat));
 
         // When (행위)
@@ -78,7 +78,7 @@ class ProfileServiceTest {
         assertThat(response.getTotalStudyTime()).isEqualTo(testUserStudyStat.getTotalStudyTime());
 
         // verify (호출 검증)
-        verify(userRepo).findByUserId(testUser.getId());
+        verify(userRepo).findById(testUser.getId());
         verify(userStudyStatRepo).findByUserId(testUser.getId());
     }
 
@@ -86,14 +86,14 @@ class ProfileServiceTest {
     @DisplayName("프로필 조회 실패 - 유저를 찾을 수 없음")
     void getUserProfile_UserNotFound() {
         // Given
-        given(userRepo.findByUserId(any(Long.class))).willReturn(Optional.empty());
+        given(userRepo.findById(any(Long.class))).willReturn(Optional.empty());
 
         // When & Then
         CustomException exception = assertThrows(CustomException.class,
                 () -> profileService.getUserProfile(999L)); // 존재하지 않는 ID
 
         assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.USER_NOT_FOUND);
-        verify(userRepo).findByUserId(999L);
+        verify(userRepo).findById(999L);
         verify(userStudyStatRepo, never()).findByUserId(any(Long.class)); // 유저 없으면 통계 조회 안 함
     }
 
@@ -104,7 +104,7 @@ class ProfileServiceTest {
         String newNickname = "newuser";
         UpdateNicknameRequest request = new UpdateNicknameRequest(newNickname);
 
-        given(userRepo.findByUserId(testUser.getId())).willReturn(Optional.of(testUser));
+        given(userRepo.findById(testUser.getId())).willReturn(Optional.of(testUser));
         given(userRepo.existsByNickname(newNickname)).willReturn(false); // 중복 아님
 
         // When
@@ -122,7 +122,7 @@ class ProfileServiceTest {
         String currentNickname = testUser.getNickname();
         UpdateNicknameRequest request = new UpdateNicknameRequest(currentNickname);
 
-        given(userRepo.findByUserId(testUser.getId())).willReturn(Optional.of(testUser));
+        given(userRepo.findById(testUser.getId())).willReturn(Optional.of(testUser));
 
         // When & Then
         CustomException exception = assertThrows(CustomException.class,
@@ -140,7 +140,7 @@ class ProfileServiceTest {
         String newNickname = "existinguser";
         UpdateNicknameRequest request = new UpdateNicknameRequest(newNickname);
 
-        given(userRepo.findByUserId(testUser.getId())).willReturn(Optional.of(testUser));
+        given(userRepo.findById(testUser.getId())).willReturn(Optional.of(testUser));
         given(userRepo.existsByNickname(newNickname)).willReturn(true); // 중복임
 
         // When & Then
@@ -157,7 +157,7 @@ class ProfileServiceTest {
     void updateNickname_UserNotFound() {
         // Given
         UpdateNicknameRequest request = new UpdateNicknameRequest("anyNickname");
-        given(userRepo.findByUserId(any(Long.class))).willReturn(Optional.empty());
+        given(userRepo.findById(any(Long.class))).willReturn(Optional.empty());
 
         // When & Then
         CustomException exception = assertThrows(CustomException.class,
@@ -175,7 +175,7 @@ class ProfileServiceTest {
         String newImageUrl = "http://new.example.com/image.jpg";
         UpdateProfileImageRequest request = new UpdateProfileImageRequest(newImageUrl);
 
-        given(userRepo.findByUserId(testUser.getId())).willReturn(Optional.of(testUser));
+        given(userRepo.findById(testUser.getId())).willReturn(Optional.of(testUser));
 
         // When
         profileService.updateProfileImage(testUser.getId(), request);
@@ -192,7 +192,7 @@ class ProfileServiceTest {
         String currentImageUrl = testUser.getProfileImage();
         UpdateProfileImageRequest request = new UpdateProfileImageRequest(currentImageUrl);
 
-        given(userRepo.findByUserId(testUser.getId())).willReturn(Optional.of(testUser));
+        given(userRepo.findById(testUser.getId())).willReturn(Optional.of(testUser));
 
         // When
         profileService.updateProfileImage(testUser.getId(), request);
@@ -208,7 +208,7 @@ class ProfileServiceTest {
     void updateProfileImage_UserNotFound() {
         // Given
         UpdateProfileImageRequest request = new UpdateProfileImageRequest("anyImageUrl");
-        given(userRepo.findByUserId(any(Long.class))).willReturn(Optional.empty());
+        given(userRepo.findById(any(Long.class))).willReturn(Optional.empty());
 
         // When & Then
         CustomException exception = assertThrows(CustomException.class,
@@ -225,7 +225,7 @@ class ProfileServiceTest {
         String newEmail = "new@example.com";
         UpdateEmailRequest request = new UpdateEmailRequest(newEmail);
 
-        given(userRepo.findByUserId(testUser.getId())).willReturn(Optional.of(testUser));
+        given(userRepo.findById(testUser.getId())).willReturn(Optional.of(testUser));
         given(userRepo.existsByEmail(newEmail)).willReturn(false);
 
         // When
@@ -243,7 +243,7 @@ class ProfileServiceTest {
         String currentEmail = testUser.getEmail();
         UpdateEmailRequest request = new UpdateEmailRequest(currentEmail);
 
-        given(userRepo.findByUserId(testUser.getId())).willReturn(Optional.of(testUser));
+        given(userRepo.findById(testUser.getId())).willReturn(Optional.of(testUser));
 
         // When & Then
         CustomException exception = assertThrows(CustomException.class,
@@ -261,7 +261,7 @@ class ProfileServiceTest {
         String newEmail = "another@example.com";
         UpdateEmailRequest request = new UpdateEmailRequest(newEmail);
 
-        given(userRepo.findByUserId(testUser.getId())).willReturn(Optional.of(testUser));
+        given(userRepo.findById(testUser.getId())).willReturn(Optional.of(testUser));
         given(userRepo.existsByEmail(newEmail)).willReturn(true); // 중복임
 
         // When & Then
@@ -278,7 +278,7 @@ class ProfileServiceTest {
     void updateEmail_UserNotFound() {
         // Given
         UpdateEmailRequest request = new UpdateEmailRequest("any@email.com");
-        given(userRepo.findByUserId(any(Long.class))).willReturn(Optional.empty());
+        given(userRepo.findById(any(Long.class))).willReturn(Optional.empty());
 
         // When & Then
         CustomException exception = assertThrows(CustomException.class,
@@ -297,7 +297,7 @@ class ProfileServiceTest {
         String newPassword = "newPassword456";
         UpdatePasswordRequest request = new UpdatePasswordRequest(currentPassword, newPassword, newPassword); // confirmNewPassword는 백엔드에서 검증 안 함
 
-        given(userRepo.findByUserId(testUser.getId())).willReturn(Optional.of(testUser));
+        given(userRepo.findById(testUser.getId())).willReturn(Optional.of(testUser));
         given(passwordEncoder.matches(currentPassword, testUser.getPassword())).willReturn(true); // 현재 비밀번호 일치
         given(passwordEncoder.matches(newPassword, testUser.getPassword())).willReturn(false); // 새 비밀번호가 현재와 다름
         given(passwordEncoder.encode(newPassword)).willReturn("encodedNewPassword456");
@@ -318,7 +318,7 @@ class ProfileServiceTest {
         String newPassword = "newPassword456";
         UpdatePasswordRequest request = new UpdatePasswordRequest(wrongPassword, newPassword, newPassword);
 
-        given(userRepo.findByUserId(testUser.getId())).willReturn(Optional.of(testUser));
+        given(userRepo.findById(testUser.getId())).willReturn(Optional.of(testUser));
         given(passwordEncoder.matches(wrongPassword, testUser.getPassword())).willReturn(false); // 현재 비밀번호 불일치
 
         // When & Then
@@ -338,7 +338,7 @@ class ProfileServiceTest {
         String newPassword = "oldPassword123";
         UpdatePasswordRequest request = new UpdatePasswordRequest(currentPassword, newPassword, newPassword);
 
-        given(userRepo.findByUserId(testUser.getId())).willReturn(Optional.of(testUser));
+        given(userRepo.findById(testUser.getId())).willReturn(Optional.of(testUser));
         given(passwordEncoder.matches(currentPassword, testUser.getPassword())).willReturn(true); // 현재 비밀번호 일치
         given(passwordEncoder.matches(newPassword, testUser.getPassword())).willReturn(true); // 새 비밀번호가 현재와 동일
 
@@ -357,7 +357,7 @@ class ProfileServiceTest {
     void updatePassword_UserNotFound() {
         // Given
         UpdatePasswordRequest request = new UpdatePasswordRequest("current", "new", "new");
-        given(userRepo.findByUserId(any(Long.class))).willReturn(Optional.empty());
+        given(userRepo.findById(any(Long.class))).willReturn(Optional.empty());
 
         // When & Then
         CustomException exception = assertThrows(CustomException.class,

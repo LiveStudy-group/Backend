@@ -148,7 +148,7 @@ public class ProfileServiceImpl implements ProfileService{
     }
 
     private User getUserById(Long userId) {
-        return userRepo.findByUserId(userId)
+        return userRepo.findById(userId)
                 .orElseThrow(() -> {
                     log.error("userId: {} 유저를 찾을 수 없습니다.", userId);
                     return new CustomException(ErrorCode.USER_NOT_FOUND);
