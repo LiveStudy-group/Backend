@@ -1,5 +1,12 @@
 package org.livestudy.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.livestudy.domain.user.SocialProvider;
 import org.livestudy.domain.user.User;
@@ -24,6 +31,7 @@ import java.util.Map;
 
 @Slf4j
 @Controller
+@Tag(name = "소셜 로그인 콜백 API", description = "OAuth2 콜백 처리")
 public class OAuth2CallbackController {
 
     private final UserService userService;
@@ -50,6 +58,16 @@ public class OAuth2CallbackController {
 
 
     @GetMapping("/api/auth/oauth2/callback/google")
+    @Operation(summary = "Google OAuth2 콜백 처리",
+            description = "Google OAuth2 인증 후 리디렉션된 요청을 처리하고, 사용자 정보를 기반으로 로그인/회원가입을 진행한 후 프론트엔드로 최종 리디렉션합니다.")
+    @Parameters({
+            @Parameter(name = "code", description = "Google OAuth2 인증 서버로부터 받은 인가 코드"),
+            @Parameter(name = "state", description = "OAuth2 흐름 중 CSRF 공격 방지를 위해 사용되는 상태 값 (선택 사항)", required = false)
+    })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "302", description = "인증 성공 또는 실패 후 프론트엔드 URI로 리디렉션됩니다.",
+                    headers = @Header(name = "Location", description = "리디렉션될 프론트엔드 URL (성공 시: token, email, isNewUser 포함 / 실패 시: error 포함)"))
+    })
     public void googleOAuth2Callback(@RequestParam("code") String code,
                                      @RequestParam(value = "state", required = false) String state,
                                      HttpServletResponse response) throws IOException {
