@@ -1,6 +1,15 @@
 # This docker-compose requires host networking, which is only available on Linux
 # This compose will not function correctly on Mac or Windows
 services:
+  spring:
+    build:
+      context: ../   # Dockerfile과 build.gradle이 있는 폴더
+    network_mode: "host"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    restart: unless-stopped
+    depends_on:
+      - redis
   caddy:
     image: livekit/caddyl4
     command: run --config /etc/caddy.yaml --adapter yaml
