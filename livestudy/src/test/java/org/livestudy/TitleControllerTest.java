@@ -2,20 +2,28 @@ package org.livestudy;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.livestudy.domain.data.RoomHistory;
+import org.livestudy.domain.studyroom.StudyRoom;
+import org.livestudy.domain.studyroom.StudyRoomStatus;
 import org.livestudy.domain.title.ConditionType;
 import org.livestudy.domain.title.Title;
 import org.livestudy.domain.title.TitleCode;
 import org.livestudy.domain.user.SocialProvider;
 import org.livestudy.domain.user.User;
-import org.livestudy.domain.user.UserActivity;
+import org.livestudy.domain.user.statusdata.UserActivity;
+import org.livestudy.repository.StudyRoomRepository;
 import org.livestudy.repository.TitleRepository;
 import org.livestudy.repository.UserRepository;
 import org.livestudy.repository.UserTitleRepository;
+import org.livestudy.repository.factory.RoomHistoryRepository;
 import org.livestudy.service.TitleService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,44 +35,55 @@ class TitleServiceIntegrationTest {
     @Autowired private UserRepository userRepository;
     @Autowired private TitleRepository titleRepository;
     @Autowired private UserTitleRepository userTitleRepository;
+    @Autowired private RoomHistoryRepository roomHistoryRepository;
+    @Autowired private StudyRoomRepository  studyRoomRepository;
+
+    private User testUser;
 
     @BeforeEach
-    void setUp() {
-        /// 칭호가 DB에 없다면 저장
+    void setup() {
+        userTitleRepository.deleteAll();
+        userRepository.deleteByEmail("test@example.com");
+
+        testUser = User.builder()
+                .email("test@example.com")
+                .password("1234")
+                .nickname("titleTester")
+                .socialProvider(SocialProvider.LOCAL)
+                .build();
+        userRepository.save(testUser);
+
+        StudyRoom studyRoom = StudyRoom.builder()
+                .id(1L)
+                .capacity(20)
+                .participantsNumber(0)
+                .status(StudyRoomStatus.OPEN)
+                .build();
+
+        String roomId = String.valueOf(studyRoom.getId());
+
+        // ✅ 테스트용 TitleCode 값이 없으면 등록
         for (TitleCode code : TitleCode.values()) {
-            if (!titleRepository.findByCode(code).isPresent()) {
+            titleRepository.findByCode(code).orElseGet(() -> {
                 Title title = Title.builder()
                         .code(code)
                         .name(code.name())
-                        .conditionType(ConditionType.FIRST_ROOM_ENTER) // 적절히 설정
-                        .conditionValue(1)
                         .description("테스트용 칭호")
+                        .conditionType(ConditionType.FIRST_ROOM_ENTER)
+                        .conditionValue(1)
                         .build();
-                titleRepository.save(title);
-            }
+                return titleRepository.save(title);
+            });
         }
     }
 
-    @BeforeEach
-    void cleanUp() {
-        userRepository.deleteByEmail("test@example.com");
-    }
-
-
     @Test
-    void when_you_get_first_enterAnyRoom_youGetTitle() {
-        User user = User.builder()
-                .email("test@example.com")
-                .password("12359843")
-                .nickname("user123")
-                .socialProvider(SocialProvider.LOCAL)
-                .build();
+    void should_grant_title_when_user_enters_first_room() {
+        // ✅ 조건 충족을 위한 mock 데이터 등록
+        roomHistoryRepository.save(RoomHistory.join(testUser.getId(), "test-room"));
 
-        userRepository.save(user);
-
-        UserActivity activity = new UserActivity(1, 0, 0, 0, 0 , true, 0, null, 0, false, 0);
-
-        List<Title> granted = titleService.evaluateAndGrantTitles(user, activity);
+        // ✅ 칭호 판별
+        List<Title> granted = titleService.evaluateAndGrantTitles(testUser.getId());
 
         assertThat(granted)
                 .extracting(Title::getCode)

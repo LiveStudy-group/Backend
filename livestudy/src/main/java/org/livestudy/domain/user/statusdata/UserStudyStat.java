@@ -45,4 +45,14 @@ public class UserStudyStat {
     @Builder.Default
     @Column(name = "total_away_time", nullable = false)
     private Integer totalAwayTime = 0;
+
+    // 연속으로 1시간 이상 집중한 일수
+    @Builder.Default
+    @Column(name = "continue_FocusDays_OverHour")
+    private Integer consecutiveFocusDaysOverHour = 0;
+
+    // 타이틀 획득 갯수
+    @Builder.Default
+    @Column(name = "title_count")
+    private Integer titleCount = 0;
 }

@@ -6,14 +6,11 @@ import org.livestudy.domain.title.TitleCode;
 import org.livestudy.domain.title.TitleCondition;
 import org.livestudy.domain.title.UserTitle;
 import org.livestudy.domain.user.User;
-import org.livestudy.domain.user.UserActivity;
 import org.livestudy.exception.CustomException;
 import org.livestudy.exception.ErrorCode;
 import org.livestudy.repository.TitleRepository;
 import org.livestudy.repository.UserRepository;
 import org.livestudy.repository.UserTitleRepository;
-import org.livestudy.repository.titlecondition.FirstRoomEnterCondition;
-import org.livestudy.repository.titlecondition.FocusBeginnerCondition;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -38,14 +35,14 @@ public class TitleServiceImpl implements TitleService {
         this.userRepository = userRepository;
 
 
-        this.titleConditions = List.of(
-                new FirstRoomEnterCondition(),
-                new FocusBeginnerCondition()
-        );
+        this.titleConditions = titleConditions;
     }
 
     @Transactional
-    public List<Title> evaluateAndGrantTitles(User user, UserActivity activity) {
+    public List<Title> evaluateAndGrantTitles(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
         List<Title> grantedTitles = new ArrayList<>();
 
         for (TitleCondition condition : titleConditions) {
@@ -54,12 +51,11 @@ public class TitleServiceImpl implements TitleService {
                     .orElseThrow(() -> new CustomException(ErrorCode.TITLE_NOT_FOUND));
 
             boolean alreadyOwned = userTitleRepository.existsByUserAndTitle(user, title);
-            if (!alreadyOwned && condition.isSatisfied(activity)) {
+            if (!alreadyOwned && condition.isSatisfied(userId)) {
                 userTitleRepository.save(UserTitle.create(user, title));
                 grantedTitles.add(title);
             }
         }
-
 
         return grantedTitles;
     }

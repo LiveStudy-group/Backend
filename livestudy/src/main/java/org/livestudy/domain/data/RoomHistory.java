@@ -32,6 +32,10 @@ public class RoomHistory {
         this.leftAt = leftTime;
     }
 
+    public static RoomHistory join(Long userId, String roomId) {
+        return join(userId, roomId, LocalDateTime.now());
+    }
+
     public static RoomHistory join(Long userId, String roomId, LocalDateTime joinedAt) {
         return RoomHistory.builder()
                 .userId(userId)

@@ -30,7 +30,7 @@ public class TitleController {
     @Operation(summary = "획득 가능한 칭호 평가 및 지급")
     public ResponseEntity<GrantTitleResponse> grantTitles(@RequestBody GrantTitleRequest request) {
         User user = userService.getUserById(request.userId());
-        List<Title> granted = titleService.evaluateAndGrantTitles(user, request.activity());
+        List<Title> granted = titleService.evaluateAndGrantTitles(user.getId());
         return ResponseEntity.ok(new GrantTitleResponse(
                 granted.stream().map(Title::getName).toList()
         ));
