@@ -72,7 +72,7 @@ public class TitleServiceImpl implements TitleService {
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_EARNED_TITLE_YET));
 
         // 1. 기존 장착 칭호 해제 (장착 중인 것만 해제)
-        userTitleRepository.findAllByUserAndIsEquippedTrue(user)
+        userTitleRepository.findAllByUserAndEquippedTrue(user)
                 .forEach(UserTitle::unequip);
 
         // 2. 선택한 칭호 장착

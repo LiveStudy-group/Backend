@@ -15,7 +15,7 @@ public class TitleCollectCondition implements TitleCondition {
 
     @Override
     public boolean isSatisfied(Long userId) {
-        return factory.getEarnedTitleCount(userId) >= 10;
+        return factory.getEarnedTitleCount(userId) >= 7;
     }
 
     @Override
