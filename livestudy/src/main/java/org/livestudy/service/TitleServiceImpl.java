@@ -6,6 +6,7 @@ import org.livestudy.domain.title.TitleCode;
 import org.livestudy.domain.title.TitleCondition;
 import org.livestudy.domain.title.UserTitle;
 import org.livestudy.domain.user.User;
+import org.livestudy.dto.UserTitleResponse;
 import org.livestudy.exception.CustomException;
 import org.livestudy.exception.ErrorCode;
 import org.livestudy.repository.TitleRepository;
@@ -61,7 +62,7 @@ public class TitleServiceImpl implements TitleService {
     }
 
     @Override
-    public void equipTitle(Long userId, Long titleId) {
+    public UserTitleResponse equipTitle(Long userId, Long titleId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
@@ -72,7 +73,7 @@ public class TitleServiceImpl implements TitleService {
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_EARNED_TITLE_YET));
 
         // 1. 기존 장착 칭호 해제 (장착 중인 것만 해제)
-        userTitleRepository.findAllByUserAndEquippedTrue(user)
+        userTitleRepository.findAllByUserAndIsEquippedTrue(user)
                 .forEach(UserTitle::unequip);
 
         // 2. 선택한 칭호 장착
@@ -83,5 +84,6 @@ public class TitleServiceImpl implements TitleService {
 
         // 4. 변경된 User 저장
         userRepository.save(user);
+        return null;
     }
 }

@@ -2,6 +2,8 @@ package org.livestudy;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.livestudy.component.UserActivityFactory;
+import org.livestudy.domain.data.LoginHistory;
 import org.livestudy.domain.data.RoomHistory;
 import org.livestudy.domain.studyroom.*;
 import org.livestudy.domain.title.ConditionType;
@@ -15,13 +17,17 @@ import org.livestudy.domain.user.statusdata.UserStudyStat;
 import org.livestudy.repository.*;
 import org.livestudy.repository.factory.RoomHistoryRepository;
 import org.livestudy.repository.factory.UserChatRepository;
+import org.livestudy.repository.factory.UserLoginHistoryRepository;
 import org.livestudy.service.TitleService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,7 +45,12 @@ class TitleServiceIntegrationTest {
     @Autowired private UserChatRepository userChatRepository;
     @Autowired private DailyStudyRecordRepository dailyStudyRecordRepository;
     @Autowired private UserStudyStatRepository userStudyStatRepository;
+    @Autowired private UserLoginHistoryRepository userLoginHistoryRepository;
 
+    @Autowired private UserActivityFactory factory;
+
+    @MockitoBean
+    private RedisMessageListenerContainer redisMessageListenerContainer;
 
 
     private User testUser;
@@ -195,6 +206,52 @@ class TitleServiceIntegrationTest {
                     .dailyStudyTime(30)
                     .dailyAwayTime(0)
                     .build());
+
         }
+
+        userStudyStatRepository.save(
+                UserStudyStat.builder()
+                        .user(testUser)
+                        .totalStudyTime(210)
+                        .totalAwayTime(0)
+                        .continueAttendanceDays(7)
+                        .build()
+        );
+
+        List<Title> granted = titleService.evaluateAndGrantTitles(testUser.getId());
+
+        assertThat(granted).extracting(Title::getCode)
+                .contains(TitleCode.SEVEN_DAYS);
+    }
+
+    @Test
+    void should_grant_from_9_start_when_user_attended_at_9AM_with_7days_in_a_row(){
+        LocalDate today = LocalDate.now();
+        // 1) 7일 연속 로그인 기록을 UserLoginHistory에 저장 (9시 이전 로그인)
+        for (int i = 0; i < 7; i++) {
+            userLoginHistoryRepository.save(LoginHistory.builder()
+                    .userId(testUser.getId())
+                            .loginDate(today.minusDays(i))
+                    .loginTime(LocalTime.of( 9, 0)) // 9시 이전 로그인
+                    .build());
+        }
+
+        for (int i = 0; i < 7; i++) {
+            dailyStudyRecordRepository.save(DailyStudyRecord.builder()
+                    .user(testUser)
+                    .recordDate(today.minusDays(i))
+                    .dailyStudyTime(30)
+                    .dailyAwayTime(0)
+                    .build());
+        }
+
+        // 3) 실제 테스트: UserActivityFactory의 hasLoggedInAt9Hour 체크
+        boolean hasLoggedInAt9 = factory.hasLoggedInAt9Hour(testUser.getId(), today, 9);
+        assertThat(hasLoggedInAt9).isTrue();
+
+        // 4) 그 외 칭호 평가 등도 필요시 추가
+        List<Title> granted = titleService.evaluateAndGrantTitles(testUser.getId());
+        assertThat(granted).extracting(Title::getCode)
+                .contains(TitleCode.FROM_9_START);
     }
 }

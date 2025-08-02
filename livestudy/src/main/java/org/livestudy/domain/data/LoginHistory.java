@@ -7,7 +7,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Entity
 @Getter
@@ -22,11 +24,14 @@ public class LoginHistory {
 
     private Long userId;
 
-    private LocalDateTime loginTime;
+    private LocalDate loginDate;
 
-    public static LoginHistory of(Long userId, LocalDateTime loginTime) {
+    private LocalTime loginTime;
+
+    public static LoginHistory of(Long userId, LocalDate loginDate, LocalTime loginTime) {
         return LoginHistory.builder()
                 .userId(userId)
+                .loginDate(loginDate)
                 .loginTime(loginTime)
                 .build();
     }
