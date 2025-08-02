@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/user/profile")
+@CrossOrigin(origins = "https://live-study.com", methods = {RequestMethod.GET, RequestMethod.PATCH})
 @Tag(name = "마이페이지 API", description = "마이페이지 데이터 조회/수정 API")
 public class UserProfileController {
 
