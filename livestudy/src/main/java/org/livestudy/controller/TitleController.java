@@ -50,7 +50,7 @@ public class TitleController {
     )
     @PostMapping("/{userId}/equip")
     public ResponseEntity<UserTitleResponse> equipTitle(
-            @Parameter(description = "사용자 ID", example = "1")@RequestParam Long titleId,
+            @Parameter(description = "보유하고 있는 칭호 ID", example = "1")@RequestParam Long titleId,
             @Parameter(description = "장착할 칭호 ID", example = "5")@PathVariable Long userId
     ) {
         UserTitleResponse response = titleService.equipTitle(userId, titleId);
