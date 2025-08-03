@@ -29,7 +29,7 @@ public enum Badge {
     CHATTER("Wide Foot", "채팅 100회 이상", TitleCategory.CHAT),
 
     // 📖 수집
-    TITLE_COLLECTOR("칭호 수첩", "칭호 10개 이상 획득", TitleCategory.SPECIAL);
+    TITLE_COLLECTOR("칭호 수첩", "칭호 7개 이상 획득", TitleCategory.SPECIAL);
 
     private final String displayName;
     private final String description;

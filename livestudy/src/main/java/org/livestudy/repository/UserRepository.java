@@ -24,10 +24,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // 이메일과 소셜 프로바이더로 사용자 검색
     Optional<User> findByEmailAndSocialProvider(String email, SocialProvider socialProvider);
 
+
     Optional<User> findById(Long Id);
 
     Boolean existsByNickname(String nickname);
 
     Boolean existsByEmail(String Email);
+
 
 }

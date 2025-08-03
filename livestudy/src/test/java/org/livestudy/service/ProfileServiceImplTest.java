@@ -5,7 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.livestudy.domain.user.User;
-import org.livestudy.domain.user.UserStudyStat;
+import org.livestudy.domain.user.statusdata.UserStudyStat;
 import org.livestudy.dto.UserProfile.*;
 import org.livestudy.exception.CustomException;
 import org.livestudy.exception.ErrorCode;

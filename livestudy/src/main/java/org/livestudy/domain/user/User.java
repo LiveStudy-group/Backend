@@ -103,6 +103,7 @@ public class User extends BaseEntity {
         this.equippedBadge = badge;
     }
 
+
     // 닉네임 변경
     public void updateNickname(String newNickname) {
         this.nickname = newNickname;

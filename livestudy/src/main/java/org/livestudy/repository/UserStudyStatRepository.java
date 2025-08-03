@@ -1,6 +1,6 @@
 package org.livestudy.repository;
 
-import org.livestudy.domain.user.UserStudyStat;
+import org.livestudy.domain.user.statusdata.UserStudyStat;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
