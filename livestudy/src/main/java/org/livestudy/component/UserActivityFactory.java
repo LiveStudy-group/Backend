@@ -2,16 +2,12 @@ package org.livestudy.component;
 
 import lombok.RequiredArgsConstructor;
 import org.livestudy.domain.user.statusdata.DailyStudyRecord;
-import org.livestudy.domain.user.statusdata.UserActivity;
 import org.livestudy.domain.user.statusdata.UserStudyStat;
-import org.livestudy.repository.UserRepository;
-import org.livestudy.repository.UserStudyStatRepository;
-import org.livestudy.repository.UserTitleRepository;
-import org.livestudy.repository.DailyStudyRecordRepository;
+import org.livestudy.repository.*;
 import org.livestudy.repository.factory.RoomHistoryRepository;
-import org.livestudy.repository.factory.UserChatRepository;
+
 import org.livestudy.repository.factory.UserLoginHistoryRepository;
-import org.livestudy.repository.factory.UserReportRepository;
+import org.livestudy.repository.report.ReportRepository;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -27,8 +23,8 @@ public class UserActivityFactory {
     private final DailyStudyRecordRepository dailyStudyRecordRepo;
     private final UserStudyStatRepository userStudyStatRepo;
     private final UserLoginHistoryRepository loginHistoryRepo;
-    private final UserChatRepository chatRepo;
-    private final UserReportRepository reportRepo;
+    private final ChatRepository chatRepo;
+    private final ReportRepository reportRepo;
     private final UserTitleRepository titleRepo;
     private final RoomHistoryRepository roomHistoryRepo;
 

@@ -16,7 +16,6 @@ import org.livestudy.domain.user.statusdata.DailyStudyRecord;
 import org.livestudy.domain.user.statusdata.UserStudyStat;
 import org.livestudy.repository.*;
 import org.livestudy.repository.factory.RoomHistoryRepository;
-import org.livestudy.repository.factory.UserChatRepository;
 import org.livestudy.repository.factory.UserLoginHistoryRepository;
 import org.livestudy.service.TitleService;
 
@@ -42,7 +41,7 @@ class TitleServiceIntegrationTest {
     @Autowired private RoomHistoryRepository roomHistoryRepository;
     @Autowired private StudyRoomRepository  studyRoomRepository;
     @Autowired private StudyRoomParticipantRepository studyRoomParticipantRepository;
-    @Autowired private UserChatRepository userChatRepository;
+    @Autowired private ChatRepository chatRepository;
     @Autowired private DailyStudyRecordRepository dailyStudyRecordRepository;
     @Autowired private UserStudyStatRepository userStudyStatRepository;
     @Autowired private UserLoginHistoryRepository userLoginHistoryRepository;
@@ -60,7 +59,7 @@ class TitleServiceIntegrationTest {
         userTitleRepository.deleteAll();
         dailyStudyRecordRepository.deleteAll();
         userStudyStatRepository.deleteAll();
-        userChatRepository.deleteAll();
+        chatRepository.deleteAll();
         studyRoomParticipantRepository.deleteAll();
         userRepository.deleteByEmail("test@example.com");
 
@@ -126,7 +125,7 @@ class TitleServiceIntegrationTest {
         );
 
         for (int i = 0; i < 100; i++) {
-            userChatRepository.save(Chat.builder()
+            chatRepository.save(Chat.builder()
                     .studyRoom(room)
                     .participant(participant)
                     .createdAt(LocalDateTime.now().minusHours(4).plusMinutes(i))
