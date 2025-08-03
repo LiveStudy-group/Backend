@@ -1,9 +1,18 @@
 package org.livestudy.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.livestudy.dto.AverageFocusRatioResponse;
 import org.livestudy.dto.DailyRecordResponse;
+import org.livestudy.dto.ErrorResponse;
 import org.livestudy.dto.UserStudyStatsResponse;
 import org.livestudy.security.SecurityUser;
 import org.livestudy.service.UserStudyStatService;
@@ -22,12 +31,24 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/user/stat")
+@Tag(name = "통계 페이지 API", description = "통계 페이지 데이터 조회")
 public class UserStatController {
 
     private final UserStudyStatService userStudyStatService;
 
     // 기본 데이터
     @GetMapping("/normal")
+    @Operation(summary = "공부 데이터 조회", description = "유저(자신)에 대한 공부 데이터를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "공부 데이터가 성공적으로 조회되었습니다."),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청입니다.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자입니다.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "조회 대상을 찾을 수 없습니다.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "서버 오류 발생.")
+    })
     public ResponseEntity<UserStudyStatsResponse> getUserNormalStats(
             @AuthenticationPrincipal SecurityUser user) {
 
@@ -40,7 +61,23 @@ public class UserStatController {
         return ResponseEntity.ok(statsResponse);
     }
 
+    // 일별 집중도 추이
     @GetMapping("/daily-focus")
+    @Operation(summary = "일별 집중도 추이 조회", description = "유저(자신)에 대한 일별 집중도 추이를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "집중도 추이가 성공적으로 조회되었습니다."),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청입니다.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자입니다.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "조회 대상을 찾을 수 없습니다.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "서버 오류 발생.")
+    })
+    @Parameters({
+            @Parameter(name = "startDate", description = "시작일", example = "2025-07-22"),
+            @Parameter(name = "endDate", description = "종료일", example = "2025-08-01")
+    })
     public ResponseEntity<List<DailyRecordResponse>> getDailyFocus(
             @AuthenticationPrincipal SecurityUser user,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -58,7 +95,23 @@ public class UserStatController {
         return ResponseEntity.ok(dailyFocus);
     }
 
+    // 기간별 집중률
     @GetMapping("/average-focus-ratio")
+    @Operation(summary = "기간별 집중률 조회", description = "유저(자신)에 대한 기간별 집중률을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "기간별 집중률이 성공적으로 조회되었습니다."),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청입니다.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자입니다.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "조회 대상을 찾을 수 없습니다.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "서버 오류 발생.")
+    })
+    @Parameters({
+            @Parameter(name = "startDate", description = "시작일", example = "2025-07-22"),
+            @Parameter(name = "endDate", description = "종료일", example = "2025-08-01")
+    })
     public ResponseEntity<AverageFocusRatioResponse> getAverageFocusRatio(
             @AuthenticationPrincipal SecurityUser user,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
