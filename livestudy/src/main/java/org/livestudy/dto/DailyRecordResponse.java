@@ -8,17 +8,18 @@ import java.time.LocalDate;
 
 @Getter
 @Builder
+@Schema(description = "하루 기록 응답 DTO")
 public class DailyRecordResponse {
 
-    @Schema(description = "오늘의 공부기록을 기록하는 날짜", example = "2025.08.02")
+    @Schema(description = "기록한 날짜", example = "2025-08-01")
     private LocalDate recordDate;
 
-    @Schema(description = "오늘 공부한 시간", example = "79")
+    @Schema(description = "하루 공부 시간", example = "2222")
     private Long dailyStudyTime;
 
-    @Schema(description = "오늘 휴식한 시간", example = "40")
+    @Schema(description = "하루 자리 비움 시간", example = "1111")
     private Long dailyAwayTime;
 
-    @Schema(description = "오늘의 휴식시간 대비 공부시간의 비율", example = "0.78")
+    @Schema(description = "하루 집중률", example = "0.53")
     private Double focusRatio;
 }

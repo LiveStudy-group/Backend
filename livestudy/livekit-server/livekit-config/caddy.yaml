@@ -12,6 +12,7 @@ apps:
     certificates:
       automate:
         - live-study.com
+        - api.live-study.com
 
   http:
     servers:
@@ -22,11 +23,12 @@ apps:
           - match:
               - host:
                   - live-study.com
+                  - api.live-study.com
             handle:
               - handler: static_response
                 status_code: 308
                 headers:
-                  Location: ["https://live-study.com{uri}"]
+                  Location: ["https://{http.request.host}{uri}"]
 
       main:  # ← HTTPS 443 서버
         listen:
@@ -39,4 +41,10 @@ apps:
               - handler: reverse_proxy
                 upstreams:
                   - dial: localhost:7880
-
+          - match:
+              - host:
+                  - api.live-study.com
+            handle:
+              - handler: reverse_proxy
+                upstreams:
+                  - dial: localhost:8080
