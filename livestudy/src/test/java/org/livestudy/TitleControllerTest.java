@@ -53,6 +53,7 @@ class TitleServiceIntegrationTest {
 
 
     private User testUser;
+    private StudyRoom studyRoom;
 
     @BeforeEach
     void setup() {
@@ -61,24 +62,24 @@ class TitleServiceIntegrationTest {
         userStudyStatRepository.deleteAll();
         chatRepository.deleteAll();
         studyRoomParticipantRepository.deleteAll();
-        userRepository.deleteByEmail("test@example.com");
+        roomHistoryRepository.deleteAll();
+        userLoginHistoryRepository.deleteAll();
+        userRepository.deleteAll();
 
-        testUser = User.builder()
+        testUser = userRepository.save(User.builder()
                 .email("test@example.com")
                 .password("1234")
                 .nickname("titleTester")
                 .socialProvider(SocialProvider.LOCAL)
-                .build();
-        userRepository.save(testUser);
+                .build());
 
-        StudyRoom studyRoom = StudyRoom.builder()
-                .id(1L)
+        studyRoom = studyRoomRepository.save(StudyRoom.builder()
                 .capacity(20)
                 .participantsNumber(0)
                 .status(StudyRoomStatus.OPEN)
-                .build();
+                .build());
 
-        String roomId = String.valueOf(studyRoom.getId());
+
 
         // ✅ 테스트용 TitleCode 값이 없으면 등록
         for (TitleCode code : TitleCode.values()) {
@@ -97,11 +98,15 @@ class TitleServiceIntegrationTest {
 
     @Test
     void should_grant_title_when_user_enters_first_room() {
-        // ✅ 조건 충족을 위한 mock 데이터 등록
-        roomHistoryRepository.save(RoomHistory.join(testUser.getId(), "test-room"));
+        // ✅ given: 유저와 방 생성
+        User savedUser = userRepository.save(testUser);
+        StudyRoom savedRoom = studyRoomRepository.save(studyRoom); // create는 예시야
 
-        // ✅ 칭호 판별
-        List<Title> granted = titleService.evaluateAndGrantTitles(testUser.getId());
+        // ✅ when: RoomHistory 생성 및 저장
+        roomHistoryRepository.save(RoomHistory.join(savedUser, savedRoom, LocalDateTime.now()));
+
+        // ✅ then: 칭호 부여 판별
+        List<Title> granted = titleService.evaluateAndGrantTitles(savedUser.getId());
 
         assertThat(granted)
                 .extracting(Title::getCode)
@@ -229,7 +234,7 @@ class TitleServiceIntegrationTest {
         // 1) 7일 연속 로그인 기록을 UserLoginHistory에 저장 (9시 이전 로그인)
         for (int i = 0; i < 7; i++) {
             userLoginHistoryRepository.save(LoginHistory.builder()
-                    .userId(testUser.getId())
+                    .user(testUser)
                             .loginDate(today.minusDays(i))
                     .loginTime(LocalTime.of( 9, 0)) // 9시 이전 로그인
                     .build());

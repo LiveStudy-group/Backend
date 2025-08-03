@@ -17,7 +17,7 @@ public interface UserLoginHistoryRepository extends JpaRepository<LoginHistory, 
     @Query("""
         SELECT CASE WHEN COUNT(l) > 0 THEN true ELSE false END
         FROM LoginHistory l
-        WHERE l.userId = :userId
+        WHERE l.user.id = :userId
           AND FUNCTION('DATE', l.loginTime) = :date
           AND FUNCTION('HOUR', l.loginTime) = :hour
     """)
@@ -28,7 +28,7 @@ public interface UserLoginHistoryRepository extends JpaRepository<LoginHistory, 
 
     @Query("""
     SELECT l FROM LoginHistory l
-    WHERE l.userId = :userId
+    WHERE l.user.id = :userId
     ORDER BY l.loginTime DESC
     LIMIT 1
 """)

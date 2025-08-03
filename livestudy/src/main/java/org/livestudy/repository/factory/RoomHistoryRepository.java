@@ -10,5 +10,4 @@ public interface RoomHistoryRepository extends JpaRepository<RoomHistory, Long> 
 
     boolean existsByUserId(Long userId);
 
-    Long roomId(String roomId);
 }

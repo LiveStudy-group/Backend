@@ -1,11 +1,10 @@
 package org.livestudy.domain.data;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
+import org.livestudy.domain.studyroom.StudyRoom;
+import org.livestudy.domain.user.User;
 
 import java.time.LocalDateTime;
 
@@ -20,9 +19,13 @@ public class RoomHistory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-    private String roomId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "study_room_id", nullable = false)
+    private StudyRoom studyRoom;
 
     private LocalDateTime joinedAt;
 
@@ -32,14 +35,14 @@ public class RoomHistory {
         this.leftAt = leftTime;
     }
 
-    public static RoomHistory join(Long userId, String roomId) {
-        return join(userId, roomId, LocalDateTime.now());
+    public static RoomHistory join(User user, StudyRoom studyRoom) {
+        return join(user, studyRoom, LocalDateTime.now());
     }
 
-    public static RoomHistory join(Long userId, String roomId, LocalDateTime joinedAt) {
+    public static RoomHistory join(User user, StudyRoom studyRoom, LocalDateTime joinedAt) {
         return RoomHistory.builder()
-                .userId(userId)
-                .roomId(roomId)
+                .user(user)
+                .studyRoom(studyRoom)
                 .joinedAt(joinedAt)
                 .build();
     }

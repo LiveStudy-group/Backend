@@ -1,11 +1,9 @@
 package org.livestudy.domain.data;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
+import org.livestudy.domain.user.User;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -21,15 +19,17 @@ public class LoginHistory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     private LocalDate loginDate;
 
     private LocalTime loginTime;
 
-    public static LoginHistory of(Long userId, LocalDate loginDate, LocalTime loginTime) {
+    public static LoginHistory of(User user, LocalDate loginDate, LocalTime loginTime) {
         return LoginHistory.builder()
-                .userId(userId)
+                .user(user)
                 .loginDate(loginDate)
                 .loginTime(loginTime)
                 .build();
