@@ -69,8 +69,6 @@ public class SecurityConfig {
                 .oauth2Login(oauth2 -> oauth2
                         .authorizationEndpoint(authorization -> authorization
                                 .baseUri("/api/auth/oauth2/authorize"))
-                        .redirectionEndpoint(redirection -> redirection
-                                .baseUri("https://api.live-study.com/login/oauth2/code/*"))
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService))
                         .successHandler(oAuth2AuthenticationSuccessHandler)
