@@ -63,7 +63,8 @@ public class SecurityConfig {
                                 "/chat-test.html", // Websocket 서버 Test용
                                 "/oauth2/**",
                                 "/api/debug/**",
-                                "/auth/**"
+                                "/auth/**",
+                                "/api/user/**"
                         ).permitAll()
                         .requestMatchers("/api/livekit/**").authenticated()
                         .anyRequest().authenticated())
@@ -99,7 +100,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(Arrays.asList("https://localhost:5174", "http://localhost:5174", "https://live-study.com"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5174", "https://live-study.com"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
