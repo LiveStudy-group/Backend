@@ -25,6 +25,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableMethodSecurity
@@ -54,15 +55,15 @@ public class SecurityConfig {
                         .maximumSessions(1)
                         .maxSessionsPreventsLogin(false))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**", "/ws/**", "/oauth2/**", "/api/debug/**").permitAll()
-                        .requestMatchers("/api/auth/**", "/ws/**","/v3/api-docs/**",           // Swagger JSON
+                        .requestMatchers("/api/auth/**", "/v3/api-docs/**",           // Swagger JSON
                                 "/swagger-ui/**",            // Swagger HTML/CSS/JS
                                 "/swagger-ui.html",          // 구버전 접근 경로
                                 "/webjars/**",
                                 "/webhook/**",
                                 "/chat-test.html", // Websocket 서버 Test용
                                 "/oauth2/**",
-                                "/api/debug/**"
+                                "/api/debug/**",
+                                "/auth/**"
                         ).permitAll()
                         .requestMatchers("/api/livekit/**").authenticated()
                         .anyRequest().authenticated())
@@ -100,7 +101,7 @@ public class SecurityConfig {
 
         configuration.setAllowedOrigins(Arrays.asList("https://localhost:5174", "http://localhost:5174", "https://live-study.com"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
