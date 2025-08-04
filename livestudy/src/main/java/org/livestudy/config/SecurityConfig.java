@@ -62,7 +62,8 @@ public class SecurityConfig {
                                 "/webhook/**",
                                 "/chat-test.html", // Websocket 서버 Test용
                                 "/oauth2/**",
-                                "/api/debug/**"
+                                "/api/debug/**",
+                                "/auth/**"
                         ).permitAll()
                         .requestMatchers("/api/livekit/**").authenticated()
                         .anyRequest().authenticated())
