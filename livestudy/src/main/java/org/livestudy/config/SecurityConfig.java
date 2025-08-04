@@ -64,7 +64,11 @@ public class SecurityConfig {
                                 "/oauth2/**",
                                 "/api/debug/**",
                                 "/auth/**",
-                                "/api/user/**"
+                                "/api/user/**",
+                                "/api/study-rooms/**",
+                                "/api/titles/**",
+                                "/api/livekit/**",
+                                "/api/timer/**"
                         ).permitAll()
                         .requestMatchers("/api/livekit/**").authenticated()
                         .anyRequest().authenticated())
