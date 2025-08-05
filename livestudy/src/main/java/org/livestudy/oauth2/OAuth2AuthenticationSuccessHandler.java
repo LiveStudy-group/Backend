@@ -26,17 +26,25 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException {
         if (response.isCommitted()) {
+            logger.warn("Response already committed before targetUrl determination. Returning early.");
             return;
         }
 
         String targetUrl = determineTargetUrl(request, response, authentication);
+        logger.debug("Determined target URL: " + targetUrl);
 
         if (response.isCommitted()) {
             logger.debug("Response has already been committed. Unable to redirect to " + targetUrl);
             return;
         }
 
-        getRedirectStrategy().sendRedirect(request, response, targetUrl);
+        try {
+            getRedirectStrategy().sendRedirect(request, response, targetUrl);
+            logger.debug("Redirected to: " + targetUrl);
+        } catch (IOException e) {
+            logger.error("Failed to redirect to " + targetUrl, e);
+            throw e;
+        }
     }
 
     protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response,
