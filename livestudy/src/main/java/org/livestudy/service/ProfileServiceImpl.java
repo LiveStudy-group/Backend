@@ -3,7 +3,7 @@ package org.livestudy.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.livestudy.domain.user.User;
-import org.livestudy.domain.user.UserStudyStat;
+import org.livestudy.domain.user.statusdata.UserStudyStat;
 import org.livestudy.dto.UserProfile.*;
 import org.livestudy.exception.CustomException;
 import org.livestudy.exception.ErrorCode;

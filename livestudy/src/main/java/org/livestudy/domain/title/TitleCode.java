@@ -21,6 +21,9 @@ public enum TitleCode {
     // 💬 참여/채팅
     CHATTER,
 
+    // 신고 관련
+    CLEAN_HUNTER,
+
     // 📖 수집
     TITLE_COLLECTOR;
 }

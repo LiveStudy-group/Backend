@@ -4,23 +4,21 @@ import lombok.RequiredArgsConstructor;
 import org.livestudy.component.UserActivityFactory;
 import org.livestudy.domain.title.TitleCode;
 import org.livestudy.domain.title.TitleCondition;
-import org.livestudy.domain.user.statusdata.UserActivity;
-import org.livestudy.domain.user.statusdata.UserStudyStat;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
-public class FirstRoomEnterCondition implements TitleCondition {
+public class MonthAttendanceCondition implements TitleCondition {
 
     private final UserActivityFactory factory;
 
     @Override
-    public TitleCode getTitleCode() {
-        return TitleCode.FIRST_ROOM_ENTER;
+    public boolean isSatisfied(Long userId) {
+        return factory.getConsecutiveLoginDays(userId) >= 30;
     }
 
     @Override
-    public boolean isSatisfied(Long userId) {
-        return factory.hasEnteredAnyRoom(userId);
+    public TitleCode getTitleCode() {
+        return TitleCode.THIRTY_DAYS;
     }
 }

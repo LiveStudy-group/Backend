@@ -4,23 +4,22 @@ import lombok.RequiredArgsConstructor;
 import org.livestudy.component.UserActivityFactory;
 import org.livestudy.domain.title.TitleCode;
 import org.livestudy.domain.title.TitleCondition;
-import org.livestudy.domain.user.statusdata.UserActivity;
-import org.livestudy.domain.user.statusdata.UserStudyStat;
 import org.springframework.stereotype.Component;
+
 
 @RequiredArgsConstructor
 @Component
-public class FirstRoomEnterCondition implements TitleCondition {
+public class TenHoursOneDayCondition implements TitleCondition {
 
     private final UserActivityFactory factory;
 
     @Override
-    public TitleCode getTitleCode() {
-        return TitleCode.FIRST_ROOM_ENTER;
+    public boolean isSatisfied(Long userId) {
+        return factory.getOneDayFocusMinutes(userId) >= 600;
     }
 
     @Override
-    public boolean isSatisfied(Long userId) {
-        return factory.hasEnteredAnyRoom(userId);
+    public TitleCode getTitleCode() {
+        return TitleCode.TEN_HOURS_ONE_DAY;
     }
 }

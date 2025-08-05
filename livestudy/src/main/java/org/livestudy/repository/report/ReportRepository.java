@@ -25,4 +25,9 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
     long countDistinctReporter(@Param("room")StudyRoom room,
                                @Param("reported")User reported,
                                @Param("reason")ReportReason reason);
+
+    // userId가 신고한 횟수
+    long countByReporterId(Long reporterId);
+
+
 }
