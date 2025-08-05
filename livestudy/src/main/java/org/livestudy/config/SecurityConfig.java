@@ -2,6 +2,7 @@ package org.livestudy.config;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.livestudy.oauth2.CustomOAuth2AuthorizationRequestRepository;
 import org.livestudy.oauth2.CustomOAuth2UserService;
 import org.livestudy.oauth2.OAuth2AuthenticationFailureHandler;
 import org.livestudy.oauth2.OAuth2AuthenticationSuccessHandler;
@@ -76,8 +77,9 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .oauth2Login(oauth2 -> oauth2
                         .authorizationEndpoint(authorization -> authorization
-                                .baseUri("/api/auth/oauth2/authorize"))
-                        .userInfoEndpoint(userInfo -> userInfo
+                                .baseUri("/api/auth/oauth2/authorize")
+                                .authorizationRequestRepository(new CustomOAuth2AuthorizationRequestRepository()))
+                .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService))
                         .successHandler(oAuth2AuthenticationSuccessHandler)
                         .failureHandler(oAuth2AuthenticationFailureHandler))
