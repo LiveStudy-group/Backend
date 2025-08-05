@@ -1,3 +1,4 @@
+                                                                                                                    caddy.yaml
 logging:
   logs:
     default:
@@ -45,6 +46,18 @@ apps:
               - host:
                   - api.live-study.com
             handle:
+              - handler: static_response
+                status_code: 204
+                headers:
+                  Access-Control-Allow-Origin:
+                    - "http://localhost:5174"
+                    - "https://live-study.com"
+                  Access-Control-Allow-Methods:
+                    - "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+                  Access-Control-Allow-Headers:
+                    - "Content-Type, Authorization"
+                  Access-Control-Allow-Credentials:
+                    - "true"
               - handler: reverse_proxy
                 upstreams:
                   - dial: localhost:8080
