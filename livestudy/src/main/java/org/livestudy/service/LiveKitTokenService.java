@@ -16,13 +16,15 @@ public class LiveKitTokenService {
 
     private static final Logger log = LoggerFactory.getLogger(LiveKitTokenService.class);
 
+    @Value("${livekit.api-key}")
     private String apiKey;
 
+    @Value("${livekit.api-secret}")
     private String apiSecret;
 
     public LiveKitTokenService(
-            @Value("${livekit.api-key}") String apiKey,
-            @Value("${livekit.api-secret}") String apiSecret) {
+             String apiKey,
+             String apiSecret) {
         this.apiKey = apiKey;
         this.apiSecret = apiSecret;
     }

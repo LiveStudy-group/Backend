@@ -30,7 +30,7 @@ public class RoomRedisRepository {
 
     // 유저가 입장한 방 정보 저장
     public void setUserRoom(String userId, String roomId) {
-        roomRedisTemplate.opsForValue().set("user:" + userId + ":room", roomId);
+        roomRedisTemplate.opsForValue().set("user:" + userId, roomId);
     }
 
     // 유저가 입장한 방 조회
@@ -41,7 +41,7 @@ public class RoomRedisRepository {
 
     // 유저 방 정보 제거 (퇴장 처리)
     public void deleteUserRoom(String userId) {
-        roomRedisTemplate.delete("user:" + userId + ":room");
+        roomRedisTemplate.delete("user:" + userId);
     }
 }
 

@@ -70,7 +70,6 @@ public class SecurityConfig {
                                 "/api/user/**",
                                 "/api/study-rooms/**",
                                 "/api/titles/**",
-                                "/api/livekit/**",
                                 "/api/timer/**"
                         ).permitAll()
                         .requestMatchers("/api/livekit/**").authenticated()
