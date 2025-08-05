@@ -46,13 +46,12 @@ public class StudyRoomServiceImpl implements StudyRoomService {
         StudyRoom assignedRoom;
 
         if (targetRoom.isEmpty()) {
-            // 3-1. 조건을 만족하는 방이 없다면 새로 생성
             assignedRoom = StudyRoom.of(0, ROOM_CAPACITY, StudyRoomStatus.OPEN);
-            studyRoomRepository.save(assignedRoom);
+            assignedRoom = studyRoomRepository.save(assignedRoom);  // save 결과를 꼭 다시 받기!
         } else {
-            // 3-2. 가장 적은 인원이 있는 방 배정
             assignedRoom = targetRoom.get();
         }
+
 
         // 4. 인원 증가
         assignedRoom.incrementParticipantsNumber();
@@ -60,8 +59,14 @@ public class StudyRoomServiceImpl implements StudyRoomService {
             assignedRoom.updateStatus(StudyRoomStatus.FULL);
         }
 
-        // 5. Redis에 유저-방 정보 저장
-        roomRedisRepository.setUserRoom(userId, assignedRoom.getId().toString());
+        // Redis에 유저-방 정보 저장, Redis에도 방 인원 수 반영
+        try {
+            roomRedisRepository.setUserRoom(userId, assignedRoom.getId().toString());
+            roomRedisRepository.incrementRoomCount(assignedRoom.getId().toString());
+        } catch (DataAccessResourceFailureException ex) {
+            log.warn("[Redis] 사용자 입장 처리 중 실패 - userId: {}, roomId: {}, message: {}", userId, assignedRoom.getId(), ex.getMessage());
+        }
+        log.info("Redis 저장 완료: userId=" + userId + ", roomId=" + assignedRoom.getId());
 
         return assignedRoom.getId();
     }
@@ -70,15 +75,35 @@ public class StudyRoomServiceImpl implements StudyRoomService {
 
     @Override
     public void leaveRoom(String userId) {
-        String roomId = roomRedisRepository.getUserRoom(userId);
+        String roomId = null;
+        try {
+            roomId = roomRedisRepository.getUserRoom(userId);
+        } catch (DataAccessResourceFailureException ex) {
+            log.warn("[Redis] 사용자 퇴장 조회 실패 - userId: {}, message: {}", userId, ex.getMessage());
+            return; // Redis가 안 되면 퇴장 로직 종료
+        }
 
-        if(roomId != null) {
-            roomRedisRepository.decrementRoomCount(roomId);
-            roomRedisRepository.deleteUserRoom(userId);
-        } else {
+        if (roomId == null) {
             throw new CustomException(ErrorCode.USER_NOT_IN_ROOM);
         }
+
+        try {
+            roomRedisRepository.decrementRoomCount(roomId);
+            roomRedisRepository.deleteUserRoom(userId);
+        } catch (DataAccessResourceFailureException ex) {
+            log.warn("[Redis] 사용자 퇴장 처리 실패 - userId: {}, roomId: {}, message: {}", userId, roomId, ex.getMessage());
+            // 무시하고 DB는 업데이트 진행
+        }
+
+        StudyRoom room = studyRoomRepository.findById(Long.valueOf(roomId))
+                .orElseThrow(() -> new CustomException(ErrorCode.ROOM_NOT_FOUND));
+
+        room.decrementParticipantsNumber(); // 내부에서 0 이하 방지 체크도 있으면 좋음
+        if (room.getParticipantsNumber() < room.getCapacity() && room.getParticipantsNumber() > 0) {
+            room.updateStatus(StudyRoomStatus.OPEN);
+        }
     }
+
 
     @Override
     public String createRoom(int capacity) {
