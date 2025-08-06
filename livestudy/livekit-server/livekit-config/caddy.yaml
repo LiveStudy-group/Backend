@@ -44,6 +44,7 @@ apps:
           - match:
               - host:
                   - api.live-study.com
+                method: OPTIONS
             handle:
               - handler: static_response
                 status_code: 204
@@ -56,6 +57,10 @@ apps:
                     - "Content-Type, Authorization"
                   Access-Control-Allow-Credentials:
                     - "true"
+          - match:
+              - host:
+                  - api.live-study.com
+            handle:
               - handler: reverse_proxy
                 upstreams:
                   - dial: localhost:8080
