@@ -69,6 +69,7 @@ public class SecurityConfig {
                                 "/auth/**",
                                 "/api/user/**",
                                 "/api/study-rooms/**",
+                                "/login/oauth2/code/**",
                                 "/api/titles/**",
                                 "/api/timer/**"
                         ).permitAll()
