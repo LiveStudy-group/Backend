@@ -11,7 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.livestudy.dto.ErrorResponse;
 import org.livestudy.dto.UserProfile.*;
-import org.livestudy.dto.report.ReportRequest;
+import org.livestudy.exception.CustomException;
+import org.livestudy.exception.ErrorCode;
 import org.livestudy.security.SecurityUser;
 import org.livestudy.service.ProfileService;
 import org.springframework.http.ResponseEntity;
@@ -42,6 +43,11 @@ public class UserProfileController {
     })
     public ResponseEntity<UserProfileResponse> getUserProfile(
             @AuthenticationPrincipal SecurityUser user) {
+
+        if (user == null) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
         Long userId = user.getUser().getId();
         log.info("마이페이지 - userId: {} 유저의 프로필 조회", userId);
 
@@ -69,6 +75,9 @@ public class UserProfileController {
     public ResponseEntity<Void> updateNickname(
             @AuthenticationPrincipal SecurityUser user,
             @Valid @RequestBody UpdateNicknameRequest request) {
+        if (user == null) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
 
         Long userId = user.getUser().getId();
 
@@ -98,6 +107,10 @@ public class UserProfileController {
             @AuthenticationPrincipal SecurityUser user,
             @Valid @RequestBody UpdateProfileImageRequest request) {
 
+        if (user == null) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
         Long userId = user.getUser().getId();
 
         profileService.updateProfileImage(userId, request);
@@ -126,6 +139,11 @@ public class UserProfileController {
             @AuthenticationPrincipal SecurityUser user,
             @Valid @RequestBody UpdateEmailRequest request) {
 
+        if (user == null) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+
         Long userId = user.getUser().getId();
 
         profileService.updateEmail(userId, request);
@@ -153,6 +171,10 @@ public class UserProfileController {
     public ResponseEntity<Void> updatePassword(
             @AuthenticationPrincipal SecurityUser user,
             @Valid @RequestBody UpdatePasswordRequest request) {
+
+        if (user == null) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
 
         Long userId = user.getUser().getId();
 

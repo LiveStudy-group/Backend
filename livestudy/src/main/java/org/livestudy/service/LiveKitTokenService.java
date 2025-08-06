@@ -45,6 +45,7 @@ public class LiveKitTokenService {
 
         token.addGrants(new RoomJoin(true));
         token.addGrants(new RoomName(roomId));
+        token.addGrants(new RoomCreate(true));
         token.addGrants(new CanPublish(true));
         token.addGrants(new CanSubscribe(true));
         token.addGrants(new CanPublishData(true));
