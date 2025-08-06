@@ -67,13 +67,13 @@ public class SecurityConfig {
                                 "/oauth2/**",
                                 "/api/debug/**",
                                 "/auth/**",
-                                "/api/user/**",
+                                "/rtc/**",
                                 "/api/study-rooms/**",
                                 "/login/oauth2/code/**",
                                 "/api/titles/**",
                                 "/api/timer/**"
                         ).permitAll()
-                        .requestMatchers("/api/livekit/**").authenticated()
+                        .requestMatchers("/api/user/**", "/api/livekit/**").authenticated()
                         .anyRequest().authenticated())
                 .oauth2Login(oauth2 -> oauth2
                         .authorizationEndpoint(authorization -> authorization
