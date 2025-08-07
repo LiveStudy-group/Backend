@@ -45,6 +45,10 @@ public class ProfileServiceImpl implements ProfileService{
                 .selectedTitle(selectedTitleName)
                 .totalStudyTime(userStudyStat != null ?
                         userStudyStat.getTotalStudyTime() : 0)
+                .totalAttendanceDays(userStudyStat != null ?
+                        userStudyStat.getTotalAttendanceDays() : 0)
+                .continueAttendanceDays(userStudyStat != null ?
+                        userStudyStat.getContinueAttendanceDays() : 0)
                 .build();
     }
 
