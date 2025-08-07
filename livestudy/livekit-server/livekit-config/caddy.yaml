@@ -49,4 +49,4 @@ apps:
                 upstreams:
                   - dial: localhost:8080
                 transport:
-                  http: { }
+                  protocol: http
