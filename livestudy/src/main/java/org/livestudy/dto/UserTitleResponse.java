@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import org.livestudy.domain.title.UserTitle;
 
 @Getter
 @Builder
@@ -24,4 +25,14 @@ public class UserTitleResponse {
     @Schema(description = "대표 칭호 여부")
     @JsonProperty("isRepresentative")
     private boolean isRepresentative;
+
+    public static UserTitleResponse from(UserTitle userTitle) {
+        return new UserTitleResponse(
+                userTitle.getTitle().getId(),
+                userTitle.getTitle().getName(),
+                userTitle.getTitle().getDescription(),
+                userTitle.isEquipped()
+        );
+
+    }
 }

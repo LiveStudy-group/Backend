@@ -86,4 +86,17 @@ public class TitleServiceImpl implements TitleService {
         userRepository.save(user);
         return null;
     }
+
+    @Override
+    public List<UserTitleResponse> getUserTitles(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        List<UserTitle> userTitles = userTitleRepository.findAllByUser(user);
+
+        return userTitles.stream()
+                .map(UserTitleResponse::from)
+                .toList();
+    }
+
 }
