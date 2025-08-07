@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.livestudy.domain.user.DailyStudyRecord;
 import org.livestudy.domain.user.UserStudyStat;
 import org.livestudy.dto.DailyRecordResponse;
+import org.livestudy.dto.TodayStudyTimeResponse;
 import org.livestudy.dto.UserStudyStatsResponse;
 import org.livestudy.exception.CustomException;
 import org.livestudy.exception.ErrorCode;
@@ -93,5 +94,18 @@ public class UserStudyStatServiceImpl implements UserStudyStatService{
         }
 
         return Math.round((totalStudyTime / totalTime) * 1000.0) / 10.0;
+    }
+
+    @Override
+    public TodayStudyTimeResponse getTodayStudyTime(Long userId) {
+        LocalDate today = LocalDate.now();
+
+        Integer studyTime = dailyStudyRecordRepo
+                .findTodayStudyTime(userId, today)
+                .orElse(0);
+
+        return new TodayStudyTimeResponse(studyTime);
+
+
     }
 }

@@ -1,6 +1,7 @@
 package org.livestudy.service;
 
 import org.livestudy.dto.DailyRecordResponse;
+import org.livestudy.dto.TodayStudyTimeResponse;
 import org.livestudy.dto.UserStudyStatsResponse;
 
 import java.time.LocalDate;
@@ -13,4 +14,6 @@ public interface UserStudyStatService {
     List<DailyRecordResponse> getDailyRecord(Long userId, LocalDate startDate, LocalDate endDate);
 
     Double getAverageStudyRatio(Long userId, LocalDate startDate, LocalDate endDate);
+
+    TodayStudyTimeResponse getTodayStudyTime(Long userId);
 }
