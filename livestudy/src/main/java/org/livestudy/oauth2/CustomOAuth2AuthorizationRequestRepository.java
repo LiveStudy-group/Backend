@@ -36,10 +36,6 @@ public class CustomOAuth2AuthorizationRequestRepository implements Authorization
             log.info("Saving authorization request to cookie.");
             String serializedValue = serialize(authorizationRequest);
             CookieUtils.addCookie(response, OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME, serializedValue, COOKIE_EXPIRE_SECONDS);
-        } else {
-            // 없으면 쿠키 삭제
-            log.info("Removing authorization request cookie.");
-            CookieUtils.deleteCookie(request, response, OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME);
         }
     }
 
