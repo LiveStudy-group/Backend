@@ -113,7 +113,7 @@ public class UserProfileController {
 
         Long userId = user.getUser().getId();
 
-        profileService.updateProfileImage(userId, request);
+        profileService.updateProfileImage(userId, request.getNewProfileImage());
 
         return ResponseEntity.ok().build();
     }
