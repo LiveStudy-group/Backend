@@ -45,9 +45,9 @@ apps:
           - match:
               - host:
                   - api.live-study.com
-                path:
-                  - /ws/*
             handle:
               - handler: reverse_proxy
                 upstreams:
                   - dial: localhost:8080
+                transport:
+                  http: { }
