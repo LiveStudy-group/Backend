@@ -13,16 +13,16 @@ import java.util.Optional;
 @Repository
 public interface DailyStudyRecordRepository extends JpaRepository<DailyStudyRecord, Long> {
 
-    Optional<DailyStudyRecord> findByUserIdAndRecordDate (Long userId, LocalDate recordDate);
+    Optional<DailyStudyRecord> findByUser_IdAndRecordDate(Long userId, LocalDate recordDate);
 
     // 특정 기간의 DailyStudyRecord 조회(날짜 순)
-    List<DailyStudyRecord> findByUserIdAndRecordDateBetweenOrderByRecordDateAsc(
+    List<DailyStudyRecord> findByUser_IdAndRecordDateBetweenOrderByRecordDateAsc(
             Long userId, LocalDate startDate, LocalDate endDate);
 
     @Query("""
            SELECT d.dailyStudyTime
            FROM DailyStudyRecord d
-           WHERE d.userId = :userId
+           WHERE d.user.id = :userId
              AND d.recordDate = :today
            """)
     Optional<Integer> findTodayStudyTime(@Param("userId") Long userId,

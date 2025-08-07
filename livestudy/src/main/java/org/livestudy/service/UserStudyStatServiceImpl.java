@@ -40,7 +40,7 @@ public class UserStudyStatServiceImpl implements UserStudyStatService{
     public List<DailyRecordResponse> getDailyRecord(Long userId, LocalDate startDate, LocalDate endDate) {
 
         List<DailyStudyRecord> records = dailyStudyRecordRepo
-                .findByUserIdAndRecordDateBetweenOrderByRecordDateAsc(
+                .findByUser_IdAndRecordDateBetweenOrderByRecordDateAsc(
                         userId, startDate, endDate
                 );
 
@@ -65,7 +65,7 @@ public class UserStudyStatServiceImpl implements UserStudyStatService{
     public Double getAverageStudyRatio(Long userId, LocalDate startDate, LocalDate endDate) {
 
         List<DailyStudyRecord> records = dailyStudyRecordRepo
-                .findByUserIdAndRecordDateBetweenOrderByRecordDateAsc(
+                .findByUser_IdAndRecordDateBetweenOrderByRecordDateAsc(
                         userId, startDate, endDate
                 );
 
