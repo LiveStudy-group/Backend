@@ -74,10 +74,10 @@ public class  AuthController {
         return ResponseEntity.ok(response);
     }
 
-    // OAuth2 로그인 URL 제공
+/*    // OAuth2 로그인 URL 제공
     @GetMapping("/oauth2/url/{provider}")
     public ResponseEntity<Map<String, String>> getOAuth2LoginUrl(@PathVariable String provider) {
         String authUrl = String.format("/api/auth/oauth2/authorize/%s", provider.toLowerCase());
         return ResponseEntity.ok(Map.of("authUrl", authUrl));
-    }
+    }*/
 }
