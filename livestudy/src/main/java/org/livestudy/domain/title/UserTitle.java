@@ -5,6 +5,8 @@ import lombok.*;
 import org.livestudy.domain.BaseEntity;
 import org.livestudy.domain.user.User;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Builder
@@ -24,11 +26,31 @@ public class UserTitle extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public static UserTitle of(User user, Title title) {
+    private LocalDateTime acquiredAt; // 획득한 날짜 및 시간
+
+    private boolean isEquipped; // 지금 착용중인지 여부
+
+    public static UserTitle create(User user, Title title) {
 
         return UserTitle.builder()
                 .user(user)
                 .title(title)
+                .acquiredAt(LocalDateTime.now())
+                .isEquipped(false)
                 .build();
+    }
+
+    public static UserTitle grant(User user, Title title) {
+        return create(user, title);
+
+    }
+
+
+    public void equip() {
+        this.isEquipped = true;
+    }
+
+    public void unequip() {
+        this.isEquipped = false;
     }
 }

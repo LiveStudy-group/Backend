@@ -16,6 +16,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -69,5 +71,35 @@ public class UserServiceImpl implements UserService {
 
         // 5. 응답 객체 구성
         return new UserLoginResponse(token);
+    }
+
+    @Override
+    public User getUserById(String userId) {
+        return userRepository.findById(Long.valueOf(userId))
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    @Override
+    public User findOrCreateSocialUser(String email, String nickname, SocialProvider socialProvider) {
+
+        Optional<User> user = userRepository.findByEmailAndSocialProvider(email, socialProvider);
+
+        if (user.isPresent()) {
+            User presentUser = user.get();
+            presentUser.setNewUser(false);
+            return presentUser;
+        } else {
+            User newUser = User.builder()
+                    .email(email)
+                    .nickname(nickname)
+                    .socialProvider(socialProvider)
+                    .password(null)
+                    .userStatus(UserStatus.NORMAL)
+                    .build();
+
+            User savedUser = userRepository.save(newUser);
+            savedUser.setNewUser(true);
+            return savedUser;
+        }
     }
 }

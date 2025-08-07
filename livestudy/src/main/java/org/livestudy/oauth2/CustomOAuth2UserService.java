@@ -1,7 +1,6 @@
 package org.livestudy.oauth2;
 
 import lombok.RequiredArgsConstructor;
-import org.livestudy.domain.user.SocialProvider;
 import org.livestudy.domain.user.User;
 import org.livestudy.exception.CustomException;
 import org.livestudy.exception.ErrorCode;

@@ -1,7 +1,8 @@
-package org.livestudy.domain.user;
+package org.livestudy.domain.user.statusdata;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.livestudy.domain.user.User;
 
 import java.time.LocalDate;
 
@@ -16,7 +17,7 @@ public class DailyStudyRecord {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long    id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)

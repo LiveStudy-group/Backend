@@ -1,8 +1,12 @@
 package org.livestudy.dto;
 
-import org.livestudy.domain.studyroom.StudyRoom;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class StudyRoomResponse {
-    private StudyRoom roomId;
+    private String roomId;
     private int currentCount;
 }

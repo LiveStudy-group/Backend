@@ -89,7 +89,7 @@
         }
 
         function connectWebSocket(token) {
-            const socket = new SockJS("/ws");
+            const socket = new SockJS("https://api.live-study.com/ws");
             stompClient = Stomp.over(socket);
 
             stompClient.connect(

@@ -50,4 +50,12 @@ public class StudyRoom extends BaseEntity {
     public void updateStatus(StudyRoomStatus studyRoomStatus) {
         this.status = studyRoomStatus;
     }
+
+    public void decrementParticipantsNumber() {
+        if(participantsNumber > 0){
+            this.participantsNumber--;
+        } else {
+            throw new CustomException(ErrorCode.INVALID_INPUT);
+        }
+    }
 }

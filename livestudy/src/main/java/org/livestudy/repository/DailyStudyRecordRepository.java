@@ -1,6 +1,6 @@
 package org.livestudy.repository;
 
-import org.livestudy.domain.user.DailyStudyRecord;
+import org.livestudy.domain.user.statusdata.DailyStudyRecord;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -28,4 +28,20 @@ public interface DailyStudyRecordRepository extends JpaRepository<DailyStudyReco
     Optional<Integer> findTodayStudyTime(@Param("userId") Long userId,
                                          @Param("today") LocalDate today);
 
+    @Query("""
+    SELECT COUNT(d) 
+    FROM DailyStudyRecord d 
+    WHERE d.user.id = :userId 
+      AND d.recordDate <= :date 
+      AND d.dailyStudyTime >= 60
+    """)
+    int countFocusStreakOverOneHour(Long userId, LocalDate date);
+
+    @Query("""
+    SELECT COUNT(d)
+    FROM DailyStudyRecord d
+    WHERE d.user.id = :userId 
+      AND d.dailyStudyTime >= 60
+    """)
+    int countDaily1HourFocusStreak(Long userId);
 }
