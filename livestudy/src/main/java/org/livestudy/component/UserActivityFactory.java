@@ -41,7 +41,7 @@ public class UserActivityFactory {
 
     // ✅ 3. 특정 기간 동안 공부 기록 확인
     public List<DailyStudyRecord> getDailyStudyRecords(Long userId, LocalDate from, LocalDate to){
-        return dailyStudyRecordRepo.findByUserIdAndRecordDateBetweenOrderByRecordDateAsc(userId, from, to);
+        return dailyStudyRecordRepo.findByUser_IdAndRecordDateBetweenOrderByRecordDateAsc(userId, from, to);
     }
 
     // ✅ 4. 채팅 메시지 총 횟수
@@ -61,7 +61,7 @@ public class UserActivityFactory {
 
     // ✅ 7. 일일 집중 시간 가져오기(분단위)
     public int getOneDayFocusMinutes(Long userId) {
-        return dailyStudyRecordRepo.findByUserIdAndRecordDate(userId, LocalDate.now())
+        return dailyStudyRecordRepo.findByUser_IdAndRecordDate(userId, LocalDate.now())
                 .map(DailyStudyRecord::getDailyStudyTime)
                 .orElse(0);
     }
