@@ -23,4 +23,10 @@ public class UserProfileResponse {
 
     @Schema(description = "누적 공부 시간", example = "23566")
     private Integer totalStudyTime;
+
+    @Schema(description = "누적 출석일", example = "121")
+    private Integer totalAttendanceDays;
+
+    @Schema(description = "연속 출석일", example = "23")
+    private Integer continueAttendanceDays;
 }
