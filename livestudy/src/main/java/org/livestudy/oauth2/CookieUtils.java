@@ -26,6 +26,8 @@ public class CookieUtils {
         cookie.setHttpOnly(true);
         cookie.setMaxAge(maxAge);
         cookie.setDomain(".live-study.com");
+        cookie.setSecure(true);
+        cookie.setAttribute("SameSite", "None");
         response.addCookie(cookie);
     }
 
