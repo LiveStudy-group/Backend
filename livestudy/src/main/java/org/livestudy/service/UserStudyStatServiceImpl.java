@@ -47,8 +47,8 @@ public class UserStudyStatServiceImpl implements UserStudyStatService{
         List<DailyRecordResponse> responses = records.stream()
                 .map(record -> DailyRecordResponse.builder()
                         .recordDate(record.getRecordDate())
-                        .dailyStudyTime(Long.valueOf(record.getDailyStudyTime()))
-                        .dailyAwayTime(Long.valueOf(record.getDailyAwayTime()))
+                        .dailyStudyTime(record.getDailyStudyTime())
+                        .dailyAwayTime(record.getDailyAwayTime())
                         .focusRatio(record.getFocusRatio())
                         .build())
                 .toList();
