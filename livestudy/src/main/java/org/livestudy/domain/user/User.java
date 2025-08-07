@@ -44,7 +44,8 @@ public class User extends BaseEntity {
     @Column
     private String introduction;
 
-    @Column(name = "profile_image", length = 1024)
+    @Lob
+    @Column(name = "profile_image")
     private String profileImage;
 
     //신고
@@ -110,7 +111,7 @@ public class User extends BaseEntity {
 
     // 프로필 이미지 변경
     public void updateProfileImage(String newProfileImage) {
-        this.nickname = newProfileImage;
+        this.profileImage = newProfileImage;
     }
 
     // 이메일 변경
