@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.livestudy.dto.AverageFocusRatioResponse;
 import org.livestudy.dto.DailyRecordResponse;
+import org.livestudy.dto.TodayStudyTimeResponse;
 import org.livestudy.dto.ErrorResponse;
 import org.livestudy.dto.UserStudyStatsResponse;
 import org.livestudy.security.SecurityUser;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.livestudy.dto.ErrorResponse;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -126,6 +128,24 @@ public class UserStatController {
         Double averageFocusRatio = userStudyStatService.getAverageStudyRatio(userId, start, end);
 
         AverageFocusRatioResponse response = new AverageFocusRatioResponse(start, end, averageFocusRatio);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/today-study-time")
+    @Operation(summary = "오늘 공부 시간 조회", description = "유저의  오늘 공부 시간을 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "오늘 공부 시간이 성공적으로 조회되었습니다."),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자입니다.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "서버 오류 발생")
+    })
+    public ResponseEntity<TodayStudyTimeResponse> getTodayStudyTime(
+            @AuthenticationPrincipal SecurityUser user) {
+
+        Long userId = user.getUser().getId();
+        log.info("userId: {} 유저의 오늘 공부 시간 조회", userId);
+
+        TodayStudyTimeResponse response = userStudyStatService.getTodayStudyTime(userId);
         return ResponseEntity.ok(response);
     }
 

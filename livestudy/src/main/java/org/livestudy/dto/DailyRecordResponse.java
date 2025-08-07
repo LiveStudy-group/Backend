@@ -15,10 +15,10 @@ public class DailyRecordResponse {
     private LocalDate recordDate;
 
     @Schema(description = "하루 공부 시간", example = "2222")
-    private Long dailyStudyTime;
+    private Integer dailyStudyTime;
 
     @Schema(description = "하루 자리 비움 시간", example = "1111")
-    private Long dailyAwayTime;
+    private Integer dailyAwayTime;
 
     @Schema(description = "하루 집중률", example = "0.53")
     private Double focusRatio;
