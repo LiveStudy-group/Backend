@@ -11,4 +11,6 @@ public interface TitleService {
     List<Title> evaluateAndGrantTitles(Long userId);
 
     UserTitleResponse equipTitle(Long userId, Long titleId);
+
+    List<UserTitleResponse> getUserTitles(Long userId);
 }

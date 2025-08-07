@@ -3,6 +3,9 @@ package org.livestudy.controller;
 import io.swagger.v3.oas.annotations.Operation;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -56,5 +59,24 @@ public class TitleController {
         UserTitleResponse response = titleService.equipTitle(userId, titleId);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/{userId}/list")
+    @Operation(
+            summary = "유저 칭호 목록 조회",
+            description = "특정 유저가 획득한 모든 칭호 목록을 조회합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "칭호 목록 조회 성공",
+                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = UserTitleResponse.class)))
+                    ),
+                    @ApiResponse(responseCode = "404", description = "유저를 찾을 수 없음")
+            }
+    )
+    public ResponseEntity<List<UserTitleResponse>> getUserTitles(
+            @Parameter(description = "조회할 유저의 ID", required = true)
+            @PathVariable Long userId) {
+        List<UserTitleResponse> titles = titleService.getUserTitles(userId);
+        return ResponseEntity.ok(titles);
+    }
+
 
 }

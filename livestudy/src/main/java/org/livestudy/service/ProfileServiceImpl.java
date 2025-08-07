@@ -103,26 +103,26 @@ public class ProfileServiceImpl implements ProfileService{
     @Transactional
     public void updateEmail(Long userId, UpdateEmailRequest request) {
 
-        // User 엔티티 조회
+        // 1. 유저 조회
         User user = getUserById(userId);
         String newEmail = request.getNewEmail();
 
-        // 현재 이메일과 동일한지 체크
+        // 2. 현재 이메일과 동일한 경우
         if (user.getEmail().equals(newEmail)) {
             log.error("userId: {} 유저의 이메일 변경이 실패하였습니다. 사유: SAME_EMAIL", userId);
             throw new CustomException(ErrorCode.SAME_EMAIL);
         }
-        // 이미 사용 중인 이메일인지 체크
+
+        // 3. 이미 사용 중인 이메일인지 체크
         if (userRepo.existsByEmail(newEmail)) {
             log.error("userId: {} 유저의 이메일 변경이 실패하였습니다. 사유: DUPLICATE_EMAIL", userId);
             throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
         }
 
-
+        // 4. 이메일 업데이트 및 저장
         user.updateEmail(newEmail);
         userRepo.save(user);
         log.info("userId: {} 유저의 이메일이 '{}'로 변경되었습니다.", userId, newEmail);
-
     }
 
     @Override
