@@ -58,7 +58,8 @@ public class SecurityConfig {
                         .maximumSessions(1)
                         .maxSessionsPreventsLogin(false))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() 
+                        .requestMatchers("/api/auth/**", "/rtc", "/rtc/**", "/api/debug/**").permitAll()
                         .requestMatchers("/api/auth/**", "/v3/api-docs/**",           // Swagger JSON
                                 "/swagger-ui/**",            // Swagger HTML/CSS/JS
                                 "/swagger-ui.html",          // 구버전 접근 경로
@@ -67,9 +68,10 @@ public class SecurityConfig {
                                 "/chat-test.html", // Websocket 서버 Test용
                                 "/oauth2/**",
                                 "/api/debug/**",
+                                "/login/oauth2/code/**",
+                                "/api/timer/**",
+                                "/api/titles/**"
                                 "/auth/**",
-                                "/rtc/**",
-                                "/rtc",
                                 "/favicon.ico",
                                 "/api/study-rooms/**",
                                 "/login/oauth2/code/**",
