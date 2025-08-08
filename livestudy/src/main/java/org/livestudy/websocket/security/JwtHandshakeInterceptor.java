@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.livestudy.component.LiveKitTokenVerifier;
 import org.livestudy.exception.CustomException;
 import org.livestudy.repository.redis.RoomRedisRepository;
-import org.livestudy.security.jwt.JwtTokenProvider;
 import org.livestudy.service.StudyRoomService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -63,7 +62,7 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
             attributes.put("roomId", decodedLiveKitToken.roomId());
 
             // 서버에 저장된 방 정보와 토큰 정보 비교
-            String serverRoomId = roomRedisRepository.getUserRoom(decodedLiveKitToken.identity()).toString();
+            String serverRoomId = roomRedisRepository.getUserRoom(decodedLiveKitToken.identity());
             if(!serverRoomId.equals(decodedLiveKitToken.roomId())) {
                 log.warn("❌ 방 정보 불일치: tokenRoom={}, serverRoom={}\", decoded.roomId(), serverRoomId",  decodedLiveKitToken.roomId(), serverRoomId);
                 httpResponse.setStatusCode(HttpStatus.UNAUTHORIZED);
