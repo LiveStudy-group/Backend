@@ -41,6 +41,7 @@ public enum ErrorCode {
     FORBIDDEN("A002", "접근 권한이 없습니다.", HttpStatus.FORBIDDEN),
     EXPIRED_TOKEN("A003", "토큰이 만료되었습니다.", HttpStatus.UNAVAILABLE_FOR_LEGAL_REASONS),
     REDIS_CONNECTION_FAILED("A004", "Redis 서버가 끊겼습니다.", HttpStatus.PRECONDITION_FAILED),
+    INVALID_TOKEN("A005", "잘못된 토큰입니다.", HttpStatus.UNAUTHORIZED),
 
     // WebSocket 관련 에러
     USER_ID_MISMATCH("W001", "userId가 일치하지 않습니다.", HttpStatus.FORBIDDEN),
