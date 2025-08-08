@@ -6,6 +6,7 @@ import org.livestudy.oauth2.CustomOAuth2UserService;
 import org.livestudy.oauth2.OAuth2AuthenticationFailureHandler;
 import org.livestudy.oauth2.OAuth2AuthenticationSuccessHandler;
 import org.livestudy.security.jwt.JwtAuthenticationFilter;
+import org.livestudy.websocket.security.LiveKitTokenAuthenticationFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -34,6 +35,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final LiveKitTokenAuthenticationFilter liveKitTokenAuthenticationFilter;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
     private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
@@ -57,10 +59,24 @@ public class SecurityConfig {
                         .maxSessionsPreventsLogin(false))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/api/auth/**", "/v3/api-docs/**",           // Swagger JSON
-                                "/swagger-ui/**",            // Swagger HTML/CSS/JS
-                                "/swagger-ui.html",          // 구버전 접근 경로
+                        .requestMatchers(
+                                // OAuth2
+                                "/oauth2/**",
+                                "/login/oauth2/code/**",
+                                "/auth/**",
+                                // WebSocket 및 LiveKit
+                                "/rtc",
+                                "/rtc/**",
+                                "/chat-test.html",
+                                // swagger
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**",
                                 "/webjars/**",
+                                // api 인증 및 디버그
+                                "/api/auth/**",
+                                "/api/debug/**",
+                                "/favicon.ico",
                                 "/webhook/**",
                                 "/chat-test.html", // Websocket 서버 Test용
                                 "/oauth2/**",
@@ -78,7 +94,9 @@ public class SecurityConfig {
                                 .userService(customOAuth2UserService))
                         .successHandler(oAuth2AuthenticationSuccessHandler)
                         .failureHandler(oAuth2AuthenticationFailureHandler))
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(liveKitTokenAuthenticationFilter, JwtAuthenticationFilter.class); //????????
+
 
         httpSecurity
                 .exceptionHandling(ex -> ex
