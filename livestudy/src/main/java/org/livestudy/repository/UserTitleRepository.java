@@ -15,4 +15,7 @@ public interface UserTitleRepository extends JpaRepository<UserTitle, Long> {
     Optional<UserTitle> findByUserAndTitle(User user, Title title);
 
     List<UserTitle> findAllByUserAndIsEquippedTrue(User user);
+
+
+    List<UserTitle> findAllByUser(User user);
 }

@@ -6,10 +6,12 @@ import org.livestudy.oauth2.CustomOAuth2UserService;
 import org.livestudy.oauth2.OAuth2AuthenticationFailureHandler;
 import org.livestudy.oauth2.OAuth2AuthenticationSuccessHandler;
 import org.livestudy.security.jwt.JwtAuthenticationFilter;
+import org.livestudy.websocket.security.LiveKitTokenAuthenticationFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -25,6 +27,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableMethodSecurity
@@ -32,6 +35,7 @@ import java.util.Arrays;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final LiveKitTokenAuthenticationFilter liveKitTokenAuthenticationFilter;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
     private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
@@ -54,6 +58,7 @@ public class SecurityConfig {
                         .maximumSessions(1)
                         .maxSessionsPreventsLogin(false))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() 
                         .requestMatchers("/api/auth/**", "/rtc", "/rtc/**", "/api/debug/**").permitAll()
                         .requestMatchers("/api/auth/**", "/v3/api-docs/**",           // Swagger JSON
                                 "/swagger-ui/**",            // Swagger HTML/CSS/JS
@@ -66,19 +71,23 @@ public class SecurityConfig {
                                 "/login/oauth2/code/**",
                                 "/api/timer/**",
                                 "/api/titles/**"
+                                "/auth/**",
+                                "/favicon.ico",
+                                "/api/study-rooms/**",
+                                "/login/oauth2/code/**",
+                                "/api/titles/**",
+                                "/api/timer/**"
                         ).permitAll()
-                        .requestMatchers("/api/livekit/**").authenticated()
+                        .requestMatchers("/api/user/**", "/api/livekit/**", "/api/user/stat/**").authenticated()
                         .anyRequest().authenticated())
                 .oauth2Login(oauth2 -> oauth2
-                        .authorizationEndpoint(authorization -> authorization
-                                .baseUri("/api/auth/oauth2/authorize"))
-                        .redirectionEndpoint(redirection -> redirection
-                                .baseUri("/api/auth/oauth2/callback/*"))
-                        .userInfoEndpoint(userInfo -> userInfo
+                .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService))
                         .successHandler(oAuth2AuthenticationSuccessHandler)
                         .failureHandler(oAuth2AuthenticationFailureHandler))
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(liveKitTokenAuthenticationFilter, JwtAuthenticationFilter.class); //????????
+
 
         httpSecurity
                 .exceptionHandling(ex -> ex
@@ -102,9 +111,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
+
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5174", "https://live-study.com"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

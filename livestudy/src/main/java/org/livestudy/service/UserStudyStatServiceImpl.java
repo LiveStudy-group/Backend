@@ -2,9 +2,10 @@ package org.livestudy.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.livestudy.domain.user.DailyStudyRecord;
-import org.livestudy.domain.user.UserStudyStat;
+import org.livestudy.domain.user.statusdata.DailyStudyRecord;
+import org.livestudy.domain.user.statusdata.UserStudyStat;
 import org.livestudy.dto.DailyRecordResponse;
+import org.livestudy.dto.TodayStudyTimeResponse;
 import org.livestudy.dto.UserStudyStatsResponse;
 import org.livestudy.exception.CustomException;
 import org.livestudy.exception.ErrorCode;
@@ -39,15 +40,15 @@ public class UserStudyStatServiceImpl implements UserStudyStatService{
     public List<DailyRecordResponse> getDailyRecord(Long userId, LocalDate startDate, LocalDate endDate) {
 
         List<DailyStudyRecord> records = dailyStudyRecordRepo
-                .findByUserIdAndRecordDateBetweenOrderByRecordDateAsc(
+                .findByUser_IdAndRecordDateBetweenOrderByRecordDateAsc(
                         userId, startDate, endDate
                 );
 
         List<DailyRecordResponse> responses = records.stream()
                 .map(record -> DailyRecordResponse.builder()
                         .recordDate(record.getRecordDate())
-                        .dailyStudyTime(Long.valueOf(record.getDailyStudyTime()))
-                        .dailyAwayTime(Long.valueOf(record.getDailyAwayTime()))
+                        .dailyStudyTime(record.getDailyStudyTime())
+                        .dailyAwayTime(record.getDailyAwayTime())
                         .focusRatio(record.getFocusRatio())
                         .build())
                 .toList();
@@ -64,7 +65,7 @@ public class UserStudyStatServiceImpl implements UserStudyStatService{
     public Double getAverageStudyRatio(Long userId, LocalDate startDate, LocalDate endDate) {
 
         List<DailyStudyRecord> records = dailyStudyRecordRepo
-                .findByUserIdAndRecordDateBetweenOrderByRecordDateAsc(
+                .findByUser_IdAndRecordDateBetweenOrderByRecordDateAsc(
                         userId, startDate, endDate
                 );
 
@@ -93,5 +94,18 @@ public class UserStudyStatServiceImpl implements UserStudyStatService{
         }
 
         return Math.round((totalStudyTime / totalTime) * 1000.0) / 10.0;
+    }
+
+    @Override
+    public TodayStudyTimeResponse getTodayStudyTime(Long userId) {
+        LocalDate today = LocalDate.now();
+
+        Integer studyTime = dailyStudyRecordRepo
+                .findTodayStudyTime(userId, today)
+                .orElse(0);
+
+        return new TodayStudyTimeResponse(studyTime);
+
+
     }
 }

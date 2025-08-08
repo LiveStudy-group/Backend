@@ -2,36 +2,51 @@ logging:
   logs:
     default:
       level: INFO
+
 storage:
-  "module": "file_system"
-  "root": "/data"
+  module: file_system
+  root: /data
+
 apps:
   tls:
     certificates:
       automate:
         - live-study.com
-  layer4:
+        - api.live-study.com
+
+  http:
     servers:
-      main:
-        listen: [":443"]
+      redirect:  # ← HTTP 80 리디렉션 서버
+        listen:
+          - ":80"
         routes:
           - match:
-              - tls:
-                  sni:
-                    - "live-study.com"
+              - host:
+                  - live-study.com
+                  - api.live-study.com
             handle:
-              - handler: tls
-              - handler: proxy
-                upstreams:
-                  - dial: ["localhost:5349"]
+              - handler: static_response
+                status_code: 308
+                headers:
+                  Location: ["https://{http.request.host}{uri}"]
+
+      main:  # ← HTTPS 443 서버
+        listen:
+          - ":443"
+        routes:
           - match:
-              - tls:
-                  sni:
-                    - "live-study.com"
+              - host:
+                  - live-study.com
             handle:
-              - handler: tls
-                connection_policies:
-                  - alpn: ["http/1.1"]
-              - handler: proxy
+              - handler: reverse_proxy
                 upstreams:
-                  - dial: ["localhost:7880"]
+                  - dial: localhost:7880
+          - match:
+              - host:
+                  - api.live-study.com
+            handle:
+              - handler: reverse_proxy
+                upstreams:
+                  - dial: localhost:8080
+                transport:
+                  protocol: http

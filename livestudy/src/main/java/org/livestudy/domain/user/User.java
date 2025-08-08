@@ -8,6 +8,8 @@ import org.livestudy.domain.title.UserTitle;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.UUID;
+
 @Entity
 @Getter
 @Setter
@@ -44,7 +46,8 @@ public class User extends BaseEntity {
     @Column
     private String introduction;
 
-    @Column(name = "profile_image", length = 1024)
+    @Lob
+    @Column(name = "profile_image")
     private String profileImage;
 
     //신고
@@ -57,6 +60,9 @@ public class User extends BaseEntity {
     @Column(name = "user_status", nullable = false)
     private UserStatus userStatus = UserStatus.NORMAL;
 
+    @Transient
+    private boolean isNewUser;
+
     // 이메일 회원가입용
     public static User of(UserTitle userTitle,
                           String email,
@@ -66,9 +72,6 @@ public class User extends BaseEntity {
                           String introduction,
                           String image, PasswordEncoder encoder) {
 
-        System.out.println("[User.of] email: " + email);
-        System.out.println("[User.of] raw password: " + password);
-        System.out.println("[User.of] encoded password: " + (password == null ? "null" : encoder.encode(password)));
         return User.builder()
                 .userTitle(userTitle)
                 .email(email)
@@ -85,6 +88,12 @@ public class User extends BaseEntity {
                                 String nickname,
                                 String profileImage,
                                 SocialProvider socialProvider) {
+
+        //이메일이 없을 경우 임의의 이메일 생성
+        if (email == null) {
+            email = socialProvider.name() + "_" + UUID.randomUUID().toString() +"@livestudy.com";
+        }
+
         return User.builder()
                 .email(email)
                 .nickname(nickname)
@@ -95,7 +104,6 @@ public class User extends BaseEntity {
                 .build();
     }
 
-
     @Enumerated(EnumType.STRING)
     @Column(name = "equipped_badge")
     private Badge equippedBadge;
@@ -104,4 +112,24 @@ public class User extends BaseEntity {
         this.equippedBadge = badge;
     }
 
+
+    // 닉네임 변경
+    public void updateNickname(String newNickname) {
+        this.nickname = newNickname;
+    }
+
+    // 프로필 이미지 변경
+    public void updateProfileImage(String newProfileImage) {
+        this.profileImage = newProfileImage;
+    }
+
+    // 이메일 변경
+    public void updateEmail(String newEmail) {
+        this.email = newEmail;
+    }
+
+    // 패스워드 변경
+    public void updatePassword(String newPassword) {
+        this.password = newPassword;
+    }
 }

@@ -1,5 +1,6 @@
 package org.livestudy.service;
 
+import org.livestudy.domain.user.SocialProvider;
 import org.livestudy.domain.user.User;
 import org.livestudy.dto.UserLoginRequest;
 import org.livestudy.dto.UserLoginResponse;
@@ -11,6 +12,8 @@ public interface UserService {
 
     UserLoginResponse login(UserLoginRequest request);
 
-
     User getUserById(String userId);
+
+    User findOrCreateSocialUser(String email, String nickname, SocialProvider socialProvider);
+
 }

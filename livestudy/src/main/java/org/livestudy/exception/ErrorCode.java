@@ -25,6 +25,11 @@ public enum ErrorCode {
     USER_WITHDRAW("U011", "탈퇴한 사용자입니다.", HttpStatus.FORBIDDEN),
     TITLE_NOT_FOUND("U012", "존재하지 않는 칭호입니다.", HttpStatus.BAD_REQUEST),
     NOT_EARNED_TITLE_YET("U013", "아직 취득하지 못한 칭호입니다.", HttpStatus.FORBIDDEN),
+    SAME_NICKNAME("U014", "현재 사용 중인 닉네임으로는 변경하실 수 없습니다.", HttpStatus.BAD_REQUEST),
+    DUPLICATE_NICKNAME("U015", "이미 존재하는 닉네임입니다.", HttpStatus.CONFLICT),
+    SAME_EMAIL("U016", "현재 사용 중인 이메일로는 변경하실 수 없습니다.", HttpStatus.BAD_REQUEST),
+    SAME_PASSWORD("U017", "현재 사용 중인 비밀번호로는 변경하실 수 없습니다.", HttpStatus.BAD_REQUEST),
+    IMAGE_UPLOAD_FAILED("U018", "이미지 업로드에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 
 
     // Track 관련 에러
@@ -36,6 +41,7 @@ public enum ErrorCode {
     FORBIDDEN("A002", "접근 권한이 없습니다.", HttpStatus.FORBIDDEN),
     EXPIRED_TOKEN("A003", "토큰이 만료되었습니다.", HttpStatus.UNAVAILABLE_FOR_LEGAL_REASONS),
     REDIS_CONNECTION_FAILED("A004", "Redis 서버가 끊겼습니다.", HttpStatus.PRECONDITION_FAILED),
+    INVALID_TOKEN("A005", "잘못된 토큰입니다.", HttpStatus.UNAUTHORIZED),
 
     // WebSocket 관련 에러
     USER_ID_MISMATCH("W001", "userId가 일치하지 않습니다.", HttpStatus.FORBIDDEN),

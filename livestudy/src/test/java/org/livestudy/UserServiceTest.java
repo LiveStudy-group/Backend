@@ -98,7 +98,6 @@ public class UserServiceTest {
                 .build();
 
 
-        String encodedPassword = "encodedPassword";
 
 
         // 이미 해당 사용자의 이메일이 겹치는 경우
@@ -107,7 +106,7 @@ public class UserServiceTest {
         CustomException exception = assertThrows(CustomException.class,
                 () -> userService.signup(request));
 
-        assertThat(exception.getMessage()).contains("이미 사용중인 이메일입니다." + request.getEmail());
+        assertThat(exception.getMessage()).contains("이미 존재하는 이메일입니다.");
     }
 
     @Test
@@ -118,7 +117,6 @@ public class UserServiceTest {
         String expectedToken = "jwt-token";
         String email = "test@example.com";
 
-        org.springframework.security.core.Authentication authentication = mock(org.springframework.security.core.Authentication.class);
 
         UserLoginRequest request = new UserLoginRequest(email, rawPassword);
 

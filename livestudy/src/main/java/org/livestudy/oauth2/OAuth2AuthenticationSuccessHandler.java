@@ -3,6 +3,7 @@ package org.livestudy.oauth2;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.livestudy.security.SecurityUser;
 import org.livestudy.security.jwt.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +14,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
@@ -25,18 +27,27 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException {
+        log.debug("OAuth2AuthenticationSuccessHandler.onAuthenticationSuccess called.");
+
         if (response.isCommitted()) {
-            return;
+            log.warn("Response already committed before targetUrl determination. Returning early.");            return;
         }
 
         String targetUrl = determineTargetUrl(request, response, authentication);
+        log.debug("Determined target URL: " + targetUrl);
 
         if (response.isCommitted()) {
-            logger.debug("Response has already been committed. Unable to redirect to " + targetUrl);
+            log.warn("Response already committed after targetUrl determination. Unable to redirect to " + targetUrl);
             return;
         }
 
-        getRedirectStrategy().sendRedirect(request, response, targetUrl);
+        try {
+            getRedirectStrategy().sendRedirect(request, response, targetUrl);
+            log.debug("Redirected to: " + targetUrl);
+        } catch (IOException e) {
+            log.error("Failed to redirect to " + targetUrl, e);
+            throw e;
+        }
     }
 
     protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response,
@@ -47,6 +58,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         // JWT 토큰 생성 (기존 방식 그대로 사용)
         String token = jwtTokenProvider.generateToken(authentication);
+        log.debug("Generated JWT token for user: " + securityUser.getUsername());
 
         return UriComponentsBuilder.fromUriString(frontendUrl + "/auth/success")
                 .queryParam("token", token)

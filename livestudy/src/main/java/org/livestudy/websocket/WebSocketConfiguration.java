@@ -1,5 +1,6 @@
 package org.livestudy.websocket;
 
+import org.livestudy.websocket.security.JwtHandshakeInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
@@ -13,9 +14,11 @@ import org.springframework.web.socket.config.annotation.*;
 public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer {
 
     private final StompAuthChannelInterceptor stompAuthChannelInterceptor;
+    private final JwtHandshakeInterceptor jwtHandshakeInterceptor;
 
-    public WebSocketConfiguration(StompAuthChannelInterceptor stompAuthChannelInterceptor) {
+    public WebSocketConfiguration(StompAuthChannelInterceptor stompAuthChannelInterceptor, JwtHandshakeInterceptor jwtHandshakeInterceptor) {
         this.stompAuthChannelInterceptor = stompAuthChannelInterceptor;
+        this.jwtHandshakeInterceptor = jwtHandshakeInterceptor;
     }
 
     @Bean
@@ -26,7 +29,9 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
     @Override // Client가 처음으로 WebSocket을 연결하는 Endpoint를 설정
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/rtc")
-                .setAllowedOriginPatterns("*")
+                .setAllowedOriginPatterns("http://localhost:5174", "https://localhost:5174", // FE 개발용
+                        "https://live-study.com", "https://www.live-study.com", "https://api.live-study.com")  // 배포용
+                .addInterceptors(jwtHandshakeInterceptor) // 주소 도달 시 입장용 토큰에 대하여 인증을 진행한다!
                 .withSockJS();
     }
 

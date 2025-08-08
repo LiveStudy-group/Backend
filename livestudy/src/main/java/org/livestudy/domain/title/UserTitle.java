@@ -40,6 +40,11 @@ public class UserTitle extends BaseEntity {
                 .build();
     }
 
+    public static UserTitle grant(User user, Title title) {
+        return create(user, title);
+
+    }
+
 
     public void equip() {
         this.isEquipped = true;

@@ -1,7 +1,6 @@
 package org.livestudy.oauth2;
 
 import lombok.RequiredArgsConstructor;
-import org.livestudy.domain.user.SocialProvider;
 import org.livestudy.domain.user.User;
 import org.livestudy.exception.CustomException;
 import org.livestudy.exception.ErrorCode;
@@ -38,10 +37,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private OAuth2User processOAuth2User(OAuth2UserRequest userRequest, OAuth2User oauth2User) {
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
         OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(registrationId, oauth2User.getAttributes());
-
-        if (!StringUtils.hasText(oAuth2UserInfo.getEmail())) {
-            throw new CustomException(ErrorCode.INVALID_INPUT);
-        }
 
         Optional<User> userOptional = userRepository.findByEmail(oAuth2UserInfo.getEmail());
         User user;

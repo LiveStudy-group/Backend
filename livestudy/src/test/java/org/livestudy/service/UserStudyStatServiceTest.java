@@ -4,9 +4,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.livestudy.domain.user.DailyStudyRecord;
+import org.livestudy.domain.user.statusdata.DailyStudyRecord;
 import org.livestudy.domain.user.User;
-import org.livestudy.domain.user.UserStudyStat;
+import org.livestudy.domain.user.statusdata.UserStudyStat;
 import org.livestudy.dto.DailyRecordResponse;
 import org.livestudy.dto.UserStudyStatsResponse;
 import org.livestudy.exception.CustomException;
@@ -114,7 +114,7 @@ public class UserStudyStatServiceTest {
                 .id(3L).user(testUser).recordDate(LocalDate.of(2025, 7, 28))
                 .dailyStudyTime(1800).dailyAwayTime(200).build();
 
-        when(dailyStudyRecordRepo.findByUserIdAndRecordDateBetweenOrderByRecordDateAsc(
+        when(dailyStudyRecordRepo.findByUser_IdAndRecordDateBetweenOrderByRecordDateAsc(
                 testUser.getId(), startDate, endDate))
                 .thenReturn(Arrays.asList(record1, record2, record3));
 
@@ -147,7 +147,7 @@ public class UserStudyStatServiceTest {
         // Given
         LocalDate startDate = LocalDate.of(2025, 7, 1);
         LocalDate endDate = LocalDate.of(2025, 7, 7);
-        when(dailyStudyRecordRepo.findByUserIdAndRecordDateBetweenOrderByRecordDateAsc(
+        when(dailyStudyRecordRepo.findByUser_IdAndRecordDateBetweenOrderByRecordDateAsc(
                 testUser.getId(), startDate, endDate))
                 .thenReturn(Collections.emptyList());
 
@@ -170,7 +170,7 @@ public class UserStudyStatServiceTest {
                 .id(11L).user(testUser).recordDate(fixedToday)
                 .dailyStudyTime(2000).dailyAwayTime(200).build();
 
-        when(dailyStudyRecordRepo.findByUserIdAndRecordDateBetweenOrderByRecordDateAsc(
+        when(dailyStudyRecordRepo.findByUser_IdAndRecordDateBetweenOrderByRecordDateAsc(
                 testUser.getId(), fixedSixDaysAgo, fixedToday))
                 .thenReturn(Arrays.asList(record1, record2));
 
@@ -204,7 +204,7 @@ public class UserStudyStatServiceTest {
                 .id(4L).user(testUser).recordDate(LocalDate.of(2025, 7, 25))
                 .dailyStudyTime(0).dailyAwayTime(0).build();
 
-        when(dailyStudyRecordRepo.findByUserIdAndRecordDateBetweenOrderByRecordDateAsc(
+        when(dailyStudyRecordRepo.findByUser_IdAndRecordDateBetweenOrderByRecordDateAsc(
                 testUser.getId(), startDate, endDate))
                 .thenReturn(Arrays.asList(record1, record2, record3, record4_zero_time));
 
@@ -221,7 +221,7 @@ public class UserStudyStatServiceTest {
         // Given
         LocalDate startDate = LocalDate.of(2025, 7, 1);
         LocalDate endDate = LocalDate.of(2025, 7, 7);
-        when(dailyStudyRecordRepo.findByUserIdAndRecordDateBetweenOrderByRecordDateAsc(
+        when(dailyStudyRecordRepo.findByUser_IdAndRecordDateBetweenOrderByRecordDateAsc(
                 testUser.getId(), startDate, endDate))
                 .thenReturn(Collections.emptyList());
 
@@ -242,7 +242,7 @@ public class UserStudyStatServiceTest {
                 .id(1L).user(testUser).recordDate(LocalDate.of(2025, 7, 1))
                 .dailyStudyTime(0).dailyAwayTime(0).build();
 
-        when(dailyStudyRecordRepo.findByUserIdAndRecordDateBetweenOrderByRecordDateAsc(
+        when(dailyStudyRecordRepo.findByUser_IdAndRecordDateBetweenOrderByRecordDateAsc(
                 testUser.getId(), startDate, endDate))
                 .thenReturn(Arrays.asList(record));
 
@@ -267,7 +267,7 @@ public class UserStudyStatServiceTest {
                 .id(14L).user(testUser).recordDate(fixedToday)
                 .dailyStudyTime(2000).dailyAwayTime(0).build();   // 2000/2000 = 100.00%
 
-        when(dailyStudyRecordRepo.findByUserIdAndRecordDateBetweenOrderByRecordDateAsc(
+        when(dailyStudyRecordRepo.findByUser_IdAndRecordDateBetweenOrderByRecordDateAsc(
                 testUser.getId(), fixedSixDaysAgo, fixedToday))
                 .thenReturn(Arrays.asList(record1, record2, record3));
 

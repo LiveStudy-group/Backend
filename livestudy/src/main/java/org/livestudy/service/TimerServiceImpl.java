@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.livestudy.domain.studyroom.FocusStatus;
 import org.livestudy.domain.studyroom.StudyRoomParticipant;
-import org.livestudy.domain.user.DailyStudyRecord;
+import org.livestudy.domain.user.statusdata.DailyStudyRecord;
 import org.livestudy.domain.user.User;
-import org.livestudy.domain.user.UserStudyStat;
+import org.livestudy.domain.user.statusdata.UserStudyStat;
 import org.livestudy.dto.timer.TimerResponse;
 import org.livestudy.dto.timer.TimerStatusResponse;
 import org.livestudy.exception.CustomException;
@@ -247,7 +247,7 @@ public class TimerServiceImpl implements TimerService {
         // DailyStudyRecord 업데이트
         LocalDate today = LocalDate.now();
         DailyStudyRecord dailyStudyRecord = dailyStudyRecordRepo
-                .findByUserIdAndRecordDate(user.getId(), today)
+                .findByUser_IdAndRecordDate(user.getId(), today)
                 .orElseGet(() -> {
                     log.info("userId: {} 유저의 오늘({}) DailyStudyRecord 생성", user.getId(), today);
                     return DailyStudyRecord.builder()
