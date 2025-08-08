@@ -78,14 +78,12 @@ public class SecurityConfig {
                                 "/api/debug/**",
                                 "/favicon.ico",
                                 "/webhook/**",
-                                "/chat-test.html", // Websocket 서버 Test용
-                                "/oauth2/**",
-                                "/api/debug/**",
-                                "/auth/**",
+                                // 기타
+                                "/api/timer/**",
                                 "/api/study-rooms/**",
-                                "/login/oauth2/code/**",
                                 "/api/titles/**",
-                                "/api/timer/**"
+                                "/api/timer/**",
+                                "/api/debug/**"
                         ).permitAll()
                         .requestMatchers("/api/user/**", "/api/livekit/**", "/api/user/stat/**").authenticated()
                         .anyRequest().authenticated())
