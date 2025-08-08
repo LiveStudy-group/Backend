@@ -25,7 +25,7 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
 
     @Override // Client가 처음으로 WebSocket을 연결하는 Endpoint를 설정
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws")
+        registry.addEndpoint("/rtc")
                 .setAllowedOriginPatterns("*")
                 .withSockJS();
     }

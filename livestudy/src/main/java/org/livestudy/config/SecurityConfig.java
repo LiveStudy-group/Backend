@@ -54,15 +54,18 @@ public class SecurityConfig {
                         .maximumSessions(1)
                         .maxSessionsPreventsLogin(false))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**", "/ws/**", "/oauth2/**", "/api/debug/**").permitAll()
-                        .requestMatchers("/api/auth/**", "/ws/**","/v3/api-docs/**",           // Swagger JSON
+                        .requestMatchers("/api/auth/**", "/rtc", "/rtc/**", "/api/debug/**").permitAll()
+                        .requestMatchers("/api/auth/**", "/v3/api-docs/**",           // Swagger JSON
                                 "/swagger-ui/**",            // Swagger HTML/CSS/JS
                                 "/swagger-ui.html",          // 구버전 접근 경로
                                 "/webjars/**",
                                 "/webhook/**",
                                 "/chat-test.html", // Websocket 서버 Test용
                                 "/oauth2/**",
-                                "/api/debug/**"
+                                "/api/debug/**",
+                                "/login/oauth2/code/**",
+                                "/api/timer/**",
+                                "/api/titles/**"
                         ).permitAll()
                         .requestMatchers("/api/livekit/**").authenticated()
                         .anyRequest().authenticated())
