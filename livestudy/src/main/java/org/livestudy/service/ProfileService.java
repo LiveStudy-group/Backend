@@ -8,7 +8,7 @@ public interface ProfileService {
 
     void updateNickname(Long userId, UpdateNicknameRequest request);
 
-    void updateProfileImage(Long userId, UpdateProfileImageRequest request);
+    void updateProfileImage(Long userId, String newProfileImage);
 
     void updateEmail(Long userId, UpdateEmailRequest request);
 

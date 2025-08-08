@@ -81,11 +81,10 @@ public class ProfileServiceImpl implements ProfileService{
 
     @Override
     @Transactional
-    public void updateProfileImage(Long userId, UpdateProfileImageRequest request) {
+    public void updateProfileImage(Long userId, String newProfileImage) {
 
         // User 엔티티 조회
         User user = getUserById(userId);
-        String newProfileImage = request.getNewProfileImage();
 
         // 현재 이미지와 동일한지 체크
         if (user.getProfileImage() != null && user.getProfileImage().equals(newProfileImage)) {
@@ -94,7 +93,6 @@ public class ProfileServiceImpl implements ProfileService{
         }
 
         user.updateProfileImage(newProfileImage);
-        userRepo.save(user);
         log.info("userId: {} 유저의 프로필 이미지가 변경되었습니다.", userId);
 
     }

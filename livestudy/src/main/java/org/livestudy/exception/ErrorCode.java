@@ -29,6 +29,7 @@ public enum ErrorCode {
     DUPLICATE_NICKNAME("U015", "이미 존재하는 닉네임입니다.", HttpStatus.CONFLICT),
     SAME_EMAIL("U016", "현재 사용 중인 이메일로는 변경하실 수 없습니다.", HttpStatus.BAD_REQUEST),
     SAME_PASSWORD("U017", "현재 사용 중인 비밀번호로는 변경하실 수 없습니다.", HttpStatus.BAD_REQUEST),
+    IMAGE_UPLOAD_FAILED("U018", "이미지 업로드에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 
 
     // Track 관련 에러
