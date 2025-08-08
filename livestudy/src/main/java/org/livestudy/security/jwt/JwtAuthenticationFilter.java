@@ -28,11 +28,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = resolveToken(request);
 
-//        String path = request.getRequestURI();
-//        if(path.startsWith("/ws")){
-//                 filterChain.doFilter(request, response);
-//                 return;
-//             }
+        String path = request.getRequestURI();
+        if(path.startsWith("/rtc")){
+                 filterChain.doFilter(request, response);
+                 return;
+             }
 
         if(token != null && jwtTokenProvider.validateToken(token)) {
             Authentication authentication = jwtTokenProvider.getAuthentication(token);
@@ -50,20 +50,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return bearerToken.substring(7);
         }
 
-        String accessToken = request.getParameter("access_token");
-        if(accessToken != null && !accessToken.isEmpty()) {
-            return accessToken;
-        }
-
         return null;
     }
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
-        // WebSocket 연결할 때 필터를 실행하지 않음
-        if(path.startsWith("/ws") || path.startsWith("/rtc"))
-            return true;
         // OAuth2 인증 관련 경로와 로그인/회원가입 API 경로에서는 필터를 실행하지 않음
         return path.startsWith("/oauth2/") || path.startsWith("/api/auth/");
     }
