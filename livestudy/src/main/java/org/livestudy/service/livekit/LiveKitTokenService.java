@@ -1,4 +1,4 @@
-package org.livestudy.service;
+package org.livestudy.service.livekit;
 
 import io.livekit.server.*;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +16,7 @@ public class LiveKitTokenService {
 
     private static final Logger log = LoggerFactory.getLogger(LiveKitTokenService.class);
 
+
     @Value("${livekit.api-key}")
     private String apiKey;
 
@@ -23,20 +24,22 @@ public class LiveKitTokenService {
     private String apiSecret;
 
     public LiveKitTokenService(
-             String apiKey,
-             String apiSecret) {
+            String apiKey,
+            String apiSecret) {
         this.apiKey = apiKey;
         this.apiSecret = apiSecret;
     }
+
 
     public String generateToken(String userId, String roomId){
 
         if(userId == null) {
             throw new CustomException(ErrorCode.USER_NOT_FOUND);
-        } else if(roomId == null) {
-            throw new CustomException(ErrorCode.ROOM_NOT_FOUND);
         }
 
+        if(roomId == null) {
+            throw new CustomException(ErrorCode.ROOM_NOT_FOUND);
+        }
 
         // 토큰 생성
         AccessToken token = new AccessToken(apiKey, apiSecret);

@@ -27,7 +27,7 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
                 .setAllowedOriginPatterns("http://localhost:5174", "https://localhost:5174", // FE 개발용
-                        "https://live-study.com", "https://www.live-study.com")  // 배포용
+                        "https://live-study.com", "https://www.live-study.com", "https://api.live-study.com")  // 배포용
                 .withSockJS();
     }
 
