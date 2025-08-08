@@ -76,7 +76,7 @@ public class SecurityConfig {
                                 "/api/titles/**",
                                 "/api/timer/**"
                         ).permitAll()
-                        .requestMatchers("/api/user/**", "/api/livekit/**").authenticated()
+                        .requestMatchers("/api/user/**", "/api/livekit/**", "/api/user/stat/**").authenticated()
                         .anyRequest().authenticated())
                 .oauth2Login(oauth2 -> oauth2
                         .authorizationEndpoint(authorization -> authorization

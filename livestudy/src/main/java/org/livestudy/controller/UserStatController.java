@@ -15,6 +15,8 @@ import org.livestudy.dto.DailyRecordResponse;
 import org.livestudy.dto.TodayStudyTimeResponse;
 import org.livestudy.dto.ErrorResponse;
 import org.livestudy.dto.UserStudyStatsResponse;
+import org.livestudy.exception.CustomException;
+import org.livestudy.exception.ErrorCode;
 import org.livestudy.security.SecurityUser;
 import org.livestudy.service.UserStudyStatService;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -54,6 +56,11 @@ public class UserStatController {
     public ResponseEntity<UserStudyStatsResponse> getUserNormalStats(
             @AuthenticationPrincipal SecurityUser user) {
 
+        if (user == null || user.getUser() == null) {
+            log.error("인증되지 않은 사용자가 '/api/user/stat/normal' 에 접근을 시도했습니다.");
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
+
         Long userId = user.getUser().getId();
 
         log.info("통계 페이지 - userId: {} 유저의 공부 정보 조회", userId);
@@ -84,6 +91,11 @@ public class UserStatController {
             @AuthenticationPrincipal SecurityUser user,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+
+        if (user == null || user.getUser() == null) {
+            log.error("인증되지 않은 사용자가 '/api/user/stat/daily-focus' 에 접근을 시도했습니다.");
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
 
         Long userId = user.getUser().getId();
 
@@ -119,6 +131,11 @@ public class UserStatController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
 
+        if (user == null || user.getUser() == null) {
+            log.error("인증되지 않은 사용자가 '/api/user/stat/average-focus-ratio' 에 접근을 시도했습니다.");
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
+
         Long userId = user.getUser().getId();
 
         LocalDate end = (endDate != null) ? endDate : LocalDate.now();
@@ -142,6 +159,11 @@ public class UserStatController {
     public ResponseEntity<TodayStudyTimeResponse> getTodayStudyTime(
             @AuthenticationPrincipal SecurityUser user) {
 
+        if (user == null || user.getUser() == null) {
+            log.error("인증되지 않은 사용자가 '/api/user/stat/today-study-time' 에 접근을 시도했습니다.");
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
+        
         Long userId = user.getUser().getId();
         log.info("userId: {} 유저의 오늘 공부 시간 조회", userId);
 
