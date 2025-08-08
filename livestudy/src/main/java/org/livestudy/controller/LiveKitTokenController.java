@@ -15,7 +15,7 @@ import org.livestudy.exception.CustomException;
 import org.livestudy.exception.ErrorCode;
 import org.livestudy.repository.redis.RoomRedisRepository;
 import org.livestudy.security.SecurityUser;
-import org.livestudy.service.LiveKitTokenService;
+import org.livestudy.service.livekit.LiveKitTokenService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
