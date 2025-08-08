@@ -1,3 +1,4 @@
+/*
 package org.livestudy.oauth2;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -59,4 +60,4 @@ public class CustomOAuth2AuthorizationRequestRepository implements Authorization
     public static <T> T deserialize(jakarta.servlet.http.Cookie cookie, Class<T> cls) {
         return cls.cast(SerializationUtils.deserialize(Base64.getUrlDecoder().decode(cookie.getValue())));
     }
-}
+}*/
