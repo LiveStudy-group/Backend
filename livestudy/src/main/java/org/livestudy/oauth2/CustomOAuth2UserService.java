@@ -38,10 +38,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
         OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(registrationId, oauth2User.getAttributes());
 
-        if (!StringUtils.hasText(oAuth2UserInfo.getEmail())) {
-            throw new CustomException(ErrorCode.INVALID_INPUT);
-        }
-
         Optional<User> userOptional = userRepository.findByEmail(oAuth2UserInfo.getEmail());
         User user;
 

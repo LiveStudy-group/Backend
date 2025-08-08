@@ -8,6 +8,8 @@ import org.livestudy.domain.title.UserTitle;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.UUID;
+
 @Entity
 @Getter
 @Setter
@@ -86,6 +88,12 @@ public class User extends BaseEntity {
                                 String nickname,
                                 String profileImage,
                                 SocialProvider socialProvider) {
+
+        //이메일이 없을 경우 임의의 이메일 생성
+        if (email == null) {
+            email = socialProvider.name() + "_" + UUID.randomUUID().toString() +"@livestudy.com";
+        }
+
         return User.builder()
                 .email(email)
                 .nickname(nickname)
