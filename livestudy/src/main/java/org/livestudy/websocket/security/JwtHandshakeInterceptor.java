@@ -42,7 +42,9 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
 
         String token = UriComponentsBuilder.fromUri(httpRequest.getURI())
                 .build().getQueryParams()
-                .getFirst("token");
+                .getFirst("access_token");
+
+
 
 
 

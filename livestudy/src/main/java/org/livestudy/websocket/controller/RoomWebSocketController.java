@@ -33,6 +33,8 @@ public class RoomWebSocketController {
         String assignedRoomId = (String) accessor.getSessionAttributes().get("roomId");
         JoinPayload join = msg.getPayload();
 
+
+
         // 유효성 검사
         if (sessionUser == null || !sessionUser.equals(join.getUserId())) {
             log.error("유저 ID 불일치. 세션 userId: {}, 페이로드 userId: {}",
