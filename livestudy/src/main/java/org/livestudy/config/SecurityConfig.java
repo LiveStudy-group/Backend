@@ -56,25 +56,34 @@ public class SecurityConfig {
                         .maximumSessions(1)
                         .maxSessionsPreventsLogin(false))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() 
-                        .requestMatchers("/api/auth/**", "/rtc", "/rtc/**", "/api/debug/**").permitAll()
-                        .requestMatchers("/api/auth/**", "/v3/api-docs/**",           // Swagger JSON
-                                "/swagger-ui/**",            // Swagger HTML/CSS/JS
-                                "/swagger-ui.html",          // 구버전 접근 경로
-                                "/webjars/**",
-                                "/webhook/**",
-                                "/chat-test.html", // Websocket 서버 Test용
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(
+                                // OAuth2
                                 "/oauth2/**",
-                                "/api/debug/**",
                                 "/login/oauth2/code/**",
                                 "/api/timer/**",
                                 "/api/titles/**",
                                 "/auth/**",
+                                // WebSocket 및 LiveKit
+                                "/rtc",
+                                "/rtc/**",
+                                "/chat-test.html",
+                                // swagger
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**",
+                                "/webjars/**",
+                                // api 인증 및 디버그
+                                "/api/auth/**",
+                                "/api/debug/**",
                                 "/favicon.ico",
+                                "/webhook/**",
+                                // 기타
+                                "/api/timer/**",
                                 "/api/study-rooms/**",
-                                "/login/oauth2/code/**",
                                 "/api/titles/**",
-                                "/api/timer/**"
+                                "/api/timer/**",
+                                "/api/debug/**"
                         ).permitAll()
                         .requestMatchers("/api/user/**", "/api/livekit/**", "/api/user/stat/**").authenticated()
                         .anyRequest().authenticated())
