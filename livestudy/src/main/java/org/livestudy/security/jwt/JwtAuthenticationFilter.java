@@ -28,6 +28,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = resolveToken(request);
 
+//        String path = request.getRequestURI();
+//        if(path.startsWith("/ws")){
+//                 filterChain.doFilter(request, response);
+//                 return;
+//             }
+
         if(token != null && jwtTokenProvider.validateToken(token)) {
             Authentication authentication = jwtTokenProvider.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -42,6 +48,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if(bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
+        }
+
+        String accessToken = request.getParameter("access_token");
+        if(accessToken != null && !accessToken.isEmpty()) {
+            return accessToken;
         }
 
         return null;
