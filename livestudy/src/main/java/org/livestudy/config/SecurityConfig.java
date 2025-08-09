@@ -34,9 +34,6 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final CustomOAuth2UserService customOAuth2UserService;
-    private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
-    private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
     private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
 
     @Bean
@@ -45,7 +42,11 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity,
+                                                   CustomOAuth2UserService customOAuth2UserService,
+                                                   OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler,
+                                                   OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler
+    ) throws Exception {
 
         httpSecurity
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -56,24 +57,34 @@ public class SecurityConfig {
                         .maximumSessions(1)
                         .maxSessionsPreventsLogin(false))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() 
-                        .requestMatchers("/api/auth/**", "/rtc", "/api/debug/**").permitAll()
-                        .requestMatchers("/v3/api-docs/**",           // Swagger JSON
-                                "/swagger-ui/**",            // Swagger HTML/CSS/JS
-                                "/swagger-ui.html",          // 구버전 접근 경로
-                                "/webjars/**",
-                                "/webhook/**",
-                                "/chat-test.html", // Websocket 서버 Test용
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(
+                                // OAuth2
                                 "/oauth2/**",
-                                "/api/debug/**",
                                 "/login/oauth2/code/**",
                                 "/auth/**",
+                                // WebSocket 및 LiveKit
+                                "/rtc",
+                                "/chat-test.html",
+                                // swagger
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**",
+                                "/webjars/**",
+                                // api 인증 및 디버그
+                                "/api/auth/**",
+                                "/api/debug/**",
                                 "/favicon.ico",
+                                "/login/oauth2/code/**",
                                 "/api/titles/**",
                                 "/api/timer/**",
                                 "/js/**",
                                 "/css/**",
-                                "/js"
+                                "/js",
+                                "/webhook/**",
+                                // 기타
+                                "/api/timer/**",
+                                "/api/titles/**"
                         ).permitAll()
                         .requestMatchers("/api/user/**", "/api/livekit/**", "/api/user/stat/**", "/api/study-rooms/**", "/rtc/**").authenticated()
                         .anyRequest().authenticated())
