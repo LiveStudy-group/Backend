@@ -30,6 +30,7 @@ public enum ErrorCode {
     SAME_EMAIL("U016", "현재 사용 중인 이메일로는 변경하실 수 없습니다.", HttpStatus.BAD_REQUEST),
     SAME_PASSWORD("U017", "현재 사용 중인 비밀번호로는 변경하실 수 없습니다.", HttpStatus.BAD_REQUEST),
     IMAGE_UPLOAD_FAILED("U018", "이미지 업로드에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+    UNSUPPORTED_PROVIDER("U019", "지원하지 않는 소셜 로그인 입니다.", HttpStatus.BAD_REQUEST),
 
 
     // Track 관련 에러

@@ -5,8 +5,6 @@ services:
     build:
       context: ../../   # Dockerfile과 build.gradle이 있는 폴더
     network_mode: "host"
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
     restart: unless-stopped
     depends_on:
       - redis
