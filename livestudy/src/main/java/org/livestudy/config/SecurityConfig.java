@@ -83,8 +83,6 @@ public class SecurityConfig {
                                 "/api/timer/**",
                                 "/api/study-rooms/**",
                                 "/api/titles/**",
-                                "/api/timer/**",
-                                "/api/debug/**"
                         ).permitAll()
                         .requestMatchers("/api/user/**", "/api/livekit/**", "/api/user/stat/**").authenticated()
                         .anyRequest().authenticated())
@@ -94,7 +92,8 @@ public class SecurityConfig {
                         .successHandler(oAuth2AuthenticationSuccessHandler)
                         .failureHandler(oAuth2AuthenticationFailureHandler))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(liveKitTokenAuthenticationFilter, JwtAuthenticationFilter.class); //????????
+                .addFilterBefore(liveKitTokenAuthenticationFilter, JwtAuthenticationFilter.class);
+
 
 
         httpSecurity

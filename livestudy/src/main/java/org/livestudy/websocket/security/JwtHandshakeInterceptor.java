@@ -3,9 +3,10 @@ package org.livestudy.websocket.security;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.livestudy.component.LiveKitTokenVerifier;
 import org.livestudy.exception.CustomException;
+import org.livestudy.exception.ErrorCode;
 import org.livestudy.repository.redis.RoomRedisRepository;
+import org.livestudy.security.jwt.JwtTokenProvider;
 import org.livestudy.service.StudyRoomService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -28,7 +29,7 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
     private String secret;
 
     private final StudyRoomService studyRoomService;
-    private final LiveKitTokenVerifier liveKitTokenVerifier;
+    private final JwtTokenProvider jwtTokenProvider;
     private final RoomRedisRepository roomRedisRepository;
 
     @Override
@@ -51,59 +52,33 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
         log.info("🛡️ WS Handshake 요청: path={}, ip={}, token={}", requestPath, ip, token != null ? "present" : "missing");
 
         if (token == null) {
-            log.warn("❌ WS Handshake 실패 (토큰 없음): path={}, ip={}", requestPath, ip);
             httpResponse.setStatusCode(HttpStatus.UNAUTHORIZED);
             return false;
-        }
+        } try {
+            String userId = jwtTokenProvider.getUserIdFromToken(token).toString();
+            attributes.put("userId", userId);
 
-        try{
-            LiveKitTokenVerifier.DecodedLiveKitToken decodedLiveKitToken = liveKitTokenVerifier.decode(token);
-
-            log.info("✅ Livekit 토큰 검증 성공 : identity = {}, roomId = {}", decodedLiveKitToken.identity(), decodedLiveKitToken.roomId());
-            attributes.put("userId", decodedLiveKitToken.identity());
-            attributes.put("roomId", decodedLiveKitToken.roomId());
-
-            // 서버에 저장된 방 정보와 토큰 정보 비교
-            String serverRoomId = roomRedisRepository.getUserRoom(decodedLiveKitToken.identity());
-            if(!serverRoomId.equals(decodedLiveKitToken.roomId())) {
-                log.warn("❌ 방 정보 불일치: tokenRoom={}, serverRoom={}\", decoded.roomId(), serverRoomId",  decodedLiveKitToken.roomId(), serverRoomId);
-                httpResponse.setStatusCode(HttpStatus.UNAUTHORIZED);
-                return false;
-            }
-            log.info("✅ 토큰 검증 성공: userId={}", decodedLiveKitToken.identity());
-            attributes.put("userId", decodedLiveKitToken.identity());
-
-            String roomId = studyRoomService.enterRoom(decodedLiveKitToken.roomId()).toString();
-            log.info("🚪 방 입장 성공: userId={}, roomId={}", decodedLiveKitToken.identity(), roomId);
+            // 입장할 방
+            String roomId = studyRoomService.enterRoom(userId).toString();
             attributes.put("roomId", roomId);
 
             return true;
-        } catch (JwtException e) {
-            log.warn("❌ LiveKit 토큰 검증 실패: {}", e.getMessage());
+        } catch (JwtException | IllegalArgumentException e) {
             httpResponse.setStatusCode(HttpStatus.UNAUTHORIZED);
             return false;
         } catch (CustomException e) {
-            log.warn("❌ 입장 처리 실패: errorCode={}, message={}", e.getErrorCode(), e.getMessage());
-
-            switch (e.getErrorCode()) {
-                case USER_ALREADY_IN_ROOM:
-                    httpResponse.setStatusCode(HttpStatus.CONFLICT);
-                    break;
-                case USER_NOT_IN_ROOM:
-                case INVALID_ROOM_CAPACITY:
-                    httpResponse.setStatusCode(HttpStatus.BAD_REQUEST);
-                    break;
-                case REDIS_CONNECTION_FAILED:
-                    httpResponse.setStatusCode(HttpStatus.PRECONDITION_FAILED);
-                    break;
-                default:
-                    httpResponse.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
+            if (e.getErrorCode() == ErrorCode.USER_ALREADY_IN_ROOM) {
+                httpResponse.setStatusCode(HttpStatus.CONFLICT);
+            } else if (e.getErrorCode() == ErrorCode.USER_NOT_IN_ROOM ||
+                    e.getErrorCode() == ErrorCode.INVALID_ROOM_CAPACITY) {
+                httpResponse.setStatusCode(HttpStatus.BAD_REQUEST);
+            } else if (e.getErrorCode() == ErrorCode.REDIS_CONNECTION_FAILED){
+                httpResponse.setStatusCode(HttpStatus.PRECONDITION_FAILED);
+            } else {
+                httpResponse.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
             }
-
             return false;
-
         } catch (Exception e) {
-            log.error("❌ 알 수 없는 예외 발생: {}", e.getMessage(), e);
             httpResponse.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
             return false;
         }
