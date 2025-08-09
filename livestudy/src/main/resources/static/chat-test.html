@@ -108,7 +108,7 @@
         }
 
         function connectWebSocket(livekitToken) {
-            const socket = new SockJS(`http://localhost:8080/api/study-rooms/rtc?access_token=${livekitToken}`, null, {transport : ["websocket"]});
+            const socket = new SockJS(`https://api.live-study.com/api/study-rooms/rtc?access_token=${livekitToken}`, null, {transport : ["websocket"]});
             stompClient = Stomp.over(socket);  // 전역 변수에 할당!
 
             stompClient.connect(
