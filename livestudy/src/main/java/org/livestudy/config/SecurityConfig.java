@@ -2,7 +2,6 @@ package org.livestudy.config;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.livestudy.oauth2.CustomOAuth2AuthorizationRequestRepository;
 import org.livestudy.oauth2.CustomOAuth2UserService;
 import org.livestudy.oauth2.OAuth2AuthenticationFailureHandler;
 import org.livestudy.oauth2.OAuth2AuthenticationSuccessHandler;
@@ -35,9 +34,6 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final CustomOAuth2UserService customOAuth2UserService;
-    private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
-    private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
     private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
 
     @Bean
@@ -46,7 +42,11 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity,
+                                                   CustomOAuth2UserService customOAuth2UserService,
+                                                   OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler,
+                                                   OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler
+    ) throws Exception {
 
         httpSecurity
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -57,35 +57,45 @@ public class SecurityConfig {
                         .maximumSessions(1)
                         .maxSessionsPreventsLogin(false))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.POST, "/api/images/upload").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/images/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/api/auth/**", "/v3/api-docs/**",           // Swagger JSON
-                                "/swagger-ui/**",            // Swagger HTML/CSS/JS
-                                "/swagger-ui.html",          // 구버전 접근 경로
-                                "/webjars/**",
-                                "/webhook/**",
-                                "/chat-test.html", // Websocket 서버 Test용
+                        .requestMatchers(
+                                // OAuth2
                                 "/oauth2/**",
-                                "/api/debug/**",
-                                "/auth/**",
-                                "/rtc/**",
-                                "/rtc",
-                                "/ws",
-                                "/ws/**",
-                                "/api/study-rooms/**",
                                 "/login/oauth2/code/**",
-                                "/api/titles/**",
-                                "/api/timer/**"
+                                "/auth/**",
+                                // WebSocket 및 LiveKit
+                                "/rtc",
+                                "/chat-test.html",
+                                // swagger
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**",
+                                "/webjars/**",
+                                // api 인증 및 디버그
+                                "/api/auth/**",
+                                "/api/debug/**",
+                                "/favicon.ico",
+                                "/login/oauth2/code/**",
+                                "/js/**",
+                                "/css/**",
+                                "/js",
+                                "/webhook/**",
+                                // 기타
+                                "/api/timer/**",
+                                "/api/titles/**"
                         ).permitAll()
-                        .requestMatchers("/api/user/**", "/api/livekit/**").authenticated()
+                        .requestMatchers("/api/user/**", "/api/livekit/**", "/api/user/stat/**", "/api/study-rooms/**", "/rtc/**").authenticated()
                         .anyRequest().authenticated())
                 .oauth2Login(oauth2 -> oauth2
-                        .authorizationEndpoint(authorization -> authorization
-                                .authorizationRequestRepository(new CustomOAuth2AuthorizationRequestRepository()))
                 .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService))
                         .successHandler(oAuth2AuthenticationSuccessHandler)
                         .failureHandler(oAuth2AuthenticationFailureHandler))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+
 
         httpSecurity
                 .exceptionHandling(ex -> ex
