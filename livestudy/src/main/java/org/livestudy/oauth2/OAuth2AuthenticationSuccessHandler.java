@@ -28,7 +28,6 @@ import java.io.IOException;
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final UserService userService;
 
     @Value("${app.frontend.url}")
     private String frontendUrl;
@@ -63,41 +62,22 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     protected String determineTargetUrl(HttpServletRequest request,
                                         HttpServletResponse response,
                                         Authentication authentication) {
+        SecurityUser principal = (SecurityUser) authentication.getPrincipal();
 
-        // ① provider·attribute 추출
-        OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
-        String registrationId = oauthToken.getAuthorizedClientRegistrationId();   // "google" | "kakao" | "naver"
-
-        OAuth2UserInfo userInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(
-                registrationId,
-                ((OAuth2User) authentication.getPrincipal()).getAttributes());
-
-        if (userInfo == null) {
-            throw new CustomException(ErrorCode.UNSUPPORTED_PROVIDER);
-        }
-
-        // ② DB 조회·신규 생성
-        SocialProvider provider = SocialProvider.valueOf(registrationId.toUpperCase());
-        User member = userService.findOrCreateSocialUser(
-                userInfo.getEmail(),
-                userInfo.getName(),
-                provider
-        );
-
-        // ③ SecurityUser로 래핑
-        SecurityUser securityUser = new SecurityUser(member);
         UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(securityUser,
+                new UsernamePasswordAuthenticationToken(principal,
                         null,
-                        securityUser.getAuthorities());
+                        principal.getAuthorities());
 
-        // ④ JWT 발급
+        // JWT 발급
         String token = jwtTokenProvider.generateToken(authToken);
 
-        // ⑤ 프론트로 redirect
+        boolean isNew = principal.getUser().isNewUser();
+
+        // redirect
         return UriComponentsBuilder.fromUriString(frontendUrl + "/auth/success")
                 .queryParam("token", token)
-                .queryParam("isNew", member.isNewUser())
+                .queryParam("isNew", isNew)
                 .build()
                 .toUriString();
     }

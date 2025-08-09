@@ -87,11 +87,12 @@ public class User extends BaseEntity {
     public static User ofSocial(String email,
                                 String nickname,
                                 String profileImage,
-                                SocialProvider socialProvider) {
+                                SocialProvider socialProvider,
+                                String socialId) {
 
         //이메일이 없을 경우 임의의 이메일 생성
-        if (email == null) {
-            email = socialProvider.name() + "_" + UUID.randomUUID().toString() +"@livestudy.com";
+        if (email == null || email.isBlank()) {
+            email = socialProvider.name().toLowerCase() + "_" + socialId +"@livestudy.com";
         }
 
         return User.builder()
