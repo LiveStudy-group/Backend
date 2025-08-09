@@ -76,8 +76,6 @@ public class SecurityConfig {
                                 "/api/debug/**",
                                 "/favicon.ico",
                                 "/login/oauth2/code/**",
-                                "/api/titles/**",
-                                "/api/timer/**",
                                 "/js/**",
                                 "/css/**",
                                 "/js",
