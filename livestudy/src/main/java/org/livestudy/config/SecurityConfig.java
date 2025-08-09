@@ -58,7 +58,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() 
                         .requestMatchers("/api/auth/**", "/rtc", "/api/debug/**").permitAll()
-                        .requestMatchers("/api/auth/**", "/v3/api-docs/**",           // Swagger JSON
+                        .requestMatchers("/v3/api-docs/**",           // Swagger JSON
                                 "/swagger-ui/**",            // Swagger HTML/CSS/JS
                                 "/swagger-ui.html",          // 구버전 접근 경로
                                 "/webjars/**",
@@ -67,11 +67,8 @@ public class SecurityConfig {
                                 "/oauth2/**",
                                 "/api/debug/**",
                                 "/login/oauth2/code/**",
-                                "/api/timer/**",
-                                "/api/titles/**",
                                 "/auth/**",
                                 "/favicon.ico",
-                                "/login/oauth2/code/**",
                                 "/api/titles/**",
                                 "/api/timer/**",
                                 "/js/**",
