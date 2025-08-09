@@ -48,14 +48,14 @@ public class ImageUploadController {
     }
 
     @GetMapping("/images/{fileName:.+}")
-    @Operation(summary = "프로필이미지 저장", description = "유저(자신)의 프로필 이미지를 저장합니다.")
+    @Operation(summary = "프로필이미지 조회", description = "유저(자신)의 프로필 이미지를 조회합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "이미지가 성공적으로 저장되었습니다."),
+            @ApiResponse(responseCode = "200", description = "이미지가 성공적으로 조회되었습니다."),
             @ApiResponse(responseCode = "400", description = "잘못된 요청입니다.",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자입니다.",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "404", description = "저장할 대상을 찾을 수 없습니다.",
+            @ApiResponse(responseCode = "404", description = "조회할 대상을 찾을 수 없습니다.",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "서버 오류 발생.")
     })
