@@ -57,7 +57,7 @@ public class SecurityConfig {
                         .maxSessionsPreventsLogin(false))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() 
-                        .requestMatchers("/api/auth/**", "/rtc", "/rtc/**", "/api/debug/**").permitAll()
+                        .requestMatchers("/api/auth/**", "/rtc", "/api/debug/**").permitAll()
                         .requestMatchers("/api/auth/**", "/v3/api-docs/**",           // Swagger JSON
                                 "/swagger-ui/**",            // Swagger HTML/CSS/JS
                                 "/swagger-ui.html",          // 구버전 접근 경로
@@ -71,12 +71,14 @@ public class SecurityConfig {
                                 "/api/titles/**",
                                 "/auth/**",
                                 "/favicon.ico",
-                                "/api/study-rooms/**",
                                 "/login/oauth2/code/**",
                                 "/api/titles/**",
-                                "/api/timer/**"
+                                "/api/timer/**",
+                                "/js/**",
+                                "/css/**",
+                                "/js"
                         ).permitAll()
-                        .requestMatchers("/api/user/**", "/api/livekit/**", "/api/user/stat/**").authenticated()
+                        .requestMatchers("/api/user/**", "/api/livekit/**", "/api/user/stat/**", "/api/study-rooms/**", "/rtc/**").authenticated()
                         .anyRequest().authenticated())
                 .oauth2Login(oauth2 -> oauth2
                 .userInfoEndpoint(userInfo -> userInfo
@@ -84,6 +86,7 @@ public class SecurityConfig {
                         .successHandler(oAuth2AuthenticationSuccessHandler)
                         .failureHandler(oAuth2AuthenticationFailureHandler))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
 
 
         httpSecurity
