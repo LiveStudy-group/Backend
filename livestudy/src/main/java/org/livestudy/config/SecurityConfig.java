@@ -6,7 +6,6 @@ import org.livestudy.oauth2.CustomOAuth2UserService;
 import org.livestudy.oauth2.OAuth2AuthenticationFailureHandler;
 import org.livestudy.oauth2.OAuth2AuthenticationSuccessHandler;
 import org.livestudy.security.jwt.JwtAuthenticationFilter;
-import org.livestudy.websocket.security.LiveKitTokenAuthenticationFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -35,7 +34,6 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final LiveKitTokenAuthenticationFilter liveKitTokenAuthenticationFilter;
     private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
 
     @Bean
@@ -82,7 +80,7 @@ public class SecurityConfig {
                                 // 기타
                                 "/api/timer/**",
                                 "/api/study-rooms/**",
-                                "/api/titles/**",
+                                "/api/titles/**"
                         ).permitAll()
                         .requestMatchers("/api/user/**", "/api/livekit/**", "/api/user/stat/**").authenticated()
                         .anyRequest().authenticated())
@@ -91,8 +89,7 @@ public class SecurityConfig {
                                 .userService(customOAuth2UserService))
                         .successHandler(oAuth2AuthenticationSuccessHandler)
                         .failureHandler(oAuth2AuthenticationFailureHandler))
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(liveKitTokenAuthenticationFilter, JwtAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
 
 
