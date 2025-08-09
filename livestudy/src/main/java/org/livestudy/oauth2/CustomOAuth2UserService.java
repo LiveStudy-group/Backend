@@ -38,7 +38,16 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
         OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(registrationId, oauth2User.getAttributes());
 
-        Optional<User> userOptional = userRepository.findByEmail(oAuth2UserInfo.getEmail());
+        //email이 없을 경우 생성
+        String email = oAuth2UserInfo.getEmail();
+        if (email == null || email.isBlank()) {
+            email = oAuth2UserInfo.getProvider().name().toLowerCase()
+                    + "_"
+                    + oAuth2UserInfo.getId()
+                    + "@livestudy.com";
+        }
+
+        Optional<User> userOptional = userRepository.findByEmail(email);
         User user;
 
         if (userOptional.isPresent()) {
@@ -47,9 +56,17 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             if (!user.getSocialProvider().equals(oAuth2UserInfo.getProvider())) {
                 throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
             }
-            user = updateExistingUser(user, oAuth2UserInfo);
+            user.setNewUser(false);
         } else {
-            user = registerNewUser(oAuth2UserInfo);
+            user = User.ofSocial(
+                    email,
+                    generateUniqueNickname(oAuth2UserInfo.getName()),
+                    oAuth2UserInfo.getImageUrl(),
+                    oAuth2UserInfo.getProvider(),
+                    oAuth2UserInfo.getId()
+            );
+            user.setNewUser(true);
+            user = userRepository.save(user);
         }
 
         // SecurityUser로 반환 (OAuth2User도 구현하므로 문제없음)
@@ -61,7 +78,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 oAuth2UserInfo.getEmail(),
                 generateUniqueNickname(oAuth2UserInfo.getName()),
                 oAuth2UserInfo.getImageUrl(),
-                oAuth2UserInfo.getProvider()
+                oAuth2UserInfo.getProvider(),
+                oAuth2UserInfo.getId()
         );
 
         return userRepository.save(user);
