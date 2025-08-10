@@ -1,18 +1,26 @@
 package org.livestudy.oauth2;
 
 import org.livestudy.domain.user.SocialProvider;
+import org.springframework.util.StringUtils;
 
+import java.util.Collections;
 import java.util.Map;
 
 public class NaverOAuth2UserInfo extends OAuth2UserInfo {
 
+    private final Map<String, Object> response;
+
     public NaverOAuth2UserInfo(Map<String, Object> attributes) {
+
         super(attributes);
+        Object resp = attributes.get("response");
+        this.response = (resp instanceof Map)
+                ? (Map<String, Object>) resp
+                : Collections.emptyMap();
     }
 
     @Override
     public String getId() {
-        Map<String, Object> response = (Map<String, Object>) attributes.get("response");
         if (response == null) {
             return null;
         }
@@ -21,16 +29,17 @@ public class NaverOAuth2UserInfo extends OAuth2UserInfo {
 
     @Override
     public String getName() {
-        Map<String, Object> response = (Map<String, Object>) attributes.get("response");
         if (response == null) {
             return null;
         }
-        return (String) response.get("nickname");
+        String nickname = (String) response.get("nickname");
+        String name = (String) response.get("name");
+
+        return StringUtils.hasText(nickname) ? nickname : name;
     }
 
     @Override
     public String getEmail() {
-        Map<String, Object> response = (Map<String, Object>) attributes.get("response");
         if (response == null) {
             return null;
         }
@@ -39,7 +48,6 @@ public class NaverOAuth2UserInfo extends OAuth2UserInfo {
 
     @Override
     public String getImageUrl() {
-        Map<String, Object> response = (Map<String, Object>) attributes.get("response");
         if (response == null) {
             return null;
         }

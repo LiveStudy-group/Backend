@@ -29,14 +29,28 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         try {
             return processOAuth2User(userRequest, oauth2User);
-        } catch (Exception ex) {
-            throw new OAuth2AuthenticationException(ex.getMessage());
+        } catch (OAuth2AuthenticationException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new OAuth2AuthenticationException(
+                    new org.springframework.security.oauth2.core.OAuth2Error("server_error"),
+                    "OAuth2 login failed: " + e.getMessage()
+            );
         }
     }
 
     private OAuth2User processOAuth2User(OAuth2UserRequest userRequest, OAuth2User oauth2User) {
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
-        OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(registrationId, oauth2User.getAttributes());
+        OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory
+                .getOAuth2UserInfo(registrationId, oauth2User.getAttributes());
+
+        // 필수값 체크
+        if (oAuth2UserInfo.getId() == null) {
+            throw new OAuth2AuthenticationException(
+                    new org.springframework.security.oauth2.core.OAuth2Error("invalid_user_info"),
+                    registrationId + " userinfo invalid: missing id"
+            );
+        }
 
         //email이 없을 경우 생성
         String email = oAuth2UserInfo.getEmail();
