@@ -33,8 +33,28 @@ public class ImageService {
     }
 
     public String uploadImage(MultipartFile imageFile) {
+
         try {
-            String fileName = UUID.randomUUID().toString() + "_" + imageFile.getOriginalFilename();
+            //이미지 파일이 비어있는지 확인
+            if (imageFile.isEmpty()) throw new CustomException(ErrorCode.IMAGE_UPLOAD_FAILED);
+
+            // 이미지 타입인지 확인
+            String contentType = imageFile.getContentType();
+            if (contentType == null || !contentType.startsWith("image/"))
+                throw new CustomException(ErrorCode.IMAGE_UPLOAD_FAILED);
+
+            // 경로 점검
+            String original = org.springframework.util.StringUtils.cleanPath(
+                    java.util.Objects.requireNonNull(imageFile.getOriginalFilename()));
+            if (original.contains("..")) throw new CustomException(ErrorCode.IMAGE_UPLOAD_FAILED);
+
+            // 확장자 추출 및 허용 가능한 타입인지 확인
+            String ext = original.lastIndexOf('.') > -1 ?
+                    original.substring(original.lastIndexOf('.')).toLowerCase() : "";
+            if (!java.util.List.of(".png", ".jpg", ".jpeg", ".webp").contains(ext))
+                throw new CustomException(ErrorCode.IMAGE_UPLOAD_FAILED);
+
+            String fileName = java.util.UUID.randomUUID() + ext;
             Path filePath = Paths.get(uploadDir, fileName);
             Files.copy(imageFile.getInputStream(), filePath);
 
