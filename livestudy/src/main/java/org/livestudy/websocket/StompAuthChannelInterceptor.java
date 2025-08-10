@@ -3,6 +3,7 @@ package org.livestudy.websocket;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.livestudy.exception.CustomException;
 import org.livestudy.exception.ErrorCode;
 import org.livestudy.service.livekit.LiveKitTokenService;
@@ -26,51 +27,56 @@ public class StompAuthChannelInterceptor implements ChannelInterceptor {
     private final LiveKitTokenService liveKitTokenService;
 
     @Override
-    public Message<?> preSend(Message<?> message, MessageChannel channel) {
+    public Message<?> preSend(@NotNull Message<?> message, @NotNull MessageChannel channel) {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
         if (accessor == null) {
-            log.warn("STOMP accessor is null.");
+            log.warn("STOMP accessor is null. Message: {}", message);
             return message;
         }
-        StompCommand command = accessor.getCommand();
-        log.info("STOMP command received: {}", command);
 
-        // 전체 헤더 로그 출력
-        log.debug("[preSend] Native headers: {}", accessor.toNativeHeaderMap());
+        StompCommand command = accessor.getCommand();
+        log.info("[StompAuthChannelInterceptor] STOMP command received: {}", command);
+        log.debug("[StompAuthChannelInterceptor] All headers: {}", accessor.toMessageHeaders());
+        log.debug("[StompAuthChannelInterceptor] Native headers: {}", accessor.toNativeHeaderMap());
 
         if (StompCommand.CONNECT.equals(command)) {
+            log.info("[CONNECT] Start authentication process");
+
             String authHeader = accessor.getFirstNativeHeader("Authorization");
+            log.debug("[CONNECT] Raw Authorization header: {}", authHeader);
+
             if (authHeader == null) {
-                log.warn("Authorization header is missing in STOMP CONNECT");
+                log.warn("[CONNECT] Authorization header is missing");
                 throw new CustomException(ErrorCode.UNAUTHORIZED);
             }
             if (!authHeader.startsWith("Bearer ")) {
-                log.warn("Authorization header does not start with Bearer: {}", authHeader);
+                log.warn("[CONNECT] Authorization header does not start with Bearer: {}", authHeader);
                 throw new CustomException(ErrorCode.UNAUTHORIZED);
             }
 
             String token = authHeader.substring(7);
-            log.info("JWT token extracted: {}", token);
+            log.info("[CONNECT] JWT token extracted: {}", token);
 
             try {
                 boolean valid = liveKitTokenService.validateToken(token);
-                log.info("[preSend] Token validation result: {}", valid);
+                log.info("[CONNECT] Token validation result: {}", valid);
 
                 if (!valid) {
-                    log.warn("[preSend] Invalid JWT token.");
+                    log.warn("[CONNECT] Invalid JWT token.");
                     throw new CustomException(ErrorCode.FORBIDDEN);
                 }
 
                 Authentication auth = liveKitTokenService.getAuthentication(token);
-                log.info("[preSend] Authenticated user: {}", auth.getName());
+                log.info("[CONNECT] Authenticated user: {}", auth.getName());
 
-                accessor.setUser(auth); // STOMP 연결에 Principal 부여
+                accessor.setUser(auth);
+                log.debug("[CONNECT] Principal set in accessor: {}", accessor.getUser());
             } catch (Exception e) {
-                log.error("[preSend] Token processing failed: {}", e.getMessage(), e);
+                log.error("[CONNECT] Token processing failed: {}", e.getMessage(), e);
                 throw new CustomException(ErrorCode.FORBIDDEN);
             }
         } else {
-            log.debug("STOMP command {} is not CONNECT, skipping authentication", command);
+            log.debug("[{}] Skipping authentication, current user in accessor: {}", command, accessor.getUser());
         }
 
         return message;
