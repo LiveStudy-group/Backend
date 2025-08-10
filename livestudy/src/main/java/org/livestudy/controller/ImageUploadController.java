@@ -23,7 +23,9 @@ import java.nio.file.Paths;
 public class ImageUploadController {
 
     private final ImageService imageService;
+/*
     private final Path fileStorageLocation = Paths.get("src/main/resources/static/images").toAbsolutePath().normalize();
+*/
 
     public ImageUploadController(ImageService imageService) {
         this.imageService = imageService;
@@ -47,7 +49,7 @@ public class ImageUploadController {
             return ResponseEntity.ok(imageUrl);
     }
 
-    @GetMapping("/images/{fileName:.+}")
+/*    @GetMapping("/images/{fileName:.+}")
     @Operation(summary = "프로필이미지 조회", description = "유저(자신)의 프로필 이미지를 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "이미지가 성공적으로 조회되었습니다."),
@@ -79,5 +81,5 @@ public class ImageUploadController {
         } else {
             return ResponseEntity.notFound().build();
         }
-    }
+    }*/
 }
