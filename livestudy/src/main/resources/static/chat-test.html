@@ -27,6 +27,8 @@
     <button onclick="sendMessage()">전송</button>
     <ul id="messages"></ul>
 
+    <button id="disconnect-btn" onclick="disconnect()" disabled>연결 끊기</button>
+
     <script>
         let stompClient = null;
         let jwtToken = null;
@@ -80,26 +82,41 @@
 
                 const data = await res.json();
                 jwtToken = data.token;
-                alert("✅ 로그인 성공! WebSocket 연결 시도합니다.");
+                console.log("JWT Token:" , jwtToken);
+                alert("✅ 로그인 성공! LiveKit 토큰 발급 시도합니다.");
 
-                connectWebSocket(jwtToken);
+                // JWT 토큰으로 LiveKit 토큰 요청
+                const livekitRes = await fetch("/api/livekit/token", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": "Bearer " + jwtToken,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        roomName: "study-room-1", // roomId에 매핑됨
+                        identity: "user_8890"     // userId에 매핑됨
+                    })
+                });
+                const livekitData = await livekitRes.json();
+                console.log(livekitData);
+                const livekitToken = livekitData.token;
+                console.log("livekitToken:", livekitToken);
+                connectWebSocket(livekitToken);
             } catch (err) {
                 alert("❌ 로그인 실패: " + err.message);
             }
         }
 
-        function connectWebSocket(token) {
-            const socket = new SockJS("https://api.live-study.com/ws");
-            stompClient = Stomp.over(socket);
+        function connectWebSocket(livekitToken) {
+            const socket = new SockJS(`https://api.live-study.com/api/study-rooms/rtc?access_token=${livekitToken}`, null, {transport : ["websocket"]});
+            stompClient = Stomp.over(socket);  // 전역 변수에 할당!
 
             stompClient.connect(
-                { Authorization: "Bearer " + token },
+                { Authorization: "Bearer " + livekitToken },
                 function (frame) {
                     console.log("STOMP 연결 성공:", frame);
-                    stompClient.subscribe("/topic/messages", function (msg) {
-                        const li = document.createElement("li");
-                        li.innerText = "📨 " + msg.body;
-                        document.getElementById("messages").appendChild(li);
+                    stompClient.subscribe("/topic/messages", function (message) {
+                        console.log("받은 메시지:", message.body);
                     });
                 },
                 function (error) {
@@ -107,6 +124,7 @@
                 }
             );
         }
+
 
         function sendMessage() {
             if (!stompClient || !stompClient.connected) {
@@ -116,6 +134,18 @@
             const msg = document.getElementById("msg").value;
             stompClient.send("/pub/chat", {}, msg);
             document.getElementById("msg").value = "";
+        }
+
+        function disconnect() {
+            if (stompClient !== null) {
+                stompClient.disconnect(() => {
+                    console.log("STOMP 연결 끊김");
+                    alert("연결이 끊어졌습니다.");
+
+                    // 버튼 상태 원복
+                    document.getElementById("disconnect-btn").disabled = true;
+                });
+            }
         }
     </script>
 </body>

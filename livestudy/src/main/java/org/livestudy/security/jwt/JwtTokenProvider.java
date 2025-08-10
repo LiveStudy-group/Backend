@@ -3,6 +3,7 @@ package org.livestudy.security.jwt;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.livestudy.domain.user.User;
 import org.livestudy.security.SecurityUser;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 
+@Slf4j
 @Component
 public class JwtTokenProvider {
 
@@ -30,6 +32,7 @@ public class JwtTokenProvider {
     @PostConstruct
     public void init(){
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+        log.info("Using jwt.secretKey: {}", secretKey);
         this.jwtParser = Jwts.parser().verifyWith((SecretKey) key).build();
     }
 
@@ -68,10 +71,18 @@ public class JwtTokenProvider {
 
     // token 검증
     public boolean validateToken(String token){
-        try{
-            jwtParser.parseSignedClaims(token);
+        if (token == null || token.trim().isEmpty()) {
+            return false;
+        }
+        if (token.chars().filter(ch -> ch == '.').count() != 2) {
+            // JWT는 마침표(.)가 2개여야 함 (헤더.페이로드.서명)
+            return false;
+        }
+        try {
+            jwtParser.parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
+            e.printStackTrace();
             return false;
         }
     }

@@ -4,10 +4,18 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.livestudy.domain.user.SocialProvider;
+import org.livestudy.domain.user.User;
+import org.livestudy.exception.CustomException;
+import org.livestudy.exception.ErrorCode;
 import org.livestudy.security.SecurityUser;
 import org.livestudy.security.jwt.JwtTokenProvider;
+import org.livestudy.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -50,18 +58,27 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         }
     }
 
-    protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response,
+    @Override
+    protected String determineTargetUrl(HttpServletRequest request,
+                                        HttpServletResponse response,
                                         Authentication authentication) {
+        SecurityUser principal = (SecurityUser) authentication.getPrincipal();
 
-        // SecurityUser로 직접 캐스팅 (이미 OAuth2User도 구현하고 있음)
-        SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
+        UsernamePasswordAuthenticationToken authToken =
+                new UsernamePasswordAuthenticationToken(principal,
+                        null,
+                        principal.getAuthorities());
 
-        // JWT 토큰 생성 (기존 방식 그대로 사용)
-        String token = jwtTokenProvider.generateToken(authentication);
-        log.debug("Generated JWT token for user: " + securityUser.getUsername());
+        // JWT 발급
+        String token = jwtTokenProvider.generateToken(authToken);
 
+        boolean isNew = principal.getUser().isNewUser();
+
+        // redirect
         return UriComponentsBuilder.fromUriString(frontendUrl + "/auth/success")
                 .queryParam("token", token)
-                .build().toUriString();
+                .queryParam("isNew", isNew)
+                .build()
+                .toUriString();
     }
 }

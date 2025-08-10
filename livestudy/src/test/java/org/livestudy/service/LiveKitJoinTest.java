@@ -10,7 +10,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.livestudy.exception.CustomException;
 import org.livestudy.exception.ErrorCode;
+import org.livestudy.repository.redis.RoomRedisRepository;
 import org.livestudy.security.jwt.JwtTokenProvider;
+import org.livestudy.service.livekit.LiveKitTokenService;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.nio.charset.StandardCharsets;
@@ -30,6 +32,8 @@ public class LiveKitJoinTest {
     private LiveKitTokenService liveKitTokenService;
 
     private JwtTokenProvider jwtTokenProvider;
+
+    private RoomRedisRepository roomRedisRepository;
 
     @BeforeEach
     void setUp(){

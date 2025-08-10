@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.livestudy.exception.CustomException;
 import org.livestudy.exception.ErrorCode;
-import org.livestudy.security.jwt.JwtTokenProvider;
+import org.livestudy.service.livekit.LiveKitTokenService;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class StompAuthChannelInterceptor implements ChannelInterceptor {
 
-    private final JwtTokenProvider jwtTokenProvider;
+    private final LiveKitTokenService liveKitTokenService;
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
@@ -53,7 +53,7 @@ public class StompAuthChannelInterceptor implements ChannelInterceptor {
             log.info("JWT token extracted: {}", token);
 
             try {
-                boolean valid = jwtTokenProvider.validateToken(token);
+                boolean valid = liveKitTokenService.validateToken(token);
                 log.info("[preSend] Token validation result: {}", valid);
 
                 if (!valid) {
@@ -61,7 +61,7 @@ public class StompAuthChannelInterceptor implements ChannelInterceptor {
                     throw new CustomException(ErrorCode.FORBIDDEN);
                 }
 
-                Authentication auth = jwtTokenProvider.getAuthentication(token);
+                Authentication auth = liveKitTokenService.getAuthentication(token);
                 log.info("[preSend] Authenticated user: {}", auth.getName());
 
                 accessor.setUser(auth); // STOMP 연결에 Principal 부여

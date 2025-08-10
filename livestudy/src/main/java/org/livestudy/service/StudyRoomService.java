@@ -7,4 +7,5 @@ public interface StudyRoomService {
     void leaveRoom(String userId);  // 퇴장
 
     String createRoom(int capacity); // 방 생성
+
 }
