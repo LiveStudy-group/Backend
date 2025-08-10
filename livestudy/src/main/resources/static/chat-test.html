@@ -9,154 +9,144 @@
     <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
 </head>
 <body>
-    <h2>회원가입</h2>
-    <label for="signup-email"></label><input id="signup-email" placeholder="이메일" />
-    <label for="signup-password"></label><input id="signup-password" placeholder="비밀번호" type="password" />
-    <label for="signup-nickname"></label><input id="signup-nickname" placeholder="닉네임" />
-    <label for="signup-intro"></label><input id="signup-intro" placeholder="자기소개" />
-    <button onclick="signup()">회원가입</button>
+<h2>회원가입</h2>
+<label for="signup-email"></label><input id="signup-email" placeholder="이메일" />
+<label for="signup-password"></label><input id="signup-password" placeholder="비밀번호" type="password" />
+<label for="signup-nickname"></label><input id="signup-nickname" placeholder="닉네임" />
+<label for="signup-intro"></label><input id="signup-intro" placeholder="자기소개" />
+<button onclick="signup()">회원가입</button>
 
-    <h2>로그인</h2>
-    <label for="login-email"></label><input id="login-email" placeholder="이메일" />
-    <label for="login-password"></label><input id="login-password" placeholder="비밀번호" type="password" />
-    <button onclick="login()">로그인</button>
+<h2>로그인</h2>
+<label for="login-email"></label><input id="login-email" placeholder="이메일" />
+<label for="login-password"></label><input id="login-password" placeholder="비밀번호" type="password" />
+<button onclick="login()">로그인</button>
 
-    <h2>WebSocket Chat Test</h2>
-    <label for="msg"></label>
-    <input id="msg" placeholder="메시지를 입력해주세요!" />
-    <button onclick="sendMessage()">전송</button>
-    <ul id="messages"></ul>
+<h2>WebSocket Chat Test</h2>
+<label for="msg"></label>
+<input id="msg" placeholder="메시지를 입력해주세요!" />
+<button onclick="sendMessage()">전송</button>
+<ul id="messages"></ul>
 
-    <button id="disconnect-btn" onclick="disconnect()" disabled>연결 끊기</button>
+<button id="disconnect-btn" onclick="disconnect()" disabled>연결 끊기</button>
 
-    <script>
-        let stompClient = null;
-        let jwtToken = null;
+<script>
+    let stompClient = null;
+    let jwtToken = null;
 
-        async function signup() {
-            const email = document.getElementById("signup-email").value;
-            const password = document.getElementById("signup-password").value;
-            const nickname = document.getElementById("signup-nickname").value;
-            const introduction = document.getElementById("signup-intro").value;
+    async function signup() {
+        const email = document.getElementById("signup-email").value;
+        const password = document.getElementById("signup-password").value;
+        const nickname = document.getElementById("signup-nickname").value;
+        const introduction = document.getElementById("signup-intro").value;
 
-            try {
-                const res = await fetch("/api/auth/signup", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        email,
-                        password,
-                        nickname,
-                        introduction,
-                        profileImage: null,
-                        socialProvider: null
-                    }),
-                });
+        try {
+            const res = await fetch("/api/auth/signup", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    email,
+                    password,
+                    nickname,
+                    introduction,
+                    profileImage: null,
+                    socialProvider: null
+                }),
+            });
 
-                if (res.status === 201) {
-                    alert("✅ 회원가입 성공! 로그인하세요.");
-                } else {
-                    const error = await res.text();
-                    alert("❌ 회원가입 실패: " + error);
-                }
-            } catch (err) {
-                alert("❌ 회원가입 에러: " + err.message);
+            if (res.status === 201) {
+                alert("✅ 회원가입 성공! 로그인하세요.");
+            } else {
+                const error = await res.text();
+                alert("❌ 회원가입 실패: " + error);
             }
+        } catch (err) {
+            alert("❌ 회원가입 에러: " + err.message);
         }
+    }
 
-        async function login() {
-            const email = document.getElementById("login-email").value;
-            const password = document.getElementById("login-password").value;
+    async function login() {
+        const email = document.getElementById("login-email").value;
+        const password = document.getElementById("login-password").value;
 
-            try {
-                const res = await fetch("/api/auth/login", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ email, password }),
-                });
+        try {
+            const res = await fetch("/api/auth/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password }),
+            });
 
-                if (!res.ok) {
-                    const errText = await res.text();
-                    throw new Error(errText);
-                }
-
-                const data = await res.json();
-                jwtToken = data.token;
-                console.log("JWT Token:" , jwtToken);
-                alert("✅ 로그인 성공! LiveKit 토큰 발급 시도합니다.");
-
-                // JWT 토큰으로 LiveKit 토큰 요청
-                const livekitRes = await fetch("/api/livekit/token", {
-                    method: "POST",
-                    headers: {
-                        "Authorization": "Bearer " + jwtToken,
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        roomName: "study-room-1", // roomId에 매핑됨
-                        identity: "user_8890"     // userId에 매핑됨
-                    })
-                });
-                const livekitData = await livekitRes.json();
-                console.log(livekitData);
-                const livekitToken = livekitData.token;
-                console.log("livekitToken:", livekitToken);
-                connectWebSocket(livekitToken);
-            } catch (err) {
-                alert("❌ 로그인 실패: " + err.message);
+            if (!res.ok) {
+                const errText = await res.text();
+                throw new Error(errText);
             }
-        }
 
-        function connectWebSocket(livekitToken) {
-            // 현재 페이지 프로토콜에 따라 WebSocket URL 결정
-            const pageIsHttps = window.location.protocol === 'https:';
-            const protocol = pageIsHttps ? 'https' : 'http';
+            const data = await res.json();
+            jwtToken = data.token;
+            console.log("JWT Token:" , jwtToken);
+            alert("✅ 로그인 성공! LiveKit 토큰 발급 시도합니다.");
 
-            // SockJS용 URL 구성 (HTTPS 페이지에서는 HTTPS로)
-            const socketUrl = `${protocol}://api.live-study.com/api/study-rooms/rtc?access_token=${livekitToken}`;
-
-            // SockJS 연결
-            const socket = new SockJS(socketUrl, null, { transports: ["websocket"] });
-            console.log(socketUrl);
-            stompClient = Stomp.over(socket);
-
-            stompClient.connect(
-                { Authorization: "Bearer " + livekitToken },
-                function (frame) {
-                    console.log("STOMP 연결 성공:", frame);
-                    stompClient.subscribe("/topic/messages", function (message) {
-                        console.log("받은 메시지:", message.body);
-                    });
-                    document.getElementById("disconnect-btn").disabled = false;
+            // JWT 토큰으로 LiveKit 토큰 요청
+            const livekitRes = await fetch("/api/livekit/token", {
+                method: "POST",
+                headers: {
+                    "Authorization": "Bearer " + jwtToken,
+                    "Content-Type": "application/json"
                 },
-                function (error) {
-                    console.error("STOMP 연결 실패:", error);
-                }
-            );
+                body: JSON.stringify({
+                    roomName: "study-room-1", // roomId에 매핑됨
+                    identity: "user_8890"     // userId에 매핑됨
+                })
+            });
+            const livekitData = await livekitRes.json();
+            console.log(livekitData);
+            const livekitToken = livekitData.token;
+            console.log("livekitToken:", livekitToken);
+            connectWebSocket(livekitToken);
+        } catch (err) {
+            alert("❌ 로그인 실패: " + err.message);
         }
+    }
 
+    function connectWebSocket(livekitToken) {
+        const socket = new SockJS(`https://api.live-study.com/api/study-rooms/ws?access_token=${livekitToken}`, null, {transport : ["websocket"]});
+        stompClient = Stomp.over(socket);  // 전역 변수에 할당!
 
-        function sendMessage() {
-            if (!stompClient || !stompClient.connected) {
-                alert("WebSocket에 연결되어 있지 않습니다.");
-                return;
-            }
-            const msg = document.getElementById("msg").value;
-            stompClient.send("/pub/chat", {}, msg);
-            document.getElementById("msg").value = "";
-        }
-
-        function disconnect() {
-            if (stompClient !== null) {
-                stompClient.disconnect(() => {
-                    console.log("STOMP 연결 끊김");
-                    alert("연결이 끊어졌습니다.");
-
-                    // 버튼 상태 원복
-                    document.getElementById("disconnect-btn").disabled = true;
+        stompClient.connect(
+            { Authorization: "Bearer " + livekitToken },
+            function (frame) {
+                console.log("STOMP 연결 성공:", frame);
+                stompClient.subscribe("/topic/messages", function (message) {
+                    console.log("받은 메시지:", message.body);
                 });
+            },
+            function (error) {
+                console.error("STOMP 연결 실패:", error);
             }
+        );
+    }
+
+
+    function sendMessage() {
+        if (!stompClient || !stompClient.connected) {
+            alert("WebSocket에 연결되어 있지 않습니다.");
+            return;
         }
-    </script>
+        const msg = document.getElementById("msg").value;
+        stompClient.send("/pub/chat", {}, msg);
+        document.getElementById("msg").value = "";
+    }
+
+    function disconnect() {
+        if (stompClient !== null) {
+            stompClient.disconnect(() => {
+                console.log("STOMP 연결 끊김");
+                alert("연결이 끊어졌습니다.");
+
+                // 버튼 상태 원복
+                document.getElementById("disconnect-btn").disabled = true;
+            });
+        }
+    }
+</script>
 </body>
 </html>
