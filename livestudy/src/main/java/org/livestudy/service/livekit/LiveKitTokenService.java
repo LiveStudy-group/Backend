@@ -48,7 +48,7 @@ public class LiveKitTokenService {
 
         Key key = Keys.hmacShaKeyFor(keyBytes);
 
-        this.jwtParser = Jwts.parser().setSigningKey(key).build();
+        this.jwtParser = Jwts.parser().setSigningKey(key).setAllowedClockSkewSeconds(30).build();
     }
 
 
