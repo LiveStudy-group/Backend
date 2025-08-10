@@ -67,7 +67,7 @@ public class SecurityConfig {
                                 "/login/oauth2/code/**",
                                 "/auth/**",
                                 // WebSocket 및 LiveKit
-                                "/rtc",
+                                "/ws",
                                 "/chat-test.html",
                                 // swagger
                                 "/swagger-ui/**",
@@ -87,7 +87,7 @@ public class SecurityConfig {
                                 "/api/timer/**",
                                 "/api/titles/**"
                         ).permitAll()
-                        .requestMatchers("/api/user/**", "/api/livekit/**", "/api/user/stat/**", "/api/study-rooms/**", "/api/study-rooms/rtc/**", "/rtc/**").authenticated()
+                        .requestMatchers("/api/user/**", "/api/livekit/**", "/api/user/stat/**", "/api/study-rooms/**", "/api/study-rooms/ws/**", "/ws/**").authenticated()
                         .anyRequest().authenticated())
                 .oauth2Login(oauth2 -> oauth2
                 .userInfoEndpoint(userInfo -> userInfo

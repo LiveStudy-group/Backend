@@ -87,7 +87,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         // 스킵할 경로 명확히 지정
-        if (path.startsWith("/oauth2/") || path.startsWith("/api/auth/") || path.contains("/api/study-rooms/rtc")) {
+        if (path.startsWith("/oauth2/") || path.startsWith("/api/auth/") || path.contains("/api/study-rooms/ws")) {
             log.debug("[JwtAuthenticationFilter] shouldNotFilter 적용: {} → 필터 스킵", path);
             return true;
         }
