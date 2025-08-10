@@ -40,13 +40,26 @@ apps:
             handle:
               - handler: reverse_proxy
                 upstreams:
-                  - dial: localhost:7880
+                  - dial: 127.0.0.1:7880
+                transport:
+                  protocol: http
+                headers:
+                  request:
+                    set:
+                      Connection: ["{>Connection}"]
+                      Upgrade: ["{>Upgrade}"]
           - match:
               - host:
                   - api.live-study.com
             handle:
               - handler: reverse_proxy
                 upstreams:
-                  - dial: localhost:8080
+                  - dial: 127.0.0.1:8080
                 transport:
                   protocol: http
+                headers:
+                  request:
+                    set:
+                      Connection: ["{>Connection}"]
+                      Upgrade: ["{>Upgrade}"]
+

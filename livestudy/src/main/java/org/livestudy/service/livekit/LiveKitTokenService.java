@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.time.Instant;
+import java.util.Date;
 
 
 @Service
@@ -46,7 +48,7 @@ public class LiveKitTokenService {
 
         Key key = Keys.hmacShaKeyFor(keyBytes);
 
-        this.jwtParser = Jwts.parser().setSigningKey(key).build();
+        this.jwtParser = Jwts.parser().setSigningKey(key).setAllowedClockSkewSeconds(30).build();
     }
 
 
@@ -74,6 +76,9 @@ public class LiveKitTokenService {
 
         log.info("generateToken called with roomId = {}, userId = {}", roomId, userId);
 
+
+        token.setExpiration(Date.from(Instant.now().plusSeconds(24 * 60 * 60)));
+        log.info("Token Expiration = {}", token.getExpiration());
 
         return token.toJwt();
     }

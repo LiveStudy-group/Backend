@@ -87,7 +87,7 @@ public class SecurityConfig {
                                 "/api/timer/**",
                                 "/api/titles/**"
                         ).permitAll()
-                        .requestMatchers("/api/user/**", "/api/livekit/**", "/api/user/stat/**", "/api/study-rooms/**", "/rtc/**").authenticated()
+                        .requestMatchers("/api/user/**", "/api/livekit/**", "/api/user/stat/**", "/api/study-rooms/**", "/api/study-rooms/rtc/**", "/rtc/**").authenticated()
                         .anyRequest().authenticated())
                 .oauth2Login(oauth2 -> oauth2
                 .userInfoEndpoint(userInfo -> userInfo

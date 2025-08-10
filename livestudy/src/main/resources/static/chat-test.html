@@ -108,8 +108,17 @@
         }
 
         function connectWebSocket(livekitToken) {
-            const socket = new SockJS(`https://api.live-study.com/api/study-rooms/rtc?access_token=${livekitToken}`, null, {transport : ["websocket"]});
-            stompClient = Stomp.over(socket);  // 전역 변수에 할당!
+            // 현재 페이지 프로토콜에 따라 WebSocket URL 결정
+            const pageIsHttps = window.location.protocol === 'https:';
+            const protocol = pageIsHttps ? 'https' : 'http';
+
+            // SockJS용 URL 구성 (HTTPS 페이지에서는 HTTPS로)
+            const socketUrl = `${protocol}://api.live-study.com/api/study-rooms/rtc?access_token=${livekitToken}`;
+
+            // SockJS 연결
+            const socket = new SockJS(socketUrl, null, { transports: ["websocket"] });
+            console.log(socketUrl);
+            stompClient = Stomp.over(socket);
 
             stompClient.connect(
                 { Authorization: "Bearer " + livekitToken },
@@ -118,6 +127,7 @@
                     stompClient.subscribe("/topic/messages", function (message) {
                         console.log("받은 메시지:", message.body);
                     });
+                    document.getElementById("disconnect-btn").disabled = false;
                 },
                 function (error) {
                     console.error("STOMP 연결 실패:", error);
