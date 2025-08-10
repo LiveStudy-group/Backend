@@ -3,6 +3,7 @@ package org.livestudy.config;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.livestudy.oauth2.CustomOAuth2UserService;
+import org.livestudy.oauth2.CustomOidcUserService;
 import org.livestudy.oauth2.OAuth2AuthenticationFailureHandler;
 import org.livestudy.oauth2.OAuth2AuthenticationSuccessHandler;
 import org.livestudy.security.jwt.JwtAuthenticationFilter;
@@ -45,6 +46,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity,
                                                    CustomOAuth2UserService customOAuth2UserService,
+                                                   CustomOidcUserService customOidcUserService,
                                                    OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler,
                                                    OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler
     ) throws Exception {
@@ -91,7 +93,8 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .oauth2Login(oauth2 -> oauth2
                 .userInfoEndpoint(userInfo -> userInfo
-                                .userService(customOAuth2UserService))
+                                .userService(customOAuth2UserService)
+                                .oidcUserService(customOidcUserService))
                         .successHandler(oAuth2AuthenticationSuccessHandler)
                         .failureHandler(oAuth2AuthenticationFailureHandler))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
