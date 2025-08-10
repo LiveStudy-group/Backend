@@ -1,36 +1,7 @@
-logging:
-  logs:
-    default:
-      level: INFO
-
-storage:
-  module: file_system
-  root: /data
-
 apps:
-  tls:
-    certificates:
-      automate:
-        - live-study.com
-        - api.live-study.com
-
   http:
     servers:
-      redirect:  # ← HTTP 80 리디렉션 서버
-        listen:
-          - ":80"
-        routes:
-          - match:
-              - host:
-                  - live-study.com
-                  - api.live-study.com
-            handle:
-              - handler: static_response
-                status_code: 308
-                headers:
-                  Location: ["https://{http.request.host}{uri}"]
-
-      main:  # ← HTTPS 443 서버
+      main:
         listen:
           - ":443"
         routes:
@@ -40,13 +11,13 @@ apps:
             handle:
               - handler: reverse_proxy
                 upstreams:
-                  - dial: localhost:7880
+                  - dial: spring:8080    # localhost → spring 으로 변경
           - match:
               - host:
                   - api.live-study.com
             handle:
               - handler: reverse_proxy
                 upstreams:
-                  - dial: localhost:8080
+                  - dial: spring:8080    # api.live-study.com 도 spring 으로 변경
                 transport:
                   protocol: http
