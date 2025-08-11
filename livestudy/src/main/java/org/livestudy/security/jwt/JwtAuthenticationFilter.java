@@ -32,6 +32,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = resolveToken(request);
 
+        String path =  request.getRequestURI();
+
+        if(path.contains("/api/study-rooms/ws/**")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
 
         log.debug("[JwtAuthenticationFilter] 추출된 토큰: {}", token != null ? token : "없음");
 
@@ -87,7 +94,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         // 스킵할 경로 명확히 지정
-        if (path.startsWith("/oauth2/") || path.startsWith("/api/auth/")) {
+        if (path.startsWith("/oauth2/") || path.startsWith("/api/auth/") || path.startsWith("/api/study-rooms/ws")) {
             log.debug("[JwtAuthenticationFilter] shouldNotFilter 적용: {} → 필터 스킵", path);
             return true;
         }

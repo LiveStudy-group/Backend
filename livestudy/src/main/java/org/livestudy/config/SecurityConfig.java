@@ -61,7 +61,7 @@ public class SecurityConfig {
                         .maxSessionsPreventsLogin(false))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/images/upload").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/images/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/images/**", "/api/study-rooms/ws/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
                                 // OAuth2
