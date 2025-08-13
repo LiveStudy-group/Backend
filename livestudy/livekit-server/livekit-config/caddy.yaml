@@ -16,7 +16,7 @@ apps:
 
   http:
     servers:
-      redirect:  # ← HTTP 80 리디렉션 서버
+      redirect:
         listen:
           - ":80"
         routes:
@@ -30,13 +30,16 @@ apps:
                 headers:
                   Location: ["https://{http.request.host}{uri}"]
 
-      main:  # ← HTTPS 443 서버
+      main:
         listen:
           - ":443"
         routes:
+          # 1. LiveKit /rtc → 7880
           - match:
               - host:
-                  - live-study.com
+                  - api.live-study.com
+                path:
+                  - /rtc*
             handle:
               - handler: reverse_proxy
                 upstreams:
@@ -48,9 +51,13 @@ apps:
                     set:
                       Connection: ["{>Connection}"]
                       Upgrade: ["{>Upgrade}"]
+
+          # 2. STOMP /ws → 8080 (Spring)
           - match:
               - host:
                   - api.live-study.com
+                path:
+                  - /ws*
             handle:
               - handler: reverse_proxy
                 upstreams:
@@ -63,3 +70,11 @@ apps:
                       Connection: ["{>Connection}"]
                       Upgrade: ["{>Upgrade}"]
 
+          # 3. 기타 API → 8080 (Spring)
+          - match:
+              - host:
+                  - api.live-study.com
+            handle:
+              - handler: reverse_proxy
+                upstreams:
+                  - dial: 127.0.0.1:8080

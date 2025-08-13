@@ -61,7 +61,7 @@ public class SecurityConfig {
                         .maxSessionsPreventsLogin(false))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/images/upload").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/images/**", "/api/study-rooms/ws/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/images/**",  "/ws").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
                                 // OAuth2
@@ -69,7 +69,6 @@ public class SecurityConfig {
                                 "/login/oauth2/code/**",
                                 "/auth/**",
                                 // WebSocket 및 LiveKit
-                                "/ws",
                                 "/chat-test.html",
                                 // swagger
                                 "/swagger-ui/**",
@@ -89,7 +88,7 @@ public class SecurityConfig {
                                 "/api/timer/**",
                                 "/api/titles/**"
                         ).permitAll()
-                        .requestMatchers("/api/user/**", "/api/livekit/**", "/api/user/stat/**", "/api/study-rooms/**", "/api/study-rooms/ws/**", "/ws/**").authenticated()
+                        .requestMatchers("/api/user/**", "/api/livekit/**", "/api/user/stat/**", "/api/study-rooms/**", "/api/study-rooms/ws/**", "/ws/**", "/api/study-rooms/rtc/**").authenticated()
                         .anyRequest().authenticated())
                 .oauth2Login(oauth2 -> oauth2
                 .userInfoEndpoint(userInfo -> userInfo
