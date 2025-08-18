@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Local WebSocket & LiveKit RTC Test</title>
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+</head>
+<body>
+<h1>Local WebSocket & LiveKit RTC Test</h1>
+
+<section>
+  <h2>회원가입</h2>
+  <label for="signup-email"></label><input id="signup-email" placeholder="email" />
+  <label for="signup-password"></label><input id="signup-password" placeholder="password" type="password" />
+  <label for="signup-nickname"></label><input id="signup-nickname" placeholder="닉네임" />
+  <label for="signup-intro"></label><input id="signup-intro" placeholder="자기소개" />
+  <button onclick="signup()">Sign Up</button>
+</section>
+
+<section>
+  <h2>로그인</h2>
+  <label for="login-email"></label><input id="login-email" placeholder="email" />
+  <label for="login-password"></label><input id="login-password" placeholder="password" type="password" />
+  <button onclick="loginUser()">Login</button>
+</section>
+
+<section>
+  <h2>/ws (Spring STOMP)</h2>
+  <button onclick="connectWs()">Connect to /ws</button>
+  <button onclick="sendWs()">Send Message to /topic/test</button>
+  <div id="ws-log" style="white-space: pre-wrap; border: 1px solid #ccc; padding: 8px; height: 120px; overflow-y: auto;"></div>
+</section>
+
+<hr />
+
+<section>
+  <h2>/rtc (LiveKit WebSocket)</h2>
+  <button onclick="connectRtc()">Connect to /rtc</button>
+  <div id="rtc-log" style="white-space: pre-wrap; border: 1px solid #ccc; padding: 8px; height: 120px; overflow-y: auto;"></div>
+</section>
+
+<script>
+  let jwtToken = null; // 로그인 후 받은 JWT 토큰을 저장할 전역 변수
+  let stompClient = null;
+  let rtcSocket = null;
+
+  async function signup() {
+    const email = document.getElementById("signup-email").value;
+    const password = document.getElementById("signup-password").value;
+    const nickname = document.getElementById("signup-nickname").value;
+    const introduction = document.getElementById("signup-intro").value;
+
+    try {
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          password,
+          nickname,
+          introduction,
+          profileImage: null,
+          socialProvider: null
+        }),
+      });
+
+      if (res.status === 201) {
+        alert("✅ 회원가입 성공! 로그인하세요.");
+      } else {
+        const error = await res.text();
+        alert("❌ 회원가입 실패: " + error);
+      }
+    } catch (err) {
+      alert("❌ 회원가입 에러: " + err.message);
+    }
+  }
+
+  // 로그인 함수 수정
+  async function loginUser() {
+    const email = document.getElementById("login-email").value;
+    const password = document.getElementById("login-password").value;
+
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      jwtToken = data.token; // 전역 변수에 JWT 토큰 저장
+      console.log("JWT Token:" , jwtToken);
+      alert("✅ 로그인 성공! LiveKit 토큰 발급 시도합니다.");
+
+      // JWT 토큰으로 LiveKit 토큰 요청
+      const livekitRes = await fetch("/api/livekit/token", {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer " + jwtToken,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          roomName: "study-room-1", // roomId에 매핑됨
+          identity: "user_8890"     // userId에 매핑됨
+        })
+      });
+      const livekitData = await livekitRes.json();
+      const livekitToken = livekitData.token;
+      console.log("livekitToken:", livekitToken);
+
+      // LiveKit 토큰은 RTC 연결에 사용
+      await connectRtc(livekitToken);
+
+      // JWT 토큰은 STOMP 웹소켓 연결에 사용
+      connectWs(jwtToken); // 인자 없이 호출
+
+    } catch (err) {
+      alert("❌ 로그인 실패: " + err.message);
+    }
+  }
+
+  function connectWs() {
+    if (stompClient && stompClient.connected) {
+      log('ws-log', 'Already connected');
+      return;
+    }
+
+    // 전역 변수 jwtToken을 사용
+    if (!jwtToken) {
+      log('ws-log', '❌ JWT 토큰이 없습니다. 먼저 로그인하세요.');
+      return;
+    }
+
+    const socket = new SockJS('https://live-study.com/ws');
+    stompClient = Stomp.over(socket);
+
+    const headers = {
+      'Authorization': `Bearer ${jwtToken}`
+    };
+
+    stompClient.connect(headers, frame => {
+      log('ws-log', 'Connected: ' + frame);
+      stompClient.subscribe('/topic/test', message => {
+        log('ws-log', 'Received: ' + message.body);
+      });
+    }, error => {
+      log('ws-log', 'Error: ' + error);
+    });
+  }
+
+  function sendWs() {
+    if (stompClient && stompClient.connected) {
+      stompClient.send('/app/test', {}, 'Hello from local /ws');
+      log('ws-log', 'Sent message: Hello from local /ws');
+    } else {
+      log('ws-log', 'Not connected');
+    }
+  }
+
+
+
+
+
+
+  // LiveKit WebSocket 연결
+  async function connectRtc(livekitToken) { // 토큰을 인자로 받도록 수정
+    if (rtcSocket && rtcSocket.readyState === WebSocket.OPEN) {
+      log('rtc-log', 'Already connected');
+      return;
+    }
+
+    // 인자로 받은 livekitToken을 사용
+    if (!livekitToken) {
+      log('rtc-log', 'No token provided, cannot connect');
+      return;
+    }
+
+    // LiveKit 서버 URL에 access_token을 포함하여 연결
+    const wsUrl = `wss://api.live-study.com/rtc?access_token=${livekitToken}`;
+
+    log('rtc-log', `Connecting to WebSocket: ${wsUrl}`);
+
+    rtcSocket = new WebSocket(wsUrl);
+
+    rtcSocket.onopen = () => log('rtc-log', 'Connected to /rtc');
+    rtcSocket.onmessage = e => log('rtc-log', 'Message: ' + e.data);
+    rtcSocket.onerror = e => log('rtc-log', 'Error: ' + JSON.stringify(e));
+    rtcSocket.onclose = () => log('rtc-log', 'Disconnected from /rtc');
+  }
+
+  // 로그 출력
+  function log(id, message) {
+    const el = document.getElementById(id);
+    el.innerHTML += message + '\n';
+    el.scrollTop = el.scrollHeight;
+  }
+
+
+</script>
+</body>
+</html>

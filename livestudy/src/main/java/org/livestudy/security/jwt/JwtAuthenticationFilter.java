@@ -87,14 +87,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
+        String servletPath = request.getServletPath();
+        String contextPath = request.getContextPath();
 
-        boolean skip = path.startsWith("/oauth2/") || path.startsWith("/api/auth/");
-        if (skip) {
-            log.debug("[JwtAuthenticationFilter] shouldNotFilter 적용: {} → 필터 스킵", path);
-        }
+        log.debug("[JwtAuthenticationFilter] getRequestURI: {}", path);
+        log.debug("[JwtAuthenticationFilter] getServletPath: {}", servletPath);
+        log.debug("[JwtAuthenticationFilter] getContextPath: {}", contextPath);
 
         // 스킵할 경로 명확히 지정
-        if (path.startsWith("/oauth2/") || path.startsWith("/api/auth/") || path.startsWith("/api/study-rooms/ws")) {
+        if (path.startsWith("/oauth2/")
+                || path.startsWith("/api/auth/")
+                || path.startsWith("/ws")
+                || path.contains("/api/study-rooms/rtc")
+                || path.contains("/api/study-rooms/ws")
+                || path.startsWith("/loca-test.html")
+                || path.startsWith("/favicon.ico")) {
             log.debug("[JwtAuthenticationFilter] shouldNotFilter 적용: {} → 필터 스킵", path);
             return true;
         }
