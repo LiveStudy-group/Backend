@@ -61,7 +61,7 @@ public class SecurityConfig {
                         .maxSessionsPreventsLogin(false))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/images/upload").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/images/**",  "/ws").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/images/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
                                 // OAuth2
@@ -70,6 +70,11 @@ public class SecurityConfig {
                                 "/auth/**",
                                 // WebSocket 및 LiveKit
                                 "/chat-test.html",
+                                "/loca-test.html",
+                                "/ws",
+                                "/ws/**",
+                                "/rtc",
+                                "/rtc/**",
                                 // swagger
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",

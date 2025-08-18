@@ -11,8 +11,8 @@ apps:
   tls:
     certificates:
       automate:
-        - live-study.com
-        - api.live-study.com
+        - live-study.com # FE
+        - api.live-study.com # BE
 
   http:
     servers:
@@ -37,7 +37,7 @@ apps:
           # 1. LiveKit /rtc → 7880
           - match:
               - host:
-                  - api.live-study.com
+                  - live-study.com
                 path:
                   - /rtc*
             handle:
@@ -46,11 +46,6 @@ apps:
                   - dial: 127.0.0.1:7880
                 transport:
                   protocol: http
-                headers:
-                  request:
-                    set:
-                      Connection: ["{>Connection}"]
-                      Upgrade: ["{>Upgrade}"]
 
           # 2. STOMP /ws → 8080 (Spring)
           - match:
@@ -64,11 +59,6 @@ apps:
                   - dial: 127.0.0.1:8080
                 transport:
                   protocol: http
-                headers:
-                  request:
-                    set:
-                      Connection: ["{>Connection}"]
-                      Upgrade: ["{>Upgrade}"]
 
           # 3. 기타 API → 8080 (Spring)
           - match:
