@@ -39,7 +39,10 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
                 .build().getQueryParams()
                 .getFirst("access_token");
 
-
+        if(requestPath.startsWith("/ws")){
+            log.info("/ws 연결 : 토큰 없음 허용");
+            return true;
+        }
 
 
 

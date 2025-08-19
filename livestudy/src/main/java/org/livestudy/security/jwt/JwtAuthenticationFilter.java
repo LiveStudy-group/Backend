@@ -34,7 +34,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String path =  request.getRequestURI();
 
-        if(path.contains("/api/study-rooms/ws/**")) {
+        if(path.contains("/ws/**")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -99,7 +99,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 || path.startsWith("/api/auth/")
                 || path.startsWith("/ws")
                 || path.contains("/api/study-rooms/rtc")
-                || path.contains("/api/study-rooms/ws")
                 || path.startsWith("/loca-test.html")
                 || path.startsWith("/favicon.ico")) {
             log.debug("[JwtAuthenticationFilter] shouldNotFilter 적용: {} → 필터 스킵", path);

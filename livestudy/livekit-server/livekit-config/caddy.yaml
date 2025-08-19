@@ -44,8 +44,6 @@ apps:
               - handler: reverse_proxy
                 upstreams:
                   - dial: 127.0.0.1:7880
-                transport:
-                  protocol: http
 
           # 2. STOMP /ws → 8080 (Spring)
           - match:
@@ -57,8 +55,6 @@ apps:
               - handler: reverse_proxy
                 upstreams:
                   - dial: 127.0.0.1:8080
-                transport:
-                  protocol: http
 
           # 3. 기타 API → 8080 (Spring)
           - match:
