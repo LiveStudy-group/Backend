@@ -81,7 +81,9 @@ public class JwtTokenProvider {
         try {
             jwtParser.parseClaimsJws(token);
             return true;
-        } catch (JwtException | IllegalArgumentException e) {
+        } catch (io.jsonwebtoken.ExpiredJwtException e) {
+            throw e;
+        } catch (io.jsonwebtoken.JwtException | IllegalArgumentException e) {
             e.printStackTrace();
             return false;
         }

@@ -1,6 +1,8 @@
 package org.livestudy.security.jwt;
 
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,30 +36,37 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String path =  request.getRequestURI();
 
-        if(path.contains("/api/study-rooms/ws/**")) {
+        if(path.contains("/ws/**")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-
         log.debug("[JwtAuthenticationFilter] 추출된 토큰: {}", token != null ? token : "없음");
 
-
-        if(token != null && jwtTokenProvider.validateToken(token)) {
-            if (jwtTokenProvider.validateToken(token)) {
-                log.debug("[JwtAuthenticationFilter] 토큰 유효성 검증 성공");
-                Authentication authentication = jwtTokenProvider.getAuthentication(token);
-                log.debug("[JwtAuthenticationFilter] Authentication 객체 생성: {}", authentication);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-                log.debug("[JwtAuthenticationFilter] SecurityContext에 Authentication 저장 완료");
+        try {
+            if (token != null && jwtTokenProvider.validateToken(token)) {
+                if (jwtTokenProvider.validateToken(token)) {
+                    log.debug("[JwtAuthenticationFilter] 토큰 유효성 검증 성공");
+                    Authentication authentication = jwtTokenProvider.getAuthentication(token);
+                    log.debug("[JwtAuthenticationFilter] Authentication 객체 생성: {}", authentication);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    log.debug("[JwtAuthenticationFilter] SecurityContext에 Authentication 저장 완료");
+                } else {
+                    log.warn("[JwtAuthenticationFilter] 토큰 유효성 검증 실패");
+                }
             } else {
-                log.warn("[JwtAuthenticationFilter] 토큰 유효성 검증 실패");
+                log.debug("[JwtAuthenticationFilter] 토큰이 없으므로 인증 처리 건너뜀");
             }
-        } else {
-            log.debug("[JwtAuthenticationFilter] 토큰이 없으므로 인증 처리 건너뜀");
-        }
-
-        filterChain.doFilter(request, response);
+            filterChain.doFilter(request, response);
+        } catch (ExpiredJwtException ex) {
+            log.warn("[JwtAuthenticationFilter] 액세스 토큰 만료: {}", ex.getMessage());
+            writeJson(response, 401, "{\"code\":\"TOKEN_EXPIRED\",\"message\":\"access token expired\"}");
+            return;
+        } catch (JwtException | IllegalArgumentException ex) {
+            log.warn("[JwtAuthenticationFilter] JWT 오류: {}", ex.getMessage());
+            writeJson(response, 401, "{\"code\":\"INVALID_TOKEN\",\"message\":\"invalid token\"}");
+            return;
+            }
     }
 
     // Authorization에서 JWT 값을 추출
@@ -87,14 +96,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
+        String servletPath = request.getServletPath();
+        String contextPath = request.getContextPath();
 
-        boolean skip = path.startsWith("/oauth2/") || path.startsWith("/api/auth/");
-        if (skip) {
-            log.debug("[JwtAuthenticationFilter] shouldNotFilter 적용: {} → 필터 스킵", path);
-        }
+        log.debug("[JwtAuthenticationFilter] getRequestURI: {}", path);
+        log.debug("[JwtAuthenticationFilter] getServletPath: {}", servletPath);
+        log.debug("[JwtAuthenticationFilter] getContextPath: {}", contextPath);
 
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) return true;
         // 스킵할 경로 명확히 지정
-        if (path.startsWith("/oauth2/") || path.startsWith("/api/auth/") || path.startsWith("/api/study-rooms/ws")) {
+        if (path.startsWith("/oauth2/")
+                || path.startsWith("/api/auth/")
+                || path.startsWith("/ws")
+                || path.contains("/rtc")
+                || path.startsWith("/loca-test.html")
+                || path.startsWith("/favicon.ico")) {
             log.debug("[JwtAuthenticationFilter] shouldNotFilter 적용: {} → 필터 스킵", path);
             return true;
         }
@@ -102,5 +118,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return false; // 그 외 요청은 필터 실행
     }
 
-    
+    private static void writeJson(HttpServletResponse res, int status, String body) throws java.io.IOException {
+        if (res.isCommitted()) return;
+        res.setStatus(status);
+        res.setContentType("application/json");
+        res.setCharacterEncoding("UTF-8");
+        res.getWriter().write(body);
+        }
+
 }
