@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.livestudy.exception.CustomException;
 import org.livestudy.exception.ErrorCode;
+import org.livestudy.security.jwt.JwtTokenProvider;
 import org.livestudy.service.livekit.LiveKitTokenService;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Component;
 public class StompAuthChannelInterceptor implements ChannelInterceptor {
 
     private final LiveKitTokenService liveKitTokenService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Override
     public Message<?> preSend(@NotNull Message<?> message, @NotNull MessageChannel channel) {
@@ -58,23 +60,41 @@ public class StompAuthChannelInterceptor implements ChannelInterceptor {
             log.info("[CONNECT] JWT token extracted: {}", token);
 
             try {
-                boolean valid = liveKitTokenService.validateToken(token);
-                log.info("[CONNECT] Token validation result: {}", valid);
+                boolean valid = false;
+                Authentication auth = null;
 
-                if (!valid) {
-                    log.warn("[CONNECT] Invalid JWT token.");
+                try{
+                    valid = liveKitTokenService.validateToken(token);
+                    if(valid) {
+                        auth = liveKitTokenService.getAuthentication(token);
+                        log.info("Successfully authenticated with LiveKit Token");
+                    }
+                } catch (Exception e) {
+                    log.debug("LiveKit token validation failed, attempting to validate as general JWT");
+                }
+
+                if(auth == null) {
+                    valid = jwtTokenProvider.validateToken(token);
+                    if(valid) {
+                        auth = jwtTokenProvider.getAuthentication(token);
+                        log.info("Successfully authenticated with general JWT token.");
+                    }
+                }
+
+                if(!valid){
+                    log.warn("[preSend] Invalid token. Neither a valid LiveKit nor a general JWT Token");
                     throw new CustomException(ErrorCode.FORBIDDEN);
                 }
 
-                Authentication auth = liveKitTokenService.getAuthentication(token);
-                log.info("[CONNECT] Authenticated user: {}", auth.getName());
-
+                log.info("[preSend] Authenticated user : {}", auth.getName());
                 accessor.setUser(auth);
-                log.debug("[CONNECT] Principal set in accessor: {}", accessor.getUser());
+
+
             } catch (Exception e) {
                 log.error("[CONNECT] Token processing failed: {}", e.getMessage(), e);
                 throw new CustomException(ErrorCode.FORBIDDEN);
             }
+
         } else {
             log.debug("[{}] Skipping authentication, current user in accessor: {}", command, accessor.getUser());
         }

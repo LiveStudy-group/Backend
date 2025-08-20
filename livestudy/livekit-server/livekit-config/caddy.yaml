@@ -38,6 +38,7 @@ apps:
           - match:
               - host:
                   - live-study.com
+                  - api.live-study.com
                 path:
                   - /rtc*
             handle:
@@ -47,6 +48,9 @@ apps:
                 headers:
                   response:
                     set:
+                      X-Forwarded-For: [ "{remote_host}" ]
+                      X-Forwarded-Proto: [ "{scheme}" ]
+                      Host: [ "{host}" ]
                       Access-Control-Allow-Origin: [ "{http.request.header.Origin}" ]
                       Access-Control-Allow-Credentials: [ "true" ]
                       Access-Control-Allow-Methods: [ "GET, POST, PUT, DELETE, PATCH, OPTIONS" ]
