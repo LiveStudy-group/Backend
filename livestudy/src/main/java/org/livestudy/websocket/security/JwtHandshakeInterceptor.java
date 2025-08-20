@@ -35,6 +35,9 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
         String requestPath = httpRequest.getURI().getPath();
         String ip = httpRequest.getRemoteAddress() != null ? httpRequest.getRemoteAddress().toString() : "unknown";
 
+        httpResponse.getHeaders().set("Access-Control-Allow-Origin", "https://live-study.com");
+        httpResponse.getHeaders().set("Access-Control-Allow-Credentials", "true");
+
         String token = UriComponentsBuilder.fromUri(httpRequest.getURI())
                 .build().getQueryParams()
                 .getFirst("access_token");
@@ -44,6 +47,8 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
             return true;
         }
 
+        httpResponse.getHeaders().set("Access-Control-Allow-Origin", "https://live-study.com");
+        httpResponse.getHeaders().set("Access-Control-Allow-Credentials", "true");
 
 
         log.info("🛡️ WS Handshake 요청: path={}, ip={}, token={}", requestPath, ip, token != null ? "present" : "missing");

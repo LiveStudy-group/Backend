@@ -31,7 +31,7 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
         registry.addEndpoint("/ws")
                 .setAllowedOriginPatterns("http://localhost:5174", "https://localhost:5174", // FE 개발용
                         "https://live-study.com", "https://www.live-study.com", "https://api.live-study.com")  // 배포용
-                .addInterceptors(jwtHandshakeInterceptor) // 주소 도달 시 입장용 토큰에 대하여 인증을 진행한다!
+                .addInterceptors(jwtHandshakeInterceptor)// 주소 도달 시 입장용 토큰에 대하여 인증을 진행한다!
                 .withSockJS();
     }
 

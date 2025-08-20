@@ -98,7 +98,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (path.startsWith("/oauth2/")
                 || path.startsWith("/api/auth/")
                 || path.startsWith("/ws")
-                || path.contains("/api/study-rooms/rtc")
+                || path.contains("/rtc")
                 || path.startsWith("/loca-test.html")
                 || path.startsWith("/favicon.ico")) {
             log.debug("[JwtAuthenticationFilter] shouldNotFilter 적용: {} → 필터 스킵", path);
