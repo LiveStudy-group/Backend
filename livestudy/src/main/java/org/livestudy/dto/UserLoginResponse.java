@@ -10,4 +10,7 @@ import lombok.Data;
 public class UserLoginResponse {
     @Schema(description = "JWT Access Token", example = "eyJhbGciOiJIUzI1...")
     private String token;
+
+    @Schema(description = "userId", example = "12453")
+    private Long userId;
 }
