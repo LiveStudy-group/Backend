@@ -14,7 +14,6 @@ import org.livestudy.repository.StudyRoomRepository;
 import org.livestudy.repository.UserRepository;
 import org.livestudy.repository.report.ReportRepository;
 import org.livestudy.repository.report.RestrictionRepository;
-import org.livestudy.service.report.ReportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.StringRedisTemplate;
