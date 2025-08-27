@@ -109,4 +109,8 @@ public class SecurityUser implements UserDetails, OAuth2User, OidcUser {
     public OidcUserInfo getUserInfo() {
         return userInfo;
     }
+
+    public Long getId(){
+        return user.getId();
+    }
 }

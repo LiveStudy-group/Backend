@@ -70,7 +70,7 @@ public class UserServiceImpl implements UserService {
         String token = jwtTokenProvider.generateToken(authentication);
 
         // 5. 응답 객체 구성
-        return new UserLoginResponse(token);
+        return new UserLoginResponse(token, user.getId());
     }
 
     @Override

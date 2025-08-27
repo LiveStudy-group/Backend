@@ -1,5 +1,6 @@
 package org.livestudy.service.report;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.livestudy.domain.report.Report;
 import org.livestudy.domain.report.ReportReason;
@@ -12,9 +13,11 @@ import org.livestudy.dto.report.ReportDto;
 import org.livestudy.repository.StudyRoomRepository;
 import org.livestudy.repository.UserRepository;
 import org.livestudy.repository.report.ReportRepository;
+import org.livestudy.repository.report.RestrictionRepository;
 import org.livestudy.service.report.ReportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +38,33 @@ class ReportServiceIntegrationTest {
 
     @Autowired
     private ReportRepository reportRepo;
+
+    @Autowired
+    private RestrictionRepository restrictionRepo;
+
+    @Autowired
+    private StringRedisTemplate redisTemplate;
+
+    private User reporter1;
+    private User reporter2;
+    private User reported;
+    private StudyRoom room;
+
+    @BeforeEach
+    void setup() {
+        // 사용자 생성
+        reporter1 = User.builder().email("reporter1@test.com").nickname("r1").userStatus(UserStatus.NORMAL).build();
+        reporter2 = User.builder().email("reporter2@test.com").nickname("r2").userStatus(UserStatus.NORMAL).build();
+        reported = User.builder().email("reported@test.com").nickname("target").userStatus(UserStatus.NORMAL).build();
+
+        userRepo.save(reporter1);
+        userRepo.save(reporter2);
+        userRepo.save(reported);
+
+        // 방 생성
+        room = StudyRoom.builder().participantsNumber(4).build();
+        roomRepo.save(room);
+    }
 
     @Test
     @Rollback
@@ -60,5 +90,36 @@ class ReportServiceIntegrationTest {
         assertThat(saved.getReporter().getId()).isEqualTo(reporter.getId());
         assertThat(saved.getReported().getId()).isEqualTo(reported.getId());
         assertThat(saved.getReason()).isEqualTo(ReportReason.ABUSE);
+    }
+
+    @Test
+    void test_threshold_초과_제재_Status_변화_4명입장중인방에서() {
+        // 첫 번째 신고
+        ReportDto dto1 = ReportDto.builder()
+                .roomId(room.getId())
+                .reportedId(reported.getId())
+                .reason(ReportReason.DISTURBANCE)
+                .build();
+        reportService.report(dto1, reporter1.getId());
+
+        // 두 번째 신고 -> threshold 도달
+        ReportDto dto2 = ReportDto.builder()
+                .roomId(room.getId())
+                .reportedId(reported.getId())
+                .reason(ReportReason.DISTURBANCE)
+                .build();
+        reportService.report(dto2, reporter2.getId());
+
+        // 신고 저장 확인
+        long count = reportRepo.countDistinctReporter(room, reported, ReportReason.DISTURBANCE);
+        assertThat(count).isEqualTo(2);
+
+        // 제재 적용 확인
+        User updatedReported = userRepo.getReferenceById(reported.getId());
+        assertThat(updatedReported.getUserStatus()).isEqualTo(UserStatus.TEMPORARY_BAN);
+
+        // Redis 메시지 확인
+        String message = redisTemplate.opsForList().rightPop("restriction:" + reported.getId());
+        assertThat(message).contains("DISTURBANCE");
     }
 }

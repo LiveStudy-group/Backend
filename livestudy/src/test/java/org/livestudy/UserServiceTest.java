@@ -135,7 +135,7 @@ public class UserServiceTest {
         UserLoginResponse result = userService.login(request);
 
         // then
-        assertThat(result).isEqualTo(new UserLoginResponse(expectedToken));
+        assertThat(result).isEqualTo(new UserLoginResponse(expectedToken, user.getId()));
 
     }
 
