@@ -70,7 +70,8 @@ public class ReportServiceImpl implements ReportService {
                 room.getId(), reported.getId(), distinctCnt, threshold);
 
         if (distinctCnt >= threshold) {
-            kickAndRestrict(room, reported, reportDto.getReason().toString());
+            String displayReason = reportDto.getReason().toString() + " 등의 사유";
+            kickAndRestrict(room, reported, displayReason);
         }
 
     }
