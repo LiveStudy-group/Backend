@@ -92,6 +92,46 @@ class ReportServiceIntegrationTest {
     }
 
     @Test
+    @Rollback
+    void 중복신고_시_예외발생() {
+        // given
+        User reporter = userRepo.save(User.builder()
+                .email("tester1@example.com")
+                .password("123123")
+                .userStatus(UserStatus.NORMAL)
+                .socialProvider(SocialProvider.LOCAL)
+                .nickname("신고자")
+                .build());
+
+        User reported = userRepo.save(User.builder()
+                .email("tester2@example.com")
+                .password("123123")
+                .userStatus(UserStatus.NORMAL)
+                .socialProvider(SocialProvider.LOCAL)
+                .nickname("신고대상")
+                .build());
+
+        StudyRoom room = roomRepo.save(StudyRoom.builder()
+                .participantsNumber(3)
+                .status(StudyRoomStatus.OPEN)
+                .build());
+
+        ReportDto dto = ReportDto.builder()
+                .roomId(room.getId())
+                .reportedId(reported.getId())
+                .reason(ReportReason.ABUSE)
+                .description("욕설")
+                .build();
+
+        // 첫 신고
+        reportService.report(dto, reporter.getId());
+
+        // when & then - 중복 신고 시 CustomException(DUPLICATE_REPORT) 발생 확인
+        org.junit.jupiter.api.Assertions.assertThrows(
+                org.livestudy.exception.CustomException.class,
+                () -> reportService.report(dto, reporter.getId())
+        );
+      
     void test_threshold_초과_제재_Status_변화_4명입장중인방에서() {
         // 첫 번째 신고
         ReportDto dto1 = ReportDto.builder()
