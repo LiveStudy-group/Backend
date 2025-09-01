@@ -2,4 +2,4 @@ package org.livestudy.dto;
 
 
 
-public record EnterStudyRoomResponse (String roomId, String accessToken){ }
+public record EnterStudyRoomResponse (Long roomId, String accessToken){ }

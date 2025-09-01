@@ -131,7 +131,10 @@ class ReportServiceIntegrationTest {
                 org.livestudy.exception.CustomException.class,
                 () -> reportService.report(dto, reporter.getId())
         );
-      
+    }
+
+    @Test
+    @Rollback
     void test_threshold_초과_제재_Status_변화_4명입장중인방에서() {
         // 첫 번째 신고
         ReportDto dto1 = ReportDto.builder()

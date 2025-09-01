@@ -21,7 +21,7 @@ public class LiveKitJoinService {
         String token = liveKitTokenService.generateToken(userId, String.valueOf(roomId));
 
         // 2. Livekit JWT 토큰 발급
-        return new EnterStudyRoomResponse(String.valueOf(roomId), token);
+        return new EnterStudyRoomResponse(roomId, token);
 
     }
 }
