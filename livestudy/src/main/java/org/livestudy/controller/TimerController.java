@@ -28,6 +28,7 @@ public class TimerController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<TimerResponse> startFocus(@RequestBody TimerStartRequest request) {
         log.info("집중 시작 API 호출: {}", request);
+
         TimerResponse response = timerService.startFocus(request.getUserId(), request.getRoomId());
         return ResponseEntity.ok(response);
     }
