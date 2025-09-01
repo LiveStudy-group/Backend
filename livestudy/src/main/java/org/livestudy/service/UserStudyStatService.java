@@ -1,5 +1,6 @@
 package org.livestudy.service;
 
+import org.livestudy.domain.user.User;
 import org.livestudy.dto.DailyRecordResponse;
 import org.livestudy.dto.TodayStudyTimeResponse;
 import org.livestudy.dto.UserStudyStatsResponse;
@@ -16,4 +17,5 @@ public interface UserStudyStatService {
     Double getAverageStudyRatio(Long userId, LocalDate startDate, LocalDate endDate);
 
     TodayStudyTimeResponse getTodayStudyTime(Long userId);
+
 }

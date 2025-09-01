@@ -39,6 +39,7 @@ public class TimerServiceImpl implements TimerService {
         log.info("집중 시작 요청: userId={}, roomId={}", userId, roomId);
 
         StudyRoomParticipant participant = findActiveParticipant(userId, roomId);
+        log.info("조회된 participant={}", participant);
         LocalDateTime now = LocalDateTime.now();
         int awayTime = 0;
 
@@ -193,6 +194,8 @@ public class TimerServiceImpl implements TimerService {
     // === Private Helper Methods ===
 
     private StudyRoomParticipant findActiveParticipant(Long userId, Long roomId) {
+
+        log.debug("findActiveParticipant 호출 : userId = {}, roomId = {}", userId, roomId);
         return participantRepo.findByUserIdAndStudyRoomIdAndLeaveTimeIsNull(userId, roomId)
                 .orElseThrow(() -> {
                     log.error("활성 참여자를 찾을 수 없음: userId={}, roomId={}", userId, roomId);
@@ -218,7 +221,7 @@ public class TimerServiceImpl implements TimerService {
                 .build();
     }
 
-    private void updateStudyStatsAndDailyRecord(User user, int studyTime, int awayTime) {
+    protected void updateStudyStatsAndDailyRecord(User user, int studyTime, int awayTime) {
 
         // UserStudyStat 업데이트
         UserStudyStat userStudyStat = userStudyStatRepo.findByUserId(user.getId())
