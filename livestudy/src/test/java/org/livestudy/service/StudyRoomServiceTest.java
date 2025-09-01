@@ -3,10 +3,15 @@ package org.livestudy.service;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.livestudy.domain.studyroom.FocusStatus;
 import org.livestudy.domain.studyroom.StudyRoom;
+import org.livestudy.domain.studyroom.StudyRoomParticipant;
 import org.livestudy.domain.studyroom.StudyRoomStatus;
+import org.livestudy.domain.user.User;
 import org.livestudy.exception.CustomException;
 import org.livestudy.exception.ErrorCode;
+import org.livestudy.repository.StudyRoomParticipantRepository;
+import org.livestudy.repository.UserRepository;
 import org.livestudy.repository.redis.RoomRedisRepository;
 import org.livestudy.repository.StudyRoomRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +20,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -30,6 +36,17 @@ public class StudyRoomServiceTest {
     private RoomRedisRepository roomRedisRepository;
 
     @Autowired
+    private TimerServiceImpl timerService;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private StudyRoomParticipantRepository participantRepo;
+
+    private User user;
+
+    @Autowired
     private StudyRoomServiceImpl studyRoomService;
 
     private final String testUserId = "user123";
@@ -43,6 +60,13 @@ public class StudyRoomServiceTest {
         StudyRoom room = StudyRoom.of(4, 20, StudyRoomStatus.OPEN);
         studyRoomRepository.save(room);
         clearRedis();
+
+        user = userRepository.save(
+                User.builder()
+                        .email("test@example.com")
+                        .nickname("testUser")
+                        .build()
+        );
     }
 
     @AfterEach
@@ -142,6 +166,31 @@ public class StudyRoomServiceTest {
         assertEquals(ErrorCode.REDIS_CONNECTION_FAILED, exception.getErrorCode());
     }
 
+    @Test
+    void enterStartStopLeaveFlow() {
+        // 1. 방 입장
+        Long roomId = studyRoomService.enterRoom(String.valueOf(user.getId()));
+        Optional<StudyRoomParticipant> participantOpt =
+                participantRepo.findByUserIdAndStudyRoomIdAndLeaveTimeIsNull(user.getId(), roomId);
+        assertTrue(participantOpt.isPresent(), "입장 시 Participant 생성 확인");
+
+        StudyRoomParticipant participant = participantOpt.get();
+
+        // 2. Timer 시작
+        timerService.startFocus(user.getId(), roomId);
+        participant = participantRepo.findById(participant.getId()).orElseThrow();
+        assertEquals(FocusStatus.FOCUS, participant.getFocusStatus(), "Timer 시작 후 상태 확인");
+
+        // 3. Timer 멈춤 (자리비움)
+        timerService.stopFocus(user.getId(), roomId);
+        participant = participantRepo.findById(participant.getId()).orElseThrow();
+        assertEquals(FocusStatus.AWAY, participant.getFocusStatus(), "Timer 멈춤 후 상태 확인");
+
+        // 4. 방 퇴장
+        studyRoomService.leaveRoom(String.valueOf(user.getId()));
+        participant = participantRepo.findById(participant.getId()).orElseThrow();
+        assertNotNull(participant.getLeaveTime(), "퇴장 시 leaveTime 기록 확인");
+    }
 
 
 }

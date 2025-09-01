@@ -2,10 +2,14 @@ package org.livestudy.service;
 
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.livestudy.domain.studyroom.FocusStatus;
 import org.livestudy.domain.studyroom.StudyRoom;
+import org.livestudy.domain.studyroom.StudyRoomParticipant;
 import org.livestudy.domain.studyroom.StudyRoomStatus;
 import org.livestudy.exception.CustomException;
 import org.livestudy.exception.ErrorCode;
+import org.livestudy.repository.StudyRoomParticipantRepository;
+import org.livestudy.repository.UserRepository;
 import org.livestudy.repository.redis.RoomRedisRepository;
 import org.livestudy.repository.StudyRoomRepository;
 import org.slf4j.Logger;
@@ -13,6 +17,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 
@@ -23,6 +29,12 @@ public class StudyRoomServiceImpl implements StudyRoomService {
     private final StudyRoomRepository studyRoomRepository;
 
     private final RoomRedisRepository roomRedisRepository;
+
+    private final UserRepository userRepository;
+
+    private final StudyRoomParticipantRepository participantRepo;
+
+    private final TimerServiceImpl timerService;
 
     private static final int ROOM_CAPACITY = 20;
 
@@ -59,7 +71,7 @@ public class StudyRoomServiceImpl implements StudyRoomService {
             assignedRoom.updateStatus(StudyRoomStatus.FULL);
         }
 
-        // Redis에 유저-방 정보 저장, Redis에도 방 인원 수 반영
+        // 5. Redis에 유저-방 정보 저장, Redis에도 방 인원 수 반영
         try {
             roomRedisRepository.setUserRoom(userId, assignedRoom.getId().toString());
             roomRedisRepository.incrementRoomCount(assignedRoom.getId().toString());
@@ -67,6 +79,24 @@ public class StudyRoomServiceImpl implements StudyRoomService {
             log.warn("[Redis] 사용자 입장 처리 중 실패 - userId: {}, roomId: {}, message: {}", userId, assignedRoom.getId(), ex.getMessage());
         }
         log.info("Redis 저장 완료: userId=" + userId + ", roomId=" + assignedRoom.getId());
+
+        // 6. DB에 참여자 레코드 저장
+        StudyRoomParticipant participant = StudyRoomParticipant.builder()
+                .user(userRepository.findById(Long.parseLong(userId))
+                        .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND)))
+                .studyRoom(assignedRoom)
+                .focusStatus(FocusStatus.AWAY)
+                .joinTime(LocalDateTime.now())
+                .leaveTime(null)
+                .statusChangedAt(LocalDateTime.now())
+                .studyTime(0)
+                .awayTime(0)
+                .build();
+
+        participantRepo.save(participant);
+        log.info("DB 저장 완료: userId={}, roomId={}", userId, assignedRoom.getId());
+
+
 
         return assignedRoom.getId();
     }
@@ -102,7 +132,37 @@ public class StudyRoomServiceImpl implements StudyRoomService {
         if (room.getParticipantsNumber() < room.getCapacity() && room.getParticipantsNumber() > 0) {
             room.updateStatus(StudyRoomStatus.OPEN);
         }
+
+        StudyRoomParticipant participant = participantRepo
+                .findByUserIdAndStudyRoomIdAndLeaveTimeIsNull(Long.valueOf(userId), Long.valueOf(roomId))
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        LocalDateTime now = LocalDateTime.now();
+        int studyTime = 0;
+        int awayTime = 0;
+
+        // 2. 현재 상태 누적
+        if (participant.getStatusChangedAt() != null) {
+            int duration = (int) Duration.between(participant.getStatusChangedAt(), now).getSeconds();
+            if (participant.getFocusStatus() == FocusStatus.FOCUS) {
+                studyTime = duration;
+            } else {
+                awayTime = duration;
+            }
+        }
+
+        // 3. DB 업데이트
+        participant.setLeaveTime(now);
+        participant.setFocusStatus(FocusStatus.AWAY); // 또는 STOPPED
+        participant.setStudyTime(participant.getStudyTime() + studyTime);
+        participant.setAwayTime(participant.getAwayTime() + awayTime);
+        participantRepo.save(participant);
+
+
+        timerService.updateStudyStatsAndDailyRecord(participant.getUser(), studyTime, awayTime);
+        log.debug("퇴장 이후 기록 저장 : studyTime={}, awayTime={}", studyTime, awayTime);
     }
+
 
 
     @Override
