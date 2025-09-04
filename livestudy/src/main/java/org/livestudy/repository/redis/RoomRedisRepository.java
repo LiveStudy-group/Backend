@@ -43,5 +43,11 @@ public class RoomRedisRepository {
     public void deleteUserRoom(String userId) {
         roomRedisTemplate.delete("user:" + userId);
     }
+
+    // 특정 방 ID 정보의 인원수 구하기
+    public String getRoomCount(String roomId) {
+        return roomRedisTemplate.opsForValue().get("room:" + roomId + ":count");
+    }
+
 }
 
