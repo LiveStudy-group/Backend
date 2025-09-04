@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.livestudy.domain.report.*;
 import org.livestudy.domain.studyroom.Chat;
 import org.livestudy.domain.studyroom.StudyRoom;
+import org.livestudy.domain.studyroom.StudyRoomStatus;
 import org.livestudy.domain.user.User;
 import org.livestudy.domain.user.UserStatus;
 import org.livestudy.dto.report.ReportDto;
@@ -13,8 +14,10 @@ import org.livestudy.exception.ErrorCode;
 import org.livestudy.repository.ChatRepository;
 import org.livestudy.repository.StudyRoomRepository;
 import org.livestudy.repository.UserRepository;
+import org.livestudy.repository.redis.RoomRedisRepository;
 import org.livestudy.repository.report.ReportRepository;
 import org.livestudy.repository.report.RestrictionRepository;
+import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
@@ -37,6 +40,7 @@ public class ReportServiceImpl implements ReportService {
     private final UserRepository userRepo;
     private final StringRedisTemplate redisTemplate;
     private final SessionRegistry sessionRegistry;
+    private final RoomRedisRepository redisRepo;
 
     @Transactional
     @Override
@@ -67,7 +71,10 @@ public class ReportServiceImpl implements ReportService {
         log.debug("[report] 신고 저장 완료");
 
         long distinctCnt = reportRepo.countDistinctReporter(room, reported, reportDto.getReason());
-        int threshold = calcThreshold(room.getParticipantsNumber());
+        String roomCountStr = redisRepo.getRoomCount(room.getId().toString());
+        int participantCount = roomCountStr != null ? Integer.parseInt(roomCountStr) : room.getParticipantsNumber();
+
+        int threshold = calcThreshold(participantCount);
         log.debug("[report] 신고자 수={}, 임계치={}, 조건 충족={}", distinctCnt, threshold, distinctCnt >= threshold);
 
         if (distinctCnt >= threshold) {
@@ -87,10 +94,34 @@ public class ReportServiceImpl implements ReportService {
     private void kickAndRestrict(StudyRoom room, User target, String reason) {
         log.debug("[kickAndRestrict] 시작, roomId={}, targetId={}, reason={}", room.getId(), target.getId(), reason);
 
+        // 1️⃣ 제한 메시지 발송
         sendRestrictMessage(target.getId(), reason);
+
+        // 2️⃣ 제한 기록 저장 및 상태 변경
         saveRestriction(room, target, reason);
+
+        // 3️⃣ 시스템 메시지 발송
         sendSystemKickMessage(room.getId(), target.getId(), reason);
+
+        // 4️⃣ 세션 강제 만료
         disconnectKickUser(target.getId());
+
+        // 5️⃣ Redis 방 카운트 감소
+        try {
+            redisRepo.decrementRoomCount(room.getId().toString());
+            log.debug("[kickAndRestrict] Redis 방 카운트 감소 완료, roomId={}, targetId={}", room.getId(), target.getId());
+        } catch (DataAccessResourceFailureException ex) {
+            log.warn("[kickAndRestrict] Redis 방 카운트 감소 실패 - roomId={}, targetId={}, message={}",
+                    room.getId(), target.getId(), ex.getMessage());
+        }
+
+        // 6️⃣ DB 방 참가자 수 감소
+        room.decrementParticipantsNumber();
+        if (room.getParticipantsNumber() < room.getCapacity() && room.getParticipantsNumber() > 0) {
+            room.updateStatus(StudyRoomStatus.OPEN);
+        }
+        log.debug("[kickAndRestrict] DB 방 인원 감소 완료, roomId={}, participantsNumber={}",
+                room.getId(), room.getParticipantsNumber());
 
         log.debug("[kickAndRestrict] 완료, targetId={}", target.getId());
     }

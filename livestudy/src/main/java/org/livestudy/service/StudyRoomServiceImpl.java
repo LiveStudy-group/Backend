@@ -70,6 +70,8 @@ public class StudyRoomServiceImpl implements StudyRoomService {
         if(assignedRoom.getParticipantsNumber().equals(assignedRoom.getCapacity())) {
             assignedRoom.updateStatus(StudyRoomStatus.FULL);
         }
+        log.debug("[joinRoom] user={} 입장, participantsNumber={}", userId, assignedRoom.getParticipantsNumber());
+
 
         // 5. Redis에 유저-방 정보 저장, Redis에도 방 인원 수 반영
         try {
@@ -125,6 +127,7 @@ public class StudyRoomServiceImpl implements StudyRoomService {
             // 무시하고 DB는 업데이트 진행
         }
 
+
         StudyRoom room = studyRoomRepository.findById(Long.valueOf(roomId))
                 .orElseThrow(() -> new CustomException(ErrorCode.ROOM_NOT_FOUND));
 
@@ -161,6 +164,9 @@ public class StudyRoomServiceImpl implements StudyRoomService {
 
         timerService.updateStudyStatsAndDailyRecord(participant.getUser(), studyTime, awayTime);
         log.debug("퇴장 이후 기록 저장 : studyTime={}, awayTime={}", studyTime, awayTime);
+        log.info("[leaveRoom] 퇴장 완료 - userId={}, roomId={}, studyTime={}, awayTime={}, participantsNumber={}",
+                userId, roomId, studyTime, awayTime, room.getParticipantsNumber());
+
     }
 
 

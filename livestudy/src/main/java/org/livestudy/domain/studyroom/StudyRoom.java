@@ -2,10 +2,12 @@ package org.livestudy.domain.studyroom;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.livestudy.domain.BaseEntity;
 import org.livestudy.exception.CustomException;
 import org.livestudy.exception.ErrorCode;
 
+@Slf4j
 @Entity
 @Getter
 @Builder
@@ -42,6 +44,7 @@ public class StudyRoom extends BaseEntity {
     public void incrementParticipantsNumber() {
         if(participantsNumber < capacity){
             this.participantsNumber++;
+            log.debug("[StudyRoom] incrementParticipantsNumber -> roomId = {}, participantsNumber = {}", this.id, this.participantsNumber);
         } else {
             throw new CustomException(ErrorCode.ROOM_IS_FULL);
         }
@@ -54,6 +57,7 @@ public class StudyRoom extends BaseEntity {
     public void decrementParticipantsNumber() {
         if(participantsNumber > 0){
             this.participantsNumber--;
+            log.debug("[StudyRoom] decrementParticipantsNumber -> roomId = {}, participantsNumber = {}", this.id, this.participantsNumber);
         } else {
             throw new CustomException(ErrorCode.INVALID_INPUT);
         }
