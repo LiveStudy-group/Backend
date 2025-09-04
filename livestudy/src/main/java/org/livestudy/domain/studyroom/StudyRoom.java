@@ -7,13 +7,16 @@ import org.livestudy.domain.BaseEntity;
 import org.livestudy.exception.CustomException;
 import org.livestudy.exception.ErrorCode;
 
+import java.io.Serializable;
+
 @Slf4j
 @Entity
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class StudyRoom extends BaseEntity {
+@Table(name = "study_room")
+public class StudyRoom extends BaseEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
