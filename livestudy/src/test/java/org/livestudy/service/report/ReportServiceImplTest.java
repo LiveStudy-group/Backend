@@ -1,5 +1,7 @@
 package org.livestudy.service.report;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.livestudy.domain.report.*;
@@ -12,6 +14,7 @@ import org.livestudy.exception.ErrorCode;
 import org.livestudy.repository.ChatRepository;
 import org.livestudy.repository.StudyRoomRepository;
 import org.livestudy.repository.UserRepository;
+import org.livestudy.repository.redis.RoomRedisRepository;
 import org.livestudy.repository.report.ReportRepository;
 import org.livestudy.repository.report.RestrictionRepository;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -32,17 +35,19 @@ class ReportServiceImplTest {
     private UserRepository userRepo = mock(UserRepository.class);
     private StringRedisTemplate redisTemplate = mock(StringRedisTemplate.class);
     private SessionRegistry sessionRegistry = mock(SessionRegistry.class);
+    private ObjectMapper objectMapper = mock(ObjectMapper.class);
+    private RoomRedisRepository roomRedisRepository = mock(RoomRedisRepository.class);
 
     @BeforeEach
     void setUp() {
         reportService = new ReportServiceImpl(
                 reportRepo, restrictionRepo, roomRepo, chatRepo,
-                userRepo, redisTemplate, sessionRegistry
+                userRepo, redisTemplate, sessionRegistry, roomRedisRepository
         );
     }
 
     @Test
-    void report_정상_신고_처리_테스트() {
+    void report_정상_신고_처리_테스트() throws JsonProcessingException {
         // given
         Long reporterId = 1L;
         Long reportedId = 2L;
