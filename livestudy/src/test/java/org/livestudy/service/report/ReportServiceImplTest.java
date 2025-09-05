@@ -17,7 +17,6 @@ import org.livestudy.repository.UserRepository;
 import org.livestudy.repository.redis.RoomRedisRepository;
 import org.livestudy.repository.report.ReportRepository;
 import org.livestudy.repository.report.RestrictionRepository;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.core.session.SessionRegistry;
 
@@ -28,15 +27,15 @@ class ReportServiceImplTest {
 
     private ReportServiceImpl reportService;
 
-    private ReportRepository reportRepo = mock(ReportRepository.class);
-    private RestrictionRepository restrictionRepo = mock(RestrictionRepository.class);
-    private StudyRoomRepository roomRepo = mock(StudyRoomRepository.class);
-    private ChatRepository chatRepo = mock(ChatRepository.class);
-    private UserRepository userRepo = mock(UserRepository.class);
-    private StringRedisTemplate redisTemplate = mock(StringRedisTemplate.class);
-    private SessionRegistry sessionRegistry = mock(SessionRegistry.class);
-    private ObjectMapper objectMapper = mock(ObjectMapper.class);
-    private RoomRedisRepository roomRedisRepository = mock(RoomRedisRepository.class);
+    private final ReportRepository reportRepo = mock(ReportRepository.class);
+    private final RestrictionRepository restrictionRepo = mock(RestrictionRepository.class);
+    private final StudyRoomRepository roomRepo = mock(StudyRoomRepository.class);
+    private final ChatRepository chatRepo = mock(ChatRepository.class);
+    private final UserRepository userRepo = mock(UserRepository.class);
+    private final StringRedisTemplate redisTemplate = mock(StringRedisTemplate.class);
+    private final SessionRegistry sessionRegistry = mock(SessionRegistry.class);
+    private final ObjectMapper objectMapper = mock(ObjectMapper.class);
+    private final RoomRedisRepository roomRedisRepository = mock(RoomRedisRepository.class);
 
     @BeforeEach
     void setUp() {
