@@ -1,5 +1,7 @@
 package org.livestudy.service.report;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.livestudy.domain.report.*;
@@ -25,7 +27,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -44,7 +48,7 @@ public class ReportServiceImpl implements ReportService {
 
     @Transactional
     @Override
-    public void report(ReportDto reportDto, Long reporterId) {
+    public void report(ReportDto reportDto, Long reporterId) throws JsonProcessingException {
         log.debug("[report] 호출됨, reportDto={}, reporterId={}", reportDto, reporterId);
 
         StudyRoom room = roomRepo.getReferenceById(reportDto.getRoomId());
@@ -91,7 +95,7 @@ public class ReportServiceImpl implements ReportService {
         return 3;
     }
 
-    private void kickAndRestrict(StudyRoom room, User target, String reason) {
+    private void kickAndRestrict(StudyRoom room, User target, String reason) throws JsonProcessingException {
         log.debug("[kickAndRestrict] 시작, roomId={}, targetId={}, reason={}", room.getId(), target.getId(), reason);
 
         // 1️⃣ 제한 메시지 발송
@@ -152,11 +156,20 @@ public class ReportServiceImpl implements ReportService {
         log.debug("[saveRestriction] 완료, targetId={}", target.getId());
     }
 
-    private void sendSystemKickMessage(Long roomId, Long targetId, String reason) {
-        String systemMessage = String.format("'%s' 사용자가 '%s' 사유로 신고를 당해 퇴장되었습니다.", targetId, reason);
-        redisTemplate.convertAndSend("systemMessage:" + roomId, systemMessage);
-        log.debug("[sendSystemKickMessage] Redis 발송 완료, roomId={}, targetId={}, message={}", roomId, targetId, systemMessage);
+    private void sendSystemKickMessage(Long roomId, Long targetId, String reason) throws JsonProcessingException {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("event", "USER_KICKED");
+        payload.put("roomId", roomId);
+        payload.put("targetId", targetId);
+        payload.put("reason", reason);
+        payload.put("timestamp", LocalDateTime.now().toString());
+
+        String jsonMessage = new ObjectMapper().writeValueAsString(payload);
+        redisTemplate.convertAndSend("systemMessage:" + roomId, jsonMessage);
+
+        log.debug("[sendSystemKickMessage] Redis 발송 완료, roomId={}, payload={}", roomId, jsonMessage);
     }
+
 
     private void disconnectKickUser(Long userId) {
         log.debug("[disconnectKickUser] 시작, userId={}", userId);

@@ -1,5 +1,7 @@
 package org.livestudy.service.report;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.livestudy.domain.report.*;
@@ -12,9 +14,9 @@ import org.livestudy.exception.ErrorCode;
 import org.livestudy.repository.ChatRepository;
 import org.livestudy.repository.StudyRoomRepository;
 import org.livestudy.repository.UserRepository;
+import org.livestudy.repository.redis.RoomRedisRepository;
 import org.livestudy.repository.report.ReportRepository;
 import org.livestudy.repository.report.RestrictionRepository;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.core.session.SessionRegistry;
 
@@ -25,24 +27,26 @@ class ReportServiceImplTest {
 
     private ReportServiceImpl reportService;
 
-    private ReportRepository reportRepo = mock(ReportRepository.class);
-    private RestrictionRepository restrictionRepo = mock(RestrictionRepository.class);
-    private StudyRoomRepository roomRepo = mock(StudyRoomRepository.class);
-    private ChatRepository chatRepo = mock(ChatRepository.class);
-    private UserRepository userRepo = mock(UserRepository.class);
-    private StringRedisTemplate redisTemplate = mock(StringRedisTemplate.class);
-    private SessionRegistry sessionRegistry = mock(SessionRegistry.class);
+    private final ReportRepository reportRepo = mock(ReportRepository.class);
+    private final RestrictionRepository restrictionRepo = mock(RestrictionRepository.class);
+    private final StudyRoomRepository roomRepo = mock(StudyRoomRepository.class);
+    private final ChatRepository chatRepo = mock(ChatRepository.class);
+    private final UserRepository userRepo = mock(UserRepository.class);
+    private final StringRedisTemplate redisTemplate = mock(StringRedisTemplate.class);
+    private final SessionRegistry sessionRegistry = mock(SessionRegistry.class);
+    private final ObjectMapper objectMapper = mock(ObjectMapper.class);
+    private final RoomRedisRepository roomRedisRepository = mock(RoomRedisRepository.class);
 
     @BeforeEach
     void setUp() {
         reportService = new ReportServiceImpl(
                 reportRepo, restrictionRepo, roomRepo, chatRepo,
-                userRepo, redisTemplate, sessionRegistry
+                userRepo, redisTemplate, sessionRegistry, roomRedisRepository
         );
     }
 
     @Test
-    void report_정상_신고_처리_테스트() {
+    void report_정상_신고_처리_테스트() throws JsonProcessingException {
         // given
         Long reporterId = 1L;
         Long reportedId = 2L;
