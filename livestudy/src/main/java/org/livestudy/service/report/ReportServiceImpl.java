@@ -48,47 +48,42 @@ public class ReportServiceImpl implements ReportService {
 
     @Transactional
     @Override
-    public void report(ReportDto reportDto, Long reporterId) throws JsonProcessingException {
-        log.debug("[report] 호출됨, reportDto={}, reporterId={}", reportDto, reporterId);
+    public void report(ReportDto reportDto, Long reporterId) {
+        try {
+            log.debug("[report] 호출됨, reportDto={}, reporterId={}", reportDto, reporterId);
 
-        StudyRoom room = roomRepo.getReferenceById(reportDto.getRoomId());
-        Chat chat = reportDto.getChatId() != null ? chatRepo.getReferenceById(reportDto.getChatId()) : null;
-        User reporter = userRepo.getReferenceById(reporterId);
-        User reported = userRepo.getReferenceById(reportDto.getReportedId());
+            StudyRoom room = roomRepo.getReferenceById(reportDto.getRoomId());
+            Chat chat = reportDto.getChatId() != null ? chatRepo.getReferenceById(reportDto.getChatId()) : null;
+            User reporter = userRepo.getReferenceById(reporterId);
+            User reported = userRepo.getReferenceById(reportDto.getReportedId());
 
-        log.debug("[report] room={}, chat={}, reporter={}, reported={}",
-                room.getId(), chat != null ? chat.getId() : null, reporter.getId(), reported.getId());
+            if (reporter.equals(reported)) {
+                throw new CustomException(ErrorCode.CANNOT_REPORT_SELF);
+            }
 
-        if (reporter.equals(reported)) {
-            log.debug("[report] 자기 자신 신고 시도됨, 예외 발생");
-            throw new CustomException(ErrorCode.CANNOT_REPORT_SELF);
-        }
+            boolean exists = reportRepo.existsByStudyRoomAndChatAndReporterAndReportedAndReason(
+                    room, chat, reporter, reported, reportDto.getReason());
+            if (exists) {
+                throw new CustomException(ErrorCode.DUPLICATE_REPORT);
+            }
 
-        boolean exists = reportRepo.existsByStudyRoomAndChatAndReporterAndReportedAndReason(
-                room, chat, reporter, reported, reportDto.getReason());
-        log.debug("[report] 중복 신고 여부={}", exists);
-        if (exists) {
-            throw new CustomException(ErrorCode.DUPLICATE_REPORT);
-        }
+            reportRepo.save(Report.of(room, chat, reporter, reported, reportDto.getReason(), reportDto.getDescription()));
 
-        reportRepo.save(Report.of(room, chat, reporter, reported, reportDto.getReason(), reportDto.getDescription()));
-        log.debug("[report] 신고 저장 완료");
+            long distinctCnt = reportRepo.countDistinctReporter(room, reported, reportDto.getReason());
+            String roomCountStr = redisRepo.getRoomCount(room.getId().toString());
+            int participantCount = roomCountStr != null ? Integer.parseInt(roomCountStr) : room.getParticipantsNumber();
 
-        long distinctCnt = reportRepo.countDistinctReporter(room, reported, reportDto.getReason());
-        String roomCountStr = redisRepo.getRoomCount(room.getId().toString());
-        int participantCount = roomCountStr != null ? Integer.parseInt(roomCountStr) : room.getParticipantsNumber();
+            int threshold = calcThreshold(participantCount);
 
-        int threshold = calcThreshold(participantCount);
-        log.debug("[report] 신고자 수={}, 임계치={}, 조건 충족={}", distinctCnt, threshold, distinctCnt >= threshold);
-
-        if (distinctCnt >= threshold) {
-            String displayReason = reportDto.getReason().toString() + " 등의 사유";
-            log.debug("[report] kickAndRestrict 호출 준비, reason={}", displayReason);
-            kickAndRestrict(room, reported, displayReason);
-        } else {
-            log.debug("[report] kickAndRestrict 조건 미충족, 종료");
+            if (distinctCnt >= threshold) {
+                String displayReason = reportDto.getReason().toString() + " 등의 사유";
+                kickAndRestrict(room, reported, displayReason);
+            }
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("신고 처리 중 JSON 직렬화 실패", e);
         }
     }
+
 
     private int calcThreshold(int cnt) {
         if (cnt <= 10) return 2;
