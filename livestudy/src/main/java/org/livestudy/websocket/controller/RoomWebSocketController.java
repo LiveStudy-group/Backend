@@ -49,6 +49,10 @@ public class RoomWebSocketController {
 
         presence.join(assignedRoomId, sessionUser);
 
+        // 입장 이벤트 Broadcast
+        broker.convertAndSend("/topic/" + assignedRoomId + "/enter",
+                wrap(MsgType.join, join));
+
         return assignedRoomId;
     }
 
@@ -72,8 +76,11 @@ public class RoomWebSocketController {
             throw new CustomException(ErrorCode.USER_NOT_IN_ROOM);
         }
 
-
         presence.exit(roomId, sessionUser);
+
+        // 퇴장 이벤트 Broadcast
+        broker.convertAndSend("/topic/" + roomId + "/exit",
+                wrap(MsgType.exit, exit));
     }
 
     // 채팅

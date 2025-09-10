@@ -1,5 +1,6 @@
 package org.livestudy.controller.report;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -44,7 +45,7 @@ public class ReportController {
             content = @Content(schema = @Schema(implementation = ReportRequest.class))
     )
     public ResponseEntity<Void> report(@Valid @RequestBody ReportRequest dto,
-                                       @AuthenticationPrincipal(expression = "id") Long userId) {
+                                       @AuthenticationPrincipal(expression = "id") Long userId) throws JsonProcessingException {
         reportService.report(dto.toCommand(), userId);
         return ResponseEntity.ok().build();
     }
